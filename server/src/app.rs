@@ -8,14 +8,8 @@ use crate::{
     api,
     config::{Config, ConsoleSource},
     control,
-    cursor::{
-        prompting::{PromptAssets, PromptCompiler},
-        transport::TransportRegistry,
-    },
-    local_app::CursorHarness,
     plugin::{PluginRegistry, PluginRuntime},
     provider::ProviderRouter,
-    search::WebCache,
     store::Store,
     Result,
 };
@@ -23,9 +17,8 @@ use crate::{
 pub struct App {
     config: Config,
     router: axum::Router,
-    registry: TransportRegistry,
-    harness: CursorHarness,
     store: Store,
+    control: control::ControlService,
 }
 
 impl App {
@@ -36,8 +29,6 @@ impl App {
                 .listen_addr
                 .set_port(store.port_settings().await?.service_port);
         }
-        let assets = PromptAssets::embedded()?;
-        let compiler = PromptCompiler::new(assets);
         let plugin_runtime = PluginRuntime::managed()?;
         let plugins = PluginRegistry::managed(
             store.clone(),
@@ -63,24 +54,17 @@ impl App {
                 config.provider_stream_idle_timeout,
             )),
         );
-        let registry = TransportRegistry::with_plugins(
-            store.clone(),
-            provider.clone(),
-            compiler,
-            WebCache::managed()?,
-            plugins.clone(),
-            crate::config::managed_data_dir()?.join("rules"),
-        );
         let control = control::ControlService::new(
             store.clone(),
             provider,
             plugin_runtime,
             plugins,
             clients.clone(),
-            config.app_version.clone(),
         )?;
-        let harness = control.cursor_harness().clone();
-        let mut router = api::router(registry.clone(), clients)?.merge(byok);
+        let mut router = byok.route(
+            "/__byok-api__/healthz",
+            axum::routing::get(|| async { "ok" }),
+        );
         router = match &config.console {
             Some(ConsoleSource::Directory(directory)) => {
                 router.merge(control::web_router(control.clone(), directory))
@@ -92,9 +76,8 @@ impl App {
         };
         Ok(Self {
             router,
-            registry,
-            harness,
             store,
+            control,
             config,
         })
     }
@@ -106,17 +89,14 @@ impl App {
 
     pub async fn bind(&self) -> Result<TcpListener> {
         let requested = self.config.listen_addr;
-        let listener = bind_service_listener(requested, self.config.use_persisted_ports).await?;
+        let listener = bind_service_listener(requested).await?;
+        self.control.set_gateway_addr(listener.local_addr()?);
         if self.config.use_persisted_ports {
             self.store
                 .set_service_port(listener.local_addr()?.port())
                 .await?;
         }
         Ok(listener)
-    }
-
-    pub fn harness(&self) -> CursorHarness {
-        self.harness.clone()
     }
 
     pub fn store(&self) -> Store {
@@ -141,11 +121,14 @@ impl App {
 
     pub async fn serve_on(self, listener: TcpListener, shutdown: CancellationToken) -> Result<()> {
         let address = listener.local_addr()?;
-        self.registry.web_cache().set_service_addr(address);
-        self.harness.set_backend_addr(address);
-        tracing::info!(%address, "cursor server listening");
-        let registry = self.registry;
-        let harness = self.harness;
+        self.control.set_gateway_addr(address);
+        tracing::info!(%address, "WorkBuddy gateway listening");
+        let mut background = tokio::task::JoinSet::new();
+        let sync_control = self.control.clone();
+        let sync_shutdown = shutdown.clone();
+        background.spawn(async move {
+            sync_control.auto_sync_workbuddy(sync_shutdown).await;
+        });
         let graceful = shutdown.clone();
         let server = axum::serve(listener, self.router)
             .with_graceful_shutdown(async move {
@@ -156,16 +139,9 @@ impl App {
 
         tokio::select! {
             result = &mut server => {
-                if let Err(error) = harness.disable().await {
-                    tracing::warn!(%error, "failed to disable Cursor harness after server stop");
-                }
                 result?
             },
             () = shutdown.cancelled() => {
-                if let Err(error) = harness.disable().await {
-                    tracing::warn!(%error, "failed to disable Cursor harness during shutdown");
-                }
-                registry.shutdown().await;
                 match tokio::time::timeout(Duration::from_secs(10), &mut server).await {
                     Ok(result) => result?,
                     Err(_) => tracing::warn!("graceful shutdown timed out; forcing server close"),
@@ -176,18 +152,8 @@ impl App {
     }
 }
 
-async fn bind_service_listener(
-    requested: SocketAddr,
-    allow_random_fallback: bool,
-) -> Result<TcpListener> {
-    match TcpListener::bind(requested).await {
-        Ok(listener) => Ok(listener),
-        Err(error) if allow_random_fallback && requested.port() != 0 => {
-            tracing::warn!(%requested, %error, "configured service port unavailable; selecting a random port");
-            Ok(TcpListener::bind(SocketAddr::new(requested.ip(), 0)).await?)
-        }
-        Err(error) => Err(error.into()),
-    }
+async fn bind_service_listener(requested: SocketAddr) -> Result<TcpListener> {
+    Ok(TcpListener::bind(requested).await?)
 }
 
 async fn shutdown_signal() {

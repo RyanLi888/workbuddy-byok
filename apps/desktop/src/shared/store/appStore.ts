@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { api, type CursorHarnessStatus, type LlmCall, type Model, type ModelInput, type Overview, type PluginDescriptor, type PluginRuntimeStatus, type PortSettings, type TokenPricingSettings } from "../api";
+import { api, type LlmCall, type Model, type ModelInput, type Overview, type PluginDescriptor, type PluginRuntimeStatus, type PortSettings, type TokenPricingSettings } from "../api";
 import { applyTheme, isThemeId, type ThemeId } from "../theme/theme";
 
 export const DEFAULT_TOKEN_PRICING: TokenPricingSettings = {
@@ -15,18 +15,18 @@ export type AppSnapshot = {
   overview: Overview;
   detailed: boolean;
   ports: PortSettings;
+  gateway: { enabled: boolean; base_url: string | null; models_path: string; sync_error: string | null };
   pricing: TokenPricingSettings;
   busy: boolean;
   error: string | null;
   theme: ThemeId;
-  cursorHarness: CursorHarnessStatus | null;
-  cursorBusy: boolean;
+  modelBusy: boolean;
   pluginRuntime: PluginRuntimeStatus | null;
   plugins: PluginDescriptor[];
 };
 
 const savedTheme = (): ThemeId => {
-  const saved = localStorage.getItem("cursor-byok.theme");
+  const saved = localStorage.getItem("workbuddy-byok.theme");
   return isThemeId(saved) ? saved : "default-dark";
 };
 
@@ -49,13 +49,13 @@ let snapshot: AppSnapshot = {
     token_usage_series: [],
   },
   detailed: false,
-  ports: { proxy_port: 0, service_port: 0 },
+  ports: { service_port: 3721 },
+  gateway: { enabled: false, base_url: null, models_path: "", sync_error: null },
   pricing: DEFAULT_TOKEN_PRICING,
   busy: false,
   error: null,
   theme: savedTheme(),
-  cursorHarness: null,
-  cursorBusy: false,
+  modelBusy: false,
   pluginRuntime: null,
   plugins: [],
 };
@@ -83,21 +83,29 @@ export const appStore = {
   },
   getSnapshot: () => snapshot,
 
+  async refreshGateway() {
+    try {
+      update({ gateway: await api.workBuddyStatus() });
+    } catch (cause) {
+      update({ error: cause instanceof Error ? cause.message : String(cause) });
+    }
+  },
+
   async refresh() {
     update({ busy: true, error: null });
     try {
-      const [models, calls, overview, settings, ports, pricing, cursorHarness, pluginRuntime, plugins] = await Promise.all([
+      const [models, calls, overview, settings, ports, pricing, pluginRuntime, plugins, gateway] = await Promise.all([
         api.models(),
         api.calls(),
         api.overview(),
         api.observability(),
         api.ports(),
         api.pricingSettings(),
-        api.cursorHarness(),
         api.pluginRuntime(),
         api.plugins(),
+        api.workBuddyStatus(),
       ]);
-      update({ models, calls, overview, detailed: settings.detailed, ports, pricing, cursorHarness, pluginRuntime, plugins });
+      update({ models, calls, overview, detailed: settings.detailed, ports, pricing, pluginRuntime, plugins, gateway });
     } catch (cause) {
       update({ error: cause instanceof Error ? cause.message : String(cause) });
     } finally {
@@ -112,17 +120,6 @@ export const appStore = {
     });
   },
 
-  async initializeCursorCa() {
-    update({ cursorBusy: true, error: null });
-    try {
-      const status = await api.initializeCursorCa();
-      update({ cursorHarness: status });
-      return status;
-    } catch (cause) {
-      update({ error: cause instanceof Error ? cause.message : String(cause) });
-      return null;
-    } finally { update({ cursorBusy: false }); }
-  },
   async initializePluginRuntime() {
     update({ error: null });
     try {
@@ -172,14 +169,8 @@ export const appStore = {
       update({ plugins: await api.plugins() });
     });
   },
-  async setCursorEnabled(enabled: boolean) {
-    update({ cursorBusy: true, error: null });
-    try { update({ cursorHarness: await api.setCursorEnabled(enabled) }); }
-    catch (cause) { update({ error: cause instanceof Error ? cause.message : String(cause) }); }
-    finally { update({ cursorBusy: false }); }
-  },
   async createModels(models: ModelInput[]) {
-    update({ cursorBusy: true, error: null });
+    update({ modelBusy: true, error: null });
     try {
       const created = await api.createModels(models);
       await appStore.refresh();
@@ -187,21 +178,10 @@ export const appStore = {
     } catch (cause) {
       update({ error: cause instanceof Error ? cause.message : String(cause) });
       return null;
-    } finally { update({ cursorBusy: false }); }
+    } finally { update({ modelBusy: false }); }
   },
-  async importV0049Models() {
-    update({ cursorBusy: true, error: null });
-    try {
-      const result = await api.importV0049Models();
-      await appStore.refresh();
-      return result;
-    } catch (cause) {
-      update({ error: cause instanceof Error ? cause.message : String(cause) });
-      return null;
-    } finally { update({ cursorBusy: false }); }
-  },
-  async updateCursorModel(hash: string, model: ModelInput) {
-    update({ cursorBusy: true, error: null });
+  async updateWorkBuddyModel(hash: string, model: ModelInput) {
+    update({ modelBusy: true, error: null });
     try {
       const updated = await api.updateModel(hash, model);
       await appStore.refresh();
@@ -209,9 +189,9 @@ export const appStore = {
     } catch (cause) {
       update({ error: cause instanceof Error ? cause.message : String(cause) });
       return null;
-    } finally { update({ cursorBusy: false }); }
+    } finally { update({ modelBusy: false }); }
   },
-  async reorderCursorModels(modelHashes: string[]) {
+  async reorderWorkBuddyModels(modelHashes: string[]) {
     const previous = snapshot.models;
     const byHash = new Map(previous.map((model) => [model.model_hash, model]));
     if (modelHashes.length !== previous.length || new Set(modelHashes).size !== previous.length) {
@@ -227,7 +207,7 @@ export const appStore = {
       }
       reordered.push({ ...model, sort_order: index + 1 });
     }
-    update({ models: reordered, cursorBusy: true, error: null });
+    update({ models: reordered, modelBusy: true, error: null });
     try {
       update({ models: await api.reorderModels(modelHashes) });
       return true;
@@ -238,7 +218,7 @@ export const appStore = {
       });
       return false;
     } finally {
-      update({ cursorBusy: false });
+      update({ modelBusy: false });
     }
   },
 
@@ -277,7 +257,7 @@ export const appStore = {
     }
   },
   selectTheme(theme: ThemeId) {
-    localStorage.setItem("cursor-byok.theme", theme);
+    localStorage.setItem("workbuddy-byok.theme", theme);
     applyTheme(theme);
     update({ theme });
   },

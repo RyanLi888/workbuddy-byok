@@ -1,9 +1,10 @@
 {
-  "name": "cursor-byok-desktop",
-  "version": "1.0.1",
-  "description": "Cursor BYOK desktop management application",
+  "name": "workbuddy-byok-desktop",
+  "version": "0.0.1",
+  "description": "WorkBuddy BYOK desktop management application",
   "type": "module",
   "scripts": {
+    "icons:generate": "node scripts/generate-icons.mjs",
     "start": "vite",
     "dev": "vite",
     "typecheck": "tsc --noEmit",
@@ -12,11 +13,12 @@
     "build": "vite build",
     "build:demo": "npm run typecheck && npm run typecheck:node && vite build --config vite.demo.config.ts",
     "check": "npm run typecheck && npm run typecheck:node && npm run build",
-    "dev:web": "concurrently --kill-others --success first --names server,web \"cross-env CURSOR_CONSOLE_PROXY=http://127.0.0.1:1420 cargo run --manifest-path ../../server/Cargo.toml --bin cursor-server\" \"wait-on http-get://127.0.0.1:3000/__byok-api__/healthz && vite\"",
+    "dev:web": "concurrently --kill-others --success first --names server,web \"cross-env WORKBUDDY_CONSOLE_PROXY=http://127.0.0.1:1420 cargo run --manifest-path ../../server/Cargo.toml --bin workbuddy-server\" \"wait-on http-get://127.0.0.1:3721/__byok-api__/healthz && vite\"",
     "serve": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "tauri:build:windows": "tauri build --bundles nsis"
   },
   "license": "MIT",
   "dependencies": {
@@ -34,7 +36,6 @@
     "keepalive-for-react-router": "^5.0.7",
     "monaco-editor": "0.56.0",
     "react": "^19.2.8",
-    "react-css-marquee": "^1.0.1",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
     "sortablejs": "^1.15.7",
@@ -43,7 +44,7 @@
   "devDependencies": {
     "@babel/parser": "^7.29.8",
     "@babel/traverse": "^7.29.8",
-    "@tauri-apps/cli": "^2.11.4",
+    "@tauri-apps/cli": "^2.12.1",
     "@types/babel__traverse": "^7.28.0",
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.18",

@@ -143,7 +143,7 @@ fn apply_openai_prompt_cache_key(body: &mut serde_json::Value, model_id: &str) -
         .ok_or_else(|| crate::Error::Provider("provider request body must be an object".into()))?
         .insert(
             "prompt_cache_key".into(),
-            serde_json::Value::String("cursor-byok".into()),
+            serde_json::Value::String("workbuddy-byok".into()),
         );
     Ok(())
 }

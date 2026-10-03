@@ -9,7 +9,7 @@ use tracing_appender::{
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 const LOG_DIRECTORY_NAME: &str = "logs";
-const LOG_FILE_PREFIX: &str = "cursor-byok";
+const LOG_FILE_PREFIX: &str = "workbuddy-byok";
 const LOG_FILE_SUFFIX: &str = "log";
 const RETAINED_LOG_FILES: usize = 15;
 
@@ -22,7 +22,7 @@ pub(crate) struct StartupDiagnostics {
 
 impl StartupDiagnostics {
     pub(crate) fn initialize() -> Result<Self, BoxError> {
-        let log_directory = cursor_server::config::managed_data_dir()?.join(LOG_DIRECTORY_NAME);
+        let log_directory = workbuddy_server::config::managed_data_dir()?.join(LOG_DIRECTORY_NAME);
         std::fs::create_dir_all(&log_directory)?;
 
         let file_appender = RollingFileAppender::builder()
@@ -33,7 +33,7 @@ impl StartupDiagnostics {
             .build(&log_directory)?;
         let (file_writer, writer_guard) = tracing_appender::non_blocking(file_appender);
         let filter = tracing_subscriber::EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| "cursor_byok_desktop=info,cursor_server=info".into());
+            .unwrap_or_else(|_| "workbuddy_byok_desktop=info,workbuddy_server=info".into());
 
         tracing_subscriber::registry()
             .with(filter)
@@ -68,7 +68,7 @@ impl StartupDiagnostics {
 
 pub(crate) fn report_logging_failure(error: &(dyn Error + 'static)) {
     let details = error_chain(error);
-    eprintln!("Cursor BYOK failed to initialize logging: {details}");
+    eprintln!("WorkBuddy BYOK failed to initialize logging: {details}");
     show_fatal_dialog(&details, None);
 }
 
@@ -82,12 +82,12 @@ fn show_fatal_dialog(details: &str, log_directory: Option<&std::path::Path>) {
             .to_owned(),
     };
     let description = format!(
-        "Cursor BYOK 无法启动 / failed to start.\n\n错误 / Error:\n{details}\n\n{log_guidance}"
+        "WorkBuddy BYOK 无法启动 / failed to start.\n\n错误 / Error:\n{details}\n\n{log_guidance}"
     );
 
     let _ = MessageDialog::new()
         .set_level(MessageLevel::Error)
-        .set_title("Cursor BYOK 启动失败 / Startup Error")
+        .set_title("WorkBuddy BYOK 启动失败 / Startup Error")
         .set_description(description)
         .set_buttons(MessageButtons::Ok)
         .show();

@@ -2,8 +2,6 @@
 members = [
     "server",
     "apps/desktop/src-tauri",
-    "crates/semble-core",
-    "support/benchmarks/semble",
 ]
 resolver = "2"
 

@@ -56,14 +56,14 @@ export function CallTable({ calls, onDetails }: { calls: LlmCall[]; onDetails: (
     {
       key: "call_kind",
       header: t("调用类型"),
-      render: (call) =>
-        call.call_kind === "cursor_official" ? t("Cursor 官方") : "LLM",
+      render: () =>
+        "LLM",
     },
     {
       key: "route",
       header: t("路由"),
       render: (call) =>
-        call.route === "cursor_official" ? t("Cursor 官方") : "BYOK",
+        call.route === "external_api" ? "WorkBuddy API" : t("模型测试"),
     },
 
     // { key: "model_hash", header: "Model Hash", render: (call) => value(call.model_hash), title: (call) => call.model_hash ?? undefined },

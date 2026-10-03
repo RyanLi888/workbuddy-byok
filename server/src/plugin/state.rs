@@ -1,5 +1,7 @@
 //! Owns core-side persistence of plugin resources and model catalogs.
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 use super::data::PluginDataStore;
 use crate::{Error, Result};
@@ -137,7 +139,13 @@ pub struct StoredModel {
     #[serde(default)]
     pub max_output_tokens: Option<u64>,
     #[serde(default)]
+    pub context_window_tokens: Option<u64>,
+    #[serde(default)]
     pub images: bool,
+    #[serde(default)]
+    pub reasoning: bool,
+    #[serde(default)]
+    pub reasoning_efforts: Vec<String>,
     #[serde(default = "default_model_enabled")]
     pub enabled: bool,
     #[serde(default)]
@@ -185,6 +193,14 @@ impl StoredModel {
                 .get("maxOutputTokens")
                 .and_then(serde_json::Value::as_u64),
             images: capability("images"),
+            reasoning: capability("reasoning"),
+            reasoning_efforts: match object.get("reasoningEfforts") {
+                Some(value) => serde_json::from_value(value.clone())?,
+                None => Vec::new(),
+            },
+            context_window_tokens: object
+                .get("contextWindowTokens")
+                .and_then(serde_json::Value::as_u64),
             enabled: true,
             private_data: object
                 .get("privateData")
@@ -200,7 +216,9 @@ impl StoredModel {
             "displayName": self.display_name,
             "description": self.description,
             "maxOutputTokens": self.max_output_tokens,
-            "capabilities": { "images": self.images },
+            "contextWindowTokens": self.context_window_tokens,
+            "capabilities": { "images": self.images, "reasoning": self.reasoning },
+            "reasoningEfforts": self.reasoning_efforts,
             "privateData": self.private_data,
         })
     }
@@ -210,6 +228,7 @@ impl StoredModel {
 #[derive(Clone)]
 pub struct PluginStateStore {
     data: PluginDataStore,
+    model_updates: Arc<Mutex<()>>,
 }
 
 pub struct UpsertOutcome {
@@ -219,7 +238,10 @@ pub struct UpsertOutcome {
 
 impl PluginStateStore {
     pub fn new(data: PluginDataStore) -> Self {
-        Self { data }
+        Self {
+            data,
+            model_updates: Arc::new(Mutex::new(())),
+        }
     }
 
     pub async fn resources(
@@ -335,6 +357,7 @@ impl PluginStateStore {
         provider_id: &str,
         models: &[StoredModel],
     ) -> Result<()> {
+        let _guard = self.model_updates.lock().await;
         let previous = self.models(plugin_id, provider_id).await?;
         let models = models
             .iter()
@@ -362,6 +385,7 @@ impl PluginStateStore {
         model_id: &str,
         enabled: bool,
     ) -> Result<()> {
+        let _guard = self.model_updates.lock().await;
         let mut models = self.models(plugin_id, provider_id).await?;
         let model = models
             .iter_mut()
@@ -481,8 +505,9 @@ mod tests {
         let model = StoredModel::from_definition(&serde_json::json!({
             "id": "gpt-test",
             "displayName": "GPT Test",
-            "capabilities": {"images": true},
-            "privateData": {"reasoningEfforts": ["low"]},
+            "capabilities": {"images": true, "reasoning": true},
+            "contextWindowTokens": 200000,
+            "reasoningEfforts": ["low", "high"],
         }))
         .unwrap();
         store
@@ -492,6 +517,39 @@ mod tests {
         let models = store.models("dev.example", "codex").await.unwrap();
         assert_eq!(models.len(), 1);
         assert!(models[0].images);
-        assert_eq!(models[0].private_data["reasoningEfforts"][0], "low");
+        assert!(models[0].reasoning);
+        assert_eq!(models[0].context_window_tokens, Some(200000));
+        assert_eq!(models[0].snapshot()["capabilities"]["reasoning"], true);
+        assert_eq!(
+            models[0].snapshot()["reasoningEfforts"],
+            serde_json::json!(["low", "high"])
+        );
+    }
+
+    #[tokio::test]
+    async fn model_enablement_survives_reload_and_sync() {
+        let (root, store) = store();
+        let model = StoredModel::from_definition(&serde_json::json!({
+            "id":"test", "displayName":"Test", "reasoningEfforts":["low", "high"]
+        }))
+        .unwrap();
+        store
+            .replace_models("dev.example", "codex", std::slice::from_ref(&model))
+            .await
+            .unwrap();
+        store
+            .set_model_enabled("dev.example", "codex", "test", false)
+            .await
+            .unwrap();
+        let reloaded =
+            PluginStateStore::new(PluginDataStore::for_test(root.path().join("data")).unwrap());
+        assert!(!reloaded.models("dev.example", "codex").await.unwrap()[0].enabled);
+        store
+            .replace_models("dev.example", "codex", &[model])
+            .await
+            .unwrap();
+        let saved = store.models("dev.example", "codex").await.unwrap();
+        assert!(!saved[0].enabled);
+        assert_eq!(saved[0].reasoning_efforts, vec!["low", "high"]);
     }
 }

@@ -3,12 +3,12 @@ import type {
   NetworkEventStream,
   NetworkResponse,
   PluginContext,
-} from "cursor-byok:plugin";
-import type { LlmRequest, ModelEvent } from "cursor-byok:provider";
-import type { ResourceSnapshot } from "cursor-byok:resource";
+} from "workbuddy-byok:plugin";
+import type { LlmRequest, ModelEvent } from "workbuddy-byok:provider";
+import type { ResourceSnapshot } from "workbuddy-byok:resource";
 import { codexDeviceOAuth } from "./oauth.ts";
-import { parseOfficialModels } from "./models.ts";
-import { buildResponsesBody } from "cursor-byok:protocol/openai-responses";
+import { codexModels, parseOfficialModels } from "./models.ts";
+import { buildResponsesBody } from "workbuddy-byok:protocol/openai-responses";
 import { codexProvider, isQuotaError } from "./provider.ts";
 import {
   accountIdentity,
@@ -272,6 +272,7 @@ Deno.test("official model discovery excludes hidden models and puts the default 
         display_name: "GPT First",
         supported_in_api: true,
         visibility: "list",
+        input_modalities: ["text", "image"],
         supported_reasoning_levels: [
           { effort: "low", description: "Fast responses" },
           { effort: "medium", description: "Balanced" },
@@ -283,8 +284,111 @@ Deno.test("official model discovery excludes hidden models and puts the default 
     ],
   });
   assertEquals(models.map((model) => model.id), ["gpt-second", "gpt-first"]);
-  assertEquals(models[1].capabilities, { images: true });
-  assertEquals(models[1].privateData, { reasoningEfforts: ["low", "medium"] });
+  assertEquals(models[1].capabilities, { images: true, reasoning: true });
+  assertEquals(models[1].reasoningEfforts, ["low", "medium"]);
+});
+
+Deno.test("Codex discovery uses reported capabilities and keeps distinct IDs with the same name", () => {
+  const models = parseOfficialModels({
+    models: [
+      {
+        slug: "model-10",
+        display_name: "Model 10",
+        input_modalities: ["text"],
+        context_window: 100000,
+        max_output_tokens: 4000,
+        supported_reasoning_levels: [{ effort: "future-depth" }, { effort: "future-depth" }],
+      },
+      {
+        slug: "model-2",
+        display_name: "Model 2",
+        input_modalities: ["text", "image"],
+        supported_reasoning_levels: ["none", "low"],
+      },
+      { slug: "model-2" },
+      { slug: "other-model", display_name: "Model 2" },
+      { slug: "hidden", visibility: "hide" },
+      { slug: "none", visibility: "none" },
+      { slug: "unselectable", show_in_picker: false },
+    ],
+  });
+  assertEquals(models.map((model) => model.id), ["model-2", "other-model", "model-10"]);
+  assertEquals(models[0].capabilities, { images: true, reasoning: true });
+  assertEquals(models[1].capabilities, { images: false, reasoning: false });
+  assertEquals(models[2].capabilities, { images: false, reasoning: true });
+  assertEquals(models[2].reasoningEfforts, ["future-depth"]);
+  assertEquals(models[2].contextWindowTokens, 100000);
+  assertEquals(models[2].maxOutputTokens, 4000);
+});
+
+Deno.test("Codex resync replaces models and capabilities and forwards newly discovered efforts", async () => {
+  const resource = snapshot({ accessToken: "mock-token" });
+  let sync = 0;
+  const discovery = context({
+    fetch: (url, init) => {
+      assert(url.startsWith("https://chatgpt.com/backend-api/codex/models?"));
+      assertEquals(init?.headers?.authorization, "Bearer mock-token");
+      sync++;
+      return {
+        status: 200,
+        headers: {},
+        body: JSON.stringify({
+          models: sync === 1
+            ? [
+              {
+                slug: "dynamic",
+                input_modalities: ["text", "image"],
+                supported_reasoning_levels: ["old-depth"],
+                context_window: 1000,
+              },
+              { slug: "retired" },
+            ]
+            : [
+              {
+                slug: "dynamic",
+                input_modalities: ["text"],
+                supported_reasoning_levels: ["new-depth"],
+                context_window: 2000,
+              },
+              { slug: "new-model" },
+            ],
+        }),
+      };
+    },
+  });
+  const before = await codexModels.list({ resource }, discovery);
+  const after = await codexModels.list({ resource }, discovery);
+  assertEquals(before.map((model) => model.id), ["dynamic", "retired"]);
+  assertEquals(after.map((model) => model.id), ["dynamic", "new-model"]);
+  assertEquals(after[0].reasoningEfforts, ["new-depth"]);
+  assertEquals(after[0].contextWindowTokens, 2000);
+  assertEquals(after[0].capabilities?.images, false);
+  for (
+    const [model, effort, expected] of [
+      [before[0], "old-depth", "completed"],
+      [after[0], "new-depth", "completed"],
+      [after[0], "old-depth", "request-error"],
+    ] as const
+  ) {
+    let calls = 0;
+    const result = await codexProvider.invoke(
+      { model, resource, request: { ...request(), reasoning: { enabled: true, effort } } },
+      { emit: () => {} },
+      context({
+        stream: (_url, init) => {
+          calls++;
+          assertEquals(JSON.parse(init?.body ?? "{}").reasoning.effort, effort);
+          return {
+            status: 200,
+            headers: {},
+            lines: sse(['data: {"type":"response.completed","response":{}}']),
+          };
+        },
+      }),
+    );
+    assertEquals(result.status, expected);
+    assertEquals(calls, expected === "completed" ? 1 : 0);
+  }
 });
 
 Deno.test("device OAuth begins with a host-held session and completes with a resource draft", async () => {
@@ -356,7 +460,7 @@ Deno.test("invoke streams normalized events from the Codex Responses API", async
       model: {
         id: "gpt-test",
         displayName: "GPT Test",
-        privateData: { reasoningEfforts: ["medium"] },
+        reasoningEfforts: ["medium"],
       },
       resource: snapshot(draft.privateData),
       request: request(),
@@ -460,7 +564,7 @@ Deno.test("invoke streams incremental tool calls and replays reasoning items", a
   const events: ModelEvent[] = [];
   const result = await codexProvider.invoke(
     {
-      model: { id: "gpt-test", displayName: "GPT Test" },
+      model: { id: "gpt-test", displayName: "GPT Test", reasoningEfforts: ["medium"] },
       resource: snapshot(draft.privateData),
       request: request(),
     },
@@ -495,6 +599,42 @@ Deno.test("invoke streams incremental tool calls and replays reasoning items", a
   ]);
 });
 
+Deno.test("invoke sends selected effort, omits default, and rejects unsupported effort", async () => {
+  const draft = await credentialDraft({
+    accessToken: jwt({ "https://api.openai.com/auth": { chatgpt_account_id: "acct-1" } }),
+    refreshToken: null,
+    displayName: null,
+  });
+  for (const effort of [null, "high", "max"]) {
+    let body: Record<string, unknown> = {};
+    const result = await codexProvider.invoke(
+      {
+        model: { id: "gpt-test", displayName: "GPT Test", reasoningEfforts: ["high"] },
+        resource: snapshot(draft.privateData),
+        request: { ...request(), reasoning: { enabled: effort !== null, effort } },
+      },
+      { emit: () => {} },
+      context({
+        stream: (_url, init) => {
+          body = JSON.parse(init?.body ?? "{}");
+          return {
+            status: 200,
+            headers: {},
+            lines: sse(['data: {"type":"response.completed","response":{}}']),
+          };
+        },
+      }),
+    );
+    if (effort === "max") {
+      assertEquals(result.status, "request-error");
+      assertEquals(body, {});
+    } else {
+      assertEquals(result.status, "completed");
+      assertEquals(body.reasoning, effort === null ? undefined : { summary: "auto", effort });
+    }
+  }
+});
+
 Deno.test("invoke maps quota failures to a cooling resource error", async () => {
   assert(!isQuotaError("429 rate_limit_reached"));
   assert(isQuotaError("429 usage_limit_reached: 5-hour limit"));
@@ -506,7 +646,7 @@ Deno.test("invoke maps quota failures to a cooling resource error", async () => 
   });
   const result = await codexProvider.invoke(
     {
-      model: { id: "gpt-test", displayName: "GPT Test" },
+      model: { id: "gpt-test", displayName: "GPT Test", reasoningEfforts: ["medium"] },
       resource: snapshot(draft.privateData),
       request: request(),
     },

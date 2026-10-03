@@ -1,4 +1,4 @@
-import type { JsonValue, NetworkRequestInit, PluginContext } from "cursor-byok:plugin";
+import type { JsonValue, NetworkRequestInit, PluginContext } from "workbuddy-byok:plugin";
 import type {
   ResourceDraft,
   ResourceImportFile,
@@ -9,7 +9,7 @@ import type {
   ResourceSnapshot,
   ResourceState,
   ResourceView,
-} from "cursor-byok:resource";
+} from "workbuddy-byok:resource";
 import {
   ANTIGRAVITY_CLIENT_HEADERS,
   ANTIGRAVITY_ENDPOINTS,
@@ -97,13 +97,13 @@ export async function fetchAccountProjectAndTier(
             lower.includes("pro") || lower.includes("premium") || lower.includes("advanced")
           ) planLabel = "PRO";
         }
-        return { projectId: project ?? "bamboo-precept-lgxtn", planLabel };
+        if (project) return { projectId: project, planLabel };
       }
     } catch {
       // Continue next endpoint
     }
   }
-  return { projectId: "bamboo-precept-lgxtn", planLabel: "FREE" };
+  throw new Error("Google account project discovery failed; check account access and refresh credentials");
 }
 
 export async function queryAccountQuota(
@@ -269,7 +269,7 @@ export async function credentialDraft(credential: CredentialCandidate): Promise<
     accessToken: credential.accessToken,
     refreshToken: credential.refreshToken,
     displayName: credential.displayName ?? identity.displayName,
-    projectId: credential.projectId ?? "bamboo-precept-lgxtn",
+    projectId: credential.projectId ?? null,
     expiresAtMs: credential.expiresAtMs ??
       (credential.refreshToken ? Date.now() + 3500 * 1000 : null),
     quota: credential.quota ?? null,
@@ -285,7 +285,7 @@ export function accountData(resource: ResourceSnapshot): AccountData {
     accessToken,
     refreshToken: text(data?.refreshToken),
     displayName: text(data?.displayName) ?? "Antigravity account",
-    projectId: text(data?.projectId) ?? "bamboo-precept-lgxtn",
+    projectId: text(data?.projectId),
     expiresAtMs: typeof data?.expiresAtMs === "number" ? data.expiresAtMs : null,
     quota: (data?.quota ?? null) as AccountQuota | null,
   };
@@ -378,7 +378,7 @@ export async function refreshAccount(
   const data = accountData(resource);
   let accessToken = data.accessToken;
   let refreshToken = data.refreshToken;
-  let projectId = data.projectId ?? "bamboo-precept-lgxtn";
+  let projectId = data.projectId ?? "";
   let expiresAtMs = data.expiresAtMs ?? null;
 
   if (refreshToken) {

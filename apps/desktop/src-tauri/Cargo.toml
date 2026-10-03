@@ -1,11 +1,11 @@
 [package]
-name = "cursor-byok-desktop"
-version = "1.0.1"
+name = "workbuddy-byok-desktop"
+version = "0.0.1"
 edition = "2021"
 publish = false
 
 [lib]
-name = "cursor_byok_desktop"
+name = "workbuddy_byok_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -13,7 +13,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 axum = "0.8"
-cursor-server = { path = "../../../server" }
+workbuddy-server = { path = "../../../server" }
 libc = "0.2"
 mimalloc = "0.1"
 rfd = "0.15"

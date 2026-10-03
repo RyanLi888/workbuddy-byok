@@ -6,18 +6,20 @@ import type {
   ProviderOutput,
   ProviderResult,
   ProviderSupport,
-} from "cursor-byok:provider";
-import type { JsonValue, PluginContext } from "cursor-byok:plugin";
-import { HttpError } from "cursor-byok:protocol/openai-chat";
+} from "workbuddy-byok:provider";
+import type { JsonValue, PluginContext } from "workbuddy-byok:plugin";
+import { HttpError } from "workbuddy-byok:protocol/openai-chat";
 import {
   ANTIGRAVITY_CLIENT_HEADERS,
   ANTIGRAVITY_ENDPOINTS,
   ANTIGRAVITY_USER_AGENT,
   antigravityModels,
+  resolveAntigravityModel,
 } from "./models.ts";
 import {
   type AccountData,
   accountData,
+  fetchAccountProjectAndTier,
   isTokenExpired,
   quotaExhaustedPatch,
   refreshAccount,
@@ -63,68 +65,6 @@ async function readBody(lines: AsyncIterable<string>): Promise<string> {
   return collected.join("\n");
 }
 
-function resolveAntigravityModel(modelId: string): string {
-  const raw = modelId.trim();
-  const lower = raw.toLowerCase();
-
-  // 1. If explicit tier is already specified in the model ID, pass it directly!
-  if (
-    lower.startsWith("gemini-3.8-flash-") ||
-    lower.startsWith("gemini-3.7-flash-") ||
-    lower.startsWith("gemini-3.6-flash-") ||
-    lower.startsWith("gemini-3.1-pro-") ||
-    lower === "gemini-3.8-flash" ||
-    lower === "gemini-3.7-flash" ||
-    lower === "gemini-3.6-flash" ||
-    lower === "gemini-2.5-flash" ||
-    lower === "gemini-2.5-pro" ||
-    lower === "gemini-2.0-flash" ||
-    lower === "claude-sonnet-4-6" ||
-    lower === "claude-sonnet-4-6-thinking" ||
-    lower === "claude-opus-4-6-thinking" ||
-    lower === "gemini-3.1-flash-image" ||
-    lower === "gpt-oss-120b-medium"
-  ) {
-    if (lower === "gemini-3.1-pro-high") return "gemini-pro-agent";
-    return raw;
-  }
-
-  // 2. Canonical Antigravity-Manager mapping for aliases
-  if (
-    lower === "claude-3-7-sonnet" || lower === "claude-3-5-sonnet" || lower === "claude-sonnet-4-5"
-  ) {
-    return "claude-sonnet-4-6";
-  }
-  if (lower === "claude-3-5-haiku" || lower === "claude-haiku-4") {
-    return "claude-sonnet-4-6";
-  }
-  if (
-    lower === "claude-3-7-opus" || lower === "claude-opus-4" || lower === "claude-opus-4.6" ||
-    lower === "claude-opus-4-5-thinking"
-  ) {
-    return "claude-opus-4-6-thinking";
-  }
-  if (
-    lower === "gpt-4" || lower === "gpt-4o" || lower === "gpt-4o-mini" || lower === "gpt-3.5-turbo"
-  ) {
-    return "gemini-2.5-flash";
-  }
-  if (lower === "gemini-2.5-flash-lite") {
-    return "gemini-2.5-flash";
-  }
-  if (lower === "gemini-3-flash" || lower === "gemini-3.5-flash") {
-    return "gemini-3.7-flash";
-  }
-  if (lower === "gemini-3-pro" || lower === "gemini-3.1-pro") {
-    return "gemini-3.1-pro-preview";
-  }
-  if (lower === "gemini-3-pro-high") {
-    return "gemini-pro-agent";
-  }
-
-  return raw;
-}
-
 function randomHex(length = 8): string {
   const array = new Uint8Array(Math.ceil(length / 2));
   crypto.getRandomValues(array);
@@ -133,70 +73,6 @@ function randomHex(length = 8): string {
 
 function generateRequestId(): string {
   return `agent/${Date.now()}/${randomHex(8)}`;
-}
-
-// Keys the CloudCode v1internal Schema proto rejects with "Cannot find field"
-const UNSUPPORTED_SCHEMA_KEYS: Record<string, true> = {
-  "$schema": true,
-  "$ref": true,
-  "$defs": true,
-  "$comment": true,
-  "examples": true,
-  "unevaluatedProperties": true,
-  "unevaluatedItems": true,
-  "patternProperties": true,
-  "propertyNames": true,
-  "exclusiveMinimum": true,
-  "exclusiveMaximum": true,
-  "multipleOf": true,
-  "dependencies": true,
-  "dependentSchemas": true,
-  "dependentRequired": true,
-  "deprecated": true,
-  "readOnly": true,
-  "writeOnly": true,
-  "x-mcp-header": true,
-  "const": true,
-  "default": true,
-  "additionalProperties": true,
-  "title": true,
-  "format": true,
-};
-
-const PROTO_TYPE_MAP: Record<string, string> = {
-  string: "STRING",
-  number: "NUMBER",
-  integer: "INTEGER",
-  boolean: "BOOLEAN",
-  array: "ARRAY",
-  object: "OBJECT",
-};
-
-function enforceUppercaseTypes(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(enforceUppercaseTypes);
-  if (value === null || typeof value !== "object") return value;
-  const out: Record<string, unknown> = {};
-  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    if (UNSUPPORTED_SCHEMA_KEYS[key]) continue;
-    if (key === "type" && typeof child === "string") {
-      out[key] = PROTO_TYPE_MAP[child.toLowerCase()] ?? child.toUpperCase();
-    } else {
-      out[key] = enforceUppercaseTypes(child);
-    }
-  }
-  if (!out.type && out.properties) {
-    out.type = "OBJECT";
-  }
-  return out;
-}
-
-function sanitizeSchema(value: unknown): unknown {
-  if (!value || typeof value !== "object") {
-    return { type: "OBJECT", properties: {} };
-  }
-  const clean = enforceUppercaseTypes(value) as Record<string, unknown>;
-  if (!clean.type) clean.type = "OBJECT";
-  return clean;
 }
 
 function convertToCloudCodeContents(
@@ -314,7 +190,7 @@ async function streamCloudCode(
   output: ProviderOutput,
   context: PluginContext,
 ): Promise<void> {
-  const actualModel = resolveAntigravityModel(modelId);
+  const actualModel = modelId;
   const { contents, systemInstruction } = convertToCloudCodeContents(
     input.request.instructions,
     input.request.messages,
@@ -326,7 +202,7 @@ async function streamCloudCode(
         functionDeclarations: input.request.tools.map((t) => ({
           name: t.name,
           description: t.description || "",
-          parameters: sanitizeSchema(t.parameters),
+          parametersJsonSchema: t.parameters,
         })),
       },
     ]
@@ -339,7 +215,7 @@ async function streamCloudCode(
     : undefined;
 
   const payload = {
-    project: projectId || "bamboo-precept-lgxtn",
+    project: projectId,
     model: actualModel,
     userAgent: "antigravity",
     requestType: "agent",
@@ -615,6 +491,15 @@ async function invoke(
       message: "Add a Google Antigravity account or API key before calling Antigravity",
     };
   }
+  let modelId: string;
+  try {
+    modelId = resolveAntigravityModel(input.model, input.request.reasoning.effort);
+  } catch (error) {
+    return {
+      status: "request-error",
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
   let data: AccountData;
   try {
     data = accountData(input.resource);
@@ -638,10 +523,16 @@ async function invoke(
     }
   }
 
-  let projectId = data.projectId ?? "bamboo-precept-lgxtn";
+  let projectId = data.projectId ?? "";
+  if (!projectId) {
+    const discovered = await fetchAccountProjectAndTier(data.accessToken, context.network);
+    projectId = discovered.projectId;
+    data = { ...data, projectId };
+    patchData = data;
+  }
 
   try {
-    await streamCloudCode(data.accessToken, projectId, input.model.id, input, output, context);
+    await streamCloudCode(data.accessToken, projectId, modelId, input, output, context);
     return patchData
       ? {
         status: "completed",
@@ -662,7 +553,7 @@ async function invoke(
             await streamCloudCode(
               freshData.accessToken,
               freshProj,
-              input.model.id,
+              modelId,
               input,
               output,
               context,

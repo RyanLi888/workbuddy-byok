@@ -1,4 +1,5 @@
 fn main() {
+    println!("cargo:rerun-if-changed=icons");
     let manifest = tauri_build::AppManifest::new().commands(&[
         "open_terminal_with_command",
         "check_portable_update",

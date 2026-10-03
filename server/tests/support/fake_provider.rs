@@ -6,13 +6,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use cursor_server::{
+use futures_util::{stream, StreamExt};
+use tokio_util::sync::CancellationToken;
+use workbuddy_server::{
     model::{ModelInvocation, ModelRequest},
     provider::{ModelEvent, Provider, ProviderStream},
     Error,
 };
-use futures_util::{stream, StreamExt};
-use tokio_util::sync::CancellationToken;
 
 enum FakeResponse {
     Events(Vec<Result<ModelEvent, Error>>),

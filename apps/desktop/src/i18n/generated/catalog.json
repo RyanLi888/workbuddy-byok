@@ -1,17 +1,5 @@
 {
   "entries": {
-    "0006d696d8e1ec28": {
-      "source": "新增",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 80,
-          "column": 47
-        }
-      ]
-    },
     "00929f23850e4ff0": {
       "source": "成功调用：{count}",
       "kind": "template",
@@ -32,7 +20,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 157,
           "column": 40
         }
@@ -47,7 +35,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 266,
+          "line": 269,
           "column": 39
         }
       ]
@@ -78,7 +66,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 372,
+          "line": 322,
           "column": 16
         }
       ]
@@ -105,19 +93,14 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 171,
           "column": 64
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 285,
           "column": 70
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 178,
-          "column": 10
         },
         {
           "file": "features/settings/PricingSettingsCard.tsx",
@@ -131,25 +114,8 @@
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 183,
+          "line": 143,
           "column": 82
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 40,
-          "column": 98
-        }
-      ]
-    },
-    "0525054436acdb6e": {
-      "source": "提交信息提示词",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 225,
-          "column": 23
         }
       ]
     },
@@ -162,21 +128,9 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 153,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 139,
           "column": 27
-        }
-      ]
-    },
-    "0580e0a99a6f1afc": {
-      "source": "工件数",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/calls/CallDetails.tsx",
-          "line": 71,
-          "column": 54
         }
       ]
     },
@@ -226,14 +180,26 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 187,
           "column": 16
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 388,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 373,
           "column": 73
+        }
+      ]
+    },
+    "08242104d9bf958b": {
+      "source": "修改端口后需要重启软件；网关开启时会自动更新 WorkBuddy 中的接口地址。端口被占用时启动会报错。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/SettingsPage.tsx",
+          "line": 167,
+          "column": 16
         }
       ]
     },
@@ -258,7 +224,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 24,
           "column": 112
         }
@@ -270,8 +236,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 399,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 384,
           "column": 89
         }
       ]
@@ -310,14 +276,14 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 266,
-          "column": 93
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 55,
+          "column": 72
         },
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 328,
-          "column": 72
+          "line": 269,
+          "column": 93
         }
       ]
     },
@@ -372,7 +338,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 100,
+          "line": 84,
           "column": 38
         }
       ]
@@ -401,23 +367,8 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 279,
+          "line": 212,
           "column": 26
-        }
-      ]
-    },
-    "0e67021ebf0a3580": {
-      "source": "导入完成：新增 {imported} 个模型，跳过 {skipped} 个已存在模型",
-      "kind": "template",
-      "placeholders": [
-        "imported",
-        "skipped"
-      ],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 42,
-          "column": 11
         }
       ]
     },
@@ -473,12 +424,12 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 20,
           "column": 66
         },
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 21,
           "column": 95
         }
@@ -514,13 +465,13 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 174,
           "column": 16
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 398,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 383,
           "column": 36
         }
       ]
@@ -531,38 +482,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 322,
-          "column": 213
-        }
-      ]
-    },
-    "13a494f82d7f26df": {
-      "source": "开启外部 API",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 46,
-          "column": 20
-        },
-        {
-          "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 49,
-          "column": 24
-        }
-      ]
-    },
-    "13a9ac7a68c5fd96": {
-      "source": "CA 仅保存在本机，用于安全解析 Cursor 的 HTTPS 请求。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 21,
-          "column": 65
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 318,
+          "column": 212
         }
       ]
     },
@@ -584,7 +506,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 159,
           "column": 322
         }
@@ -596,12 +518,12 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 148,
           "column": 59
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 148,
           "column": 124
         }
@@ -613,23 +535,23 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorGates.tsx",
-          "line": 39,
+          "file": "features/models/WorkBuddyGates.tsx",
+          "line": 21,
           "column": 77
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 326,
-          "column": 51
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 327,
+          "column": 30
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 326,
-          "column": 130
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 327,
+          "column": 93
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 341,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 329,
           "column": 74
         }
       ]
@@ -681,23 +603,6 @@
           "file": "features/settings/AppLifecycleSettingsCard.tsx",
           "line": 158,
           "column": 27
-        }
-      ]
-    },
-    "19bb071f8c362695": {
-      "source": "提示词设置",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 175,
-          "column": 10
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 207,
-          "column": 16
         }
       ]
     },
@@ -768,8 +673,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 362,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 347,
           "column": 52
         }
       ]
@@ -781,8 +686,20 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 283,
-          "column": 131
+          "line": 216,
+          "column": 84
+        }
+      ]
+    },
+    "1bd9e90260388899": {
+      "source": "所有调用汇总和详细内容都会被删除。模型配置和应用设置不会受到影响，此操作无法撤销。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/SettingsPage.tsx",
+          "line": 118,
+          "column": 7
         }
       ]
     },
@@ -800,25 +717,15 @@
         }
       ]
     },
-    "1cb7e646ac883fb2": {
-      "source": "代理端口",
+    "1c7cb5326c46141d": {
+      "source": "网关未启用",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 70,
-          "column": 42
-        },
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 188,
-          "column": 22
-        },
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 215,
-          "column": 58
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 313,
+          "column": 101
         }
       ]
     },
@@ -841,20 +748,20 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 452,
+          "line": 402,
           "column": 14
         }
       ]
     },
-    "1d27f02ed278ebc9": {
-      "source": "配置文件",
+    "1d3017a134c597fe": {
+      "source": "选填，显示在 WorkBuddy 模型说明中。",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 65,
-          "column": 20
+          "file": "features/models/WorkBuddyModelEditor.tsx",
+          "line": 161,
+          "column": 69
         }
       ]
     },
@@ -879,17 +786,17 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 163,
           "column": 49
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 165,
           "column": 50
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 168,
           "column": 50
         }
@@ -903,8 +810,8 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 392,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 377,
           "column": 89
         }
       ]
@@ -916,7 +823,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 256,
+          "line": 189,
           "column": 43
         }
       ]
@@ -928,8 +835,20 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 426,
+          "line": 376,
           "column": 50
+        }
+      ]
+    },
+    "2275838bc9b58553": {
+      "source": "一键同步",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 322,
+          "column": 32
         }
       ]
     },
@@ -940,7 +859,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 125,
+          "line": 109,
           "column": 15
         }
       ]
@@ -951,8 +870,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 320,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 316,
           "column": 136
         }
       ]
@@ -964,7 +883,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 306,
+          "line": 239,
           "column": 24
         }
       ]
@@ -997,25 +916,13 @@
         }
       ]
     },
-    "24a0a24864454575": {
-      "source": "已存在，跳过",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 80,
-          "column": 33
-        }
-      ]
-    },
     "2555d6c7fbb7e070": {
       "source": "可以直接输入模型标识，也可以读取接口返回的模型列表。",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 159,
           "column": 42
         }
@@ -1032,30 +939,6 @@
           "file": "features/settings/AppLifecycleSettingsCard.tsx",
           "line": 154,
           "column": 13
-        }
-      ]
-    },
-    "296da37506328d89": {
-      "source": "关闭接管Cursor",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 48,
-          "column": 43
-        }
-      ]
-    },
-    "29fbbef32a6eb58b": {
-      "source": "不再显示此广告",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 248,
-          "column": 14
         }
       ]
     },
@@ -1077,13 +960,13 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 170,
           "column": 27
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 391,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 376,
           "column": 186
         }
       ]
@@ -1111,34 +994,14 @@
           "column": 105
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 331,
-          "column": 20
-        },
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 362,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 347,
           "column": 76
-        },
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 58,
-          "column": 20
         },
         {
           "file": "features/plugins/PluginManagementPage.tsx",
           "line": 278,
           "column": 70
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 167,
-          "column": 78
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 214,
-          "column": 21
         },
         {
           "file": "features/settings/PricingSettingsCard.tsx",
@@ -1152,18 +1015,13 @@
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 179,
+          "line": 139,
           "column": 81
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 298,
+          "line": 231,
           "column": 22
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 36,
-          "column": 66
         },
         {
           "file": "shared/ui/ConfirmDialog.tsx",
@@ -1177,25 +1035,8 @@
         },
         {
           "file": "shell/AppLayout.tsx",
-          "line": 238,
+          "line": 118,
           "column": 20
-        },
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 249,
-          "column": 20
-        }
-      ]
-    },
-    "2cdf7d3275016cc2": {
-      "source": "关闭接管Cursor？",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 330,
-          "column": 14
         }
       ]
     },
@@ -1236,7 +1077,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 160,
           "column": 42
         }
@@ -1250,21 +1091,9 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 405,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 390,
           "column": 70
-        }
-      ]
-    },
-    "2f4a9609285d8f49": {
-      "source": "TAB 设置已保存",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 149,
-          "column": 15
         }
       ]
     },
@@ -1299,7 +1128,7 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 237,
+          "line": 117,
           "column": 14
         }
       ]
@@ -1310,23 +1139,23 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 173,
           "column": 96
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 287,
           "column": 102
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 362,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 347,
           "column": 99
         },
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 403,
+          "line": 353,
           "column": 68
         }
       ]
@@ -1338,7 +1167,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 474,
+          "line": 424,
           "column": 28
         }
       ]
@@ -1350,7 +1179,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 488,
+          "line": 438,
           "column": 81
         }
       ]
@@ -1362,12 +1191,12 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 355,
+          "line": 305,
           "column": 32
         },
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 355,
+          "line": 305,
           "column": 56
         }
       ]
@@ -1378,13 +1207,13 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 355,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 340,
           "column": 35
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 358,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 343,
           "column": 41
         }
       ]
@@ -1401,23 +1230,6 @@
         }
       ]
     },
-    "346ff60e6c7c5181": {
-      "source": "读取中…",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 40,
-          "column": 101
-        },
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 241,
-          "column": 27
-        }
-      ]
-    },
     "36f33adaf0942634": {
       "source": "确认",
       "kind": "text",
@@ -1427,23 +1239,6 @@
           "file": "shared/ui/ConfirmDialog.tsx",
           "line": 4,
           "column": 110
-        },
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 250,
-          "column": 21
-        }
-      ]
-    },
-    "37125ef2e1d707cb": {
-      "source": "服务器地址或完整请求 URL、API Key、模型名称、显示名称和备注不能为空",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 390,
-          "column": 123
         }
       ]
     },
@@ -1486,7 +1281,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 308,
+          "line": 241,
           "column": 42
         }
       ]
@@ -1551,7 +1346,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 290,
+          "line": 223,
           "column": 14
         }
       ]
@@ -1562,26 +1357,14 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 307,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 34,
           "column": 106
         },
         {
           "file": "shared/ui/ModelSelect.tsx",
           "line": 232,
           "column": 102
-        }
-      ]
-    },
-    "3a8c76b2ce785f96": {
-      "source": "查看并导入",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 241,
-          "column": 39
         }
       ]
     },
@@ -1647,37 +1430,13 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 248,
+          "line": 181,
           "column": 22
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 254,
+          "line": 187,
           "column": 26
-        }
-      ]
-    },
-    "3da0bf1610ff5db5": {
-      "source": "推荐内容",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/ads/AdMenu.tsx",
-          "line": 62,
-          "column": 56
-        }
-      ]
-    },
-    "3f6c25aa329163a4": {
-      "source": "原接口路径会追加到此服务地址。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 68,
-          "column": 21
         }
       ]
     },
@@ -1687,9 +1446,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 322,
-          "column": 199
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 318,
+          "column": 198
         }
       ]
     },
@@ -1699,18 +1458,13 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 346,
-          "column": 80
-        },
-        {
           "file": "features/plugins/PluginManagementPage.tsx",
           "line": 278,
           "column": 80
         },
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 423,
+          "line": 373,
           "column": 82
         }
       ]
@@ -1734,7 +1488,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 156,
+          "line": 116,
           "column": 66
         }
       ]
@@ -1746,7 +1500,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 274,
+          "line": 207,
           "column": 52
         }
       ]
@@ -1817,9 +1571,21 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 162,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 148,
           "column": 27
+        }
+      ]
+    },
+    "46b9065a0b76f975": {
+      "source": "开启后自动同步模型配置到 WorkBuddy；增删、编辑和插件模型变更会在约 2 秒内更新。「一键同步」可用于手动补同步。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 56,
+          "column": 19
         }
       ]
     },
@@ -1919,19 +1685,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 164,
-          "column": 8
-        },
-        {
           "file": "features/settings/ProxySettingsCard.tsx",
           "line": 69,
           "column": 135
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 81,
-          "column": 81
         }
       ]
     },
@@ -1958,13 +1714,13 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 163,
           "column": 25
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 391,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 376,
           "column": 34
         }
       ]
@@ -1975,24 +1731,24 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 170,
           "column": 86
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 193,
           "column": 86
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 284,
           "column": 92
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 341,
-          "column": 703
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 329,
+          "column": 704
         }
       ]
     },
@@ -2008,18 +1764,6 @@
         }
       ]
     },
-    "4a8d6841b4023edf": {
-      "source": "确认导入",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 59,
-          "column": 21
-        }
-      ]
-    },
     "4aca6a31090fe2b8": {
       "source": "初始化中…",
       "kind": "text",
@@ -2032,15 +1776,41 @@
         }
       ]
     },
+    "4af55f5b89bd510f": {
+      "source": "成功同步 {count} 个模型配置到 WorkBuddy",
+      "kind": "template",
+      "placeholders": [
+        "count"
+      ],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 284,
+          "column": 15
+        }
+      ]
+    },
     "4b458e6e147221d7": {
       "source": "系统会根据请求协议自动追加标准端点路径。",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 154,
           "column": 145
+        }
+      ]
+    },
+    "4c87c53ba30558de": {
+      "source": "仅删除请求和响应等详细内容，保留调用汇总、统计指标和配置。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/SettingsPage.tsx",
+          "line": 119,
+          "column": 7
         }
       ]
     },
@@ -2050,13 +1820,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "shell/ads/AdMenu.tsx",
-          "line": 72,
-          "column": 99
-        },
-        {
           "file": "shell/AppLayout.tsx",
-          "line": 204,
+          "line": 86,
           "column": 67
         }
       ]
@@ -2068,13 +1833,25 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 471,
+          "line": 421,
           "column": 30
         },
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 490,
+          "line": 440,
           "column": 42
+        }
+      ]
+    },
+    "4e2238b74ec75987": {
+      "source": "同步中…",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 322,
+          "column": 20
         }
       ]
     },
@@ -2084,7 +1861,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 212,
           "column": 41
         }
@@ -2109,16 +1886,6 @@
           "file": "features/settings/ProxySettingsCard.tsx",
           "line": 46,
           "column": 166
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 32,
-          "column": 12
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 60,
-          "column": 41
         }
       ]
     },
@@ -2142,8 +1909,8 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 199,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 185,
           "column": 13
         }
       ]
@@ -2160,35 +1927,6 @@
         }
       ]
     },
-    "5319e7374f78fb38": {
-      "source": "已接管",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 306,
-          "column": 68
-        },
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 224,
-          "column": 51
-        }
-      ]
-    },
-    "5401344227e49e2f": {
-      "source": "TAB 设置",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 44,
-          "column": 90
-        }
-      ]
-    },
     "54644705e9c61009": {
       "source": "端口设置",
       "kind": "text",
@@ -2196,20 +1934,8 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 177,
+          "line": 137,
           "column": 26
-        }
-      ]
-    },
-    "54c53e5fe791d1f3": {
-      "source": "初始化 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 22,
-          "column": 205
         }
       ]
     },
@@ -2236,45 +1962,21 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 257,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 243,
           "column": 47
         }
       ]
     },
-    "550eddc3c7fefa99": {
-      "source": "推广",
+    "5533393d6d33db77": {
+      "source": "服务器地址或完整请求 URL、API Key、模型名称和显示名称不能为空",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "shell/ads/FloatingAd.tsx",
-          "line": 63,
-          "column": 48
-        }
-      ]
-    },
-    "552a5d4baf45d878": {
-      "source": "Commit 提交代码模型设置",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 185,
-          "column": 26
-        }
-      ]
-    },
-    "56432ba297009bdc": {
-      "source": "请先初始化 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 326,
-          "column": 63
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 375,
+          "column": 100
         }
       ]
     },
@@ -2296,94 +1998,31 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 165,
           "column": 27
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 168,
           "column": 27
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 391,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 376,
           "column": 83
         }
       ]
     },
-    "576d81bb0631b165": {
-      "source": "导入",
+    "5937203f2d6379ad": {
+      "source": "点击右上角「一键同步」可自动将下方配置好的模型注入到WorkBuddy。",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 234,
-          "column": 78
-        }
-      ]
-    },
-    "5886afc1c71df1fe": {
-      "source": "显示在 Cursor 模型说明中。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorModelEditor.tsx",
-          "line": 161,
-          "column": 69
-        }
-      ]
-    },
-    "59346e82b3dd2998": {
-      "source": "TAB 服务地址",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 67,
-          "column": 22
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 73,
-          "column": 25
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 84,
-          "column": 20
-        }
-      ]
-    },
-    "5a284a1a2be8da0e": {
-      "source": "从本机旧版配置读取模型；确认前会显示新增和已存在的模型。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 238,
-          "column": 21
-        }
-      ]
-    },
-    "5a3bd99fa69a40c1": {
-      "source": "使用公益服务",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 30,
-          "column": 35
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 58,
-          "column": 41
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 295,
+          "column": 6
         }
       ]
     },
@@ -2394,7 +2033,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 454,
+          "line": 404,
           "column": 21
         }
       ]
@@ -2407,7 +2046,7 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 35,
           "column": 7
         }
@@ -2419,9 +2058,33 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 321,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 317,
           "column": 124
+        }
+      ]
+    },
+    "5ba876c7d7f64cbc": {
+      "source": "一键同步到 WorkBuddy",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 321,
+          "column": 30
+        }
+      ]
+    },
+    "5c1ef380cf405d3f": {
+      "source": "登录系统后自动启动 WorkBuddy BYOK。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/AppLifecycleSettingsCard.tsx",
+          "line": 116,
+          "column": 17
         }
       ]
     },
@@ -2449,20 +2112,6 @@
         }
       ]
     },
-    "5d59857bf039cac9": {
-      "source": "Cursor 助手 v{version}",
-      "kind": "template",
-      "placeholders": [
-        "version"
-      ],
-      "refs": [
-        {
-          "file": "shell/AppHeader.tsx",
-          "line": 34,
-          "column": 18
-        }
-      ]
-    },
     "5f600b307b4eb0fb": {
       "source": "API 密钥",
       "kind": "text",
@@ -2470,7 +2119,7 @@
       "refs": [
         {
           "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 52,
+          "line": 62,
           "column": 25
         }
       ]
@@ -2484,18 +2133,6 @@
           "file": "features/settings/AppLifecycleSettingsCard.tsx",
           "line": 59,
           "column": 40
-        }
-      ]
-    },
-    "5f9acfb945229062": {
-      "source": "你确认不想再看到此广告吗？",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 254,
-          "column": 11
         }
       ]
     },
@@ -2520,7 +2157,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 272,
+          "line": 275,
           "column": 102
         }
       ]
@@ -2606,6 +2243,18 @@
         }
       ]
     },
+    "62e5e4bbfd49d14f": {
+      "source": "网关运行中",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 313,
+          "column": 88
+        }
+      ]
+    },
     "6320b4a8722a851f": {
       "source": "状态",
       "kind": "text",
@@ -2641,12 +2290,12 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 172,
           "column": 64
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 286,
           "column": 70
         },
@@ -2665,21 +2314,9 @@
       ],
       "refs": [
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 300,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 26,
           "column": 12
-        }
-      ]
-    },
-    "6478a5f1218c484e": {
-      "source": "请在桌面应用中复制到系统剪贴板",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shared/api.ts",
-          "line": 532,
-          "column": 43
         }
       ]
     },
@@ -2708,7 +2345,7 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 37,
           "column": 7
         }
@@ -2723,18 +2360,6 @@
           "file": "features/calls/CallsPage.tsx",
           "line": 33,
           "column": 36
-        }
-      ]
-    },
-    "656ab25e264cc4e4": {
-      "source": "还没有可供 Cursor 使用的模型",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 36,
-          "column": 14
         }
       ]
     },
@@ -2781,6 +2406,20 @@
         }
       ]
     },
+    "67ed253cb864278e": {
+      "source": "调用记录 {calls} 条",
+      "kind": "template",
+      "placeholders": [
+        "calls"
+      ],
+      "refs": [
+        {
+          "file": "features/settings/SettingsPage.tsx",
+          "line": 216,
+          "column": 31
+        }
+      ]
+    },
     "680680288a6d2ad2": {
       "source": "在 Dock 栏显示",
       "kind": "text",
@@ -2805,20 +2444,8 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 100,
+          "line": 84,
           "column": 55
-        }
-      ]
-    },
-    "68ad603fafe4e0d6": {
-      "source": "导入旧版配置",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 40,
-          "column": 113
         }
       ]
     },
@@ -2829,7 +2456,7 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 80,
+          "line": 52,
           "column": 47
         }
       ]
@@ -2852,17 +2479,17 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 170,
           "column": 98
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 193,
           "column": 98
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 284,
           "column": 104
         }
@@ -2882,6 +2509,18 @@
           "file": "shell/WindowControls.tsx",
           "line": 45,
           "column": 14
+        }
+      ]
+    },
+    "6cc66568cb3999cb": {
+      "source": "WorkBuddy 模型",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "shell/AppLayout.tsx",
+          "line": 49,
+          "column": 45
         }
       ]
     },
@@ -2939,8 +2578,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 319,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 315,
           "column": 105
         }
       ]
@@ -2952,12 +2591,12 @@
       "refs": [
         {
           "file": "shared/store/appStore.ts",
-          "line": 218,
+          "line": 198,
           "column": 23
         },
         {
           "file": "shared/store/appStore.ts",
-          "line": 225,
+          "line": 205,
           "column": 25
         }
       ]
@@ -2969,7 +2608,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 167,
+          "line": 127,
           "column": 16
         }
       ]
@@ -2980,7 +2619,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 50,
           "column": 80
         }
@@ -2993,7 +2632,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 266,
+          "line": 199,
           "column": 26
         }
       ]
@@ -3007,18 +2646,6 @@
           "file": "shell/WindowControls.tsx",
           "line": 38,
           "column": 37
-        }
-      ]
-    },
-    "7a2229f6a6d330a5": {
-      "source": "请在桌面应用中打开终端安装 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shared/api.ts",
-          "line": 527,
-          "column": 43
         }
       ]
     },
@@ -3041,7 +2668,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 299,
+          "line": 232,
           "column": 23
         }
       ]
@@ -3058,31 +2685,19 @@
         }
       ]
     },
-    "7cc1cf151d967bda": {
-      "source": "允许本机应用使用密钥调用已配置的模型，包括插件模型。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 47,
-          "column": 19
-        }
-      ]
-    },
     "7cea2f3c46565d29": {
       "source": "OpenAI 额外参数",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 181,
           "column": 16
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 386,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 371,
           "column": 67
         }
       ]
@@ -3101,30 +2716,6 @@
         }
       ]
     },
-    "7e0891860c9e6374": {
-      "source": "TAB 服务地址不能为空",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 143,
-          "column": 83
-        }
-      ]
-    },
-    "7e7df68f2a82e09e": {
-      "source": "重复导入相同配置不会创建重复模型；已经存在的模型会自动跳过。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 84,
-          "column": 41
-        }
-      ]
-    },
     "7ed9f96f513813a4": {
       "source": "外部 API 设置已保存",
       "kind": "text",
@@ -3132,20 +2723,8 @@
       "refs": [
         {
           "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 29,
+          "line": 38,
           "column": 15
-        }
-      ]
-    },
-    "7f3c8312816fe26a": {
-      "source": "刷新中…",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 22,
-          "column": 121
         }
       ]
     },
@@ -3171,7 +2750,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 395,
+          "line": 345,
           "column": 13
         }
       ]
@@ -3195,7 +2774,7 @@
       "refs": [
         {
           "file": "shared/api.ts",
-          "line": 461,
+          "line": 384,
           "column": 21
         }
       ]
@@ -3221,8 +2800,8 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 197,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 183,
           "column": 11
         }
       ]
@@ -3248,7 +2827,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 159,
           "column": 334
         }
@@ -3271,18 +2850,6 @@
         }
       ]
     },
-    "843ac7e15a5047a7": {
-      "source": "确认导入旧版模型配置",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 55,
-          "column": 14
-        }
-      ]
-    },
     "844b8cc8dff7c1d8": {
       "source": "默认",
       "kind": "text",
@@ -3300,18 +2867,6 @@
         }
       ]
     },
-    "857d282a0213d785": {
-      "source": "外部 API",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 40,
-          "column": 29
-        }
-      ]
-    },
     "864597982c308d72": {
       "source": "已开启静默启动",
       "kind": "text",
@@ -3324,6 +2879,20 @@
         }
       ]
     },
+    "86610fb9ea8b1fa9": {
+      "source": "自动同步失败：{error}",
+      "kind": "template",
+      "placeholders": [
+        "error"
+      ],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 61,
+          "column": 51
+        }
+      ]
+    },
     "86de7c4ee8fa7689": {
       "source": "同步模型",
       "kind": "text",
@@ -3331,35 +2900,8 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 274,
+          "line": 277,
           "column": 33
-        }
-      ]
-    },
-    "8716e1344b0daddb": {
-      "source": "Cursor 官方",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/calls/CallDetails.tsx",
-          "line": 15,
-          "column": 56
-        },
-        {
-          "file": "features/calls/CallDetails.tsx",
-          "line": 16,
-          "column": 50
-        },
-        {
-          "file": "features/calls/CallTable.tsx",
-          "line": 60,
-          "column": 48
-        },
-        {
-          "file": "features/calls/CallTable.tsx",
-          "line": 66,
-          "column": 44
         }
       ]
     },
@@ -3393,7 +2935,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 154,
           "column": 115
         }
@@ -3406,7 +2948,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 373,
+          "line": 323,
           "column": 110
         },
         {
@@ -3433,6 +2975,23 @@
         }
       ]
     },
+    "8c1935935600e336": {
+      "source": "模型测试",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/calls/CallDetails.tsx",
+          "line": 16,
+          "column": 65
+        },
+        {
+          "file": "features/calls/CallTable.tsx",
+          "line": 66,
+          "column": 59
+        }
+      ]
+    },
     "8cbcf741e727dbf7": {
       "source": "模型配置",
       "kind": "text",
@@ -3440,20 +2999,8 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 76,
+          "line": 48,
           "column": 29
-        }
-      ]
-    },
-    "8ccaf87ddb9ca3f4": {
-      "source": "旧版配置",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 237,
-          "column": 22
         }
       ]
     },
@@ -3474,25 +3021,13 @@
         }
       ]
     },
-    "8df48894086d6fbd": {
-      "source": "原因（可选）",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 256,
-          "column": 16
-        }
-      ]
-    },
     "8e2d04638a11a7cb": {
       "source": "只决定请求与响应的格式，不会改变请求地址。",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 148,
           "column": 76
         }
@@ -3510,18 +3045,6 @@
         }
       ]
     },
-    "8f9b0d6cc477d334": {
-      "source": "控制 Cursor TAB 相关接口的连接方式。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 52,
-          "column": 21
-        }
-      ]
-    },
     "90800c48a1dd0655": {
       "source": "{label} 必须是 JSON 对象",
       "kind": "template",
@@ -3530,8 +3053,8 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 406,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 391,
           "column": 87
         }
       ]
@@ -3555,7 +3078,7 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 74,
+          "line": 46,
           "column": 39
         }
       ]
@@ -3572,18 +3095,6 @@
         }
       ]
     },
-    "92156a483d4ba248": {
-      "source": "仅删除请求、响应和追踪附件等详细内容，保留调用汇总、统计指标和配置。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 159,
-          "column": 7
-        }
-      ]
-    },
     "92e26b27d5ea8f0e": {
       "source": "检查更新失败：{error}",
       "kind": "template",
@@ -3595,23 +3106,6 @@
           "file": "features/settings/AppLifecycleSettingsCard.tsx",
           "line": 99,
           "column": 15
-        }
-      ]
-    },
-    "9305c0e13642cab4": {
-      "source": "未接管",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 306,
-          "column": 79
-        },
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 224,
-          "column": 62
         }
       ]
     },
@@ -3645,8 +3139,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 362,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 347,
           "column": 250
         }
       ]
@@ -3658,42 +3152,8 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 274,
+          "line": 277,
           "column": 20
-        }
-      ]
-    },
-    "966498853d801a52": {
-      "source": "TAB 选择",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 51,
-          "column": 22
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 56,
-          "column": 24
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 80,
-          "column": 20
-        }
-      ]
-    },
-    "96f7642963ca0dbf": {
-      "source": "开启接管Cursor",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 48,
-          "column": 61
         }
       ]
     },
@@ -3704,7 +3164,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 473,
+          "line": 423,
           "column": 25
         }
       ]
@@ -3723,30 +3183,6 @@
         }
       ]
     },
-    "997ec8201c2adeda": {
-      "source": "打开终端安装 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 22,
-          "column": 188
-        }
-      ]
-    },
-    "99ac861433209a53": {
-      "source": "开启后，所有外部请求都必须提供此密钥。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 52,
-          "column": 44
-        }
-      ]
-    },
     "9a84733cc9ab1706": {
       "source": "资源详情",
       "kind": "text",
@@ -3754,7 +3190,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 419,
+          "line": 369,
           "column": 111
         }
       ]
@@ -3766,8 +3202,20 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 243,
+          "line": 123,
           "column": 11
+        }
+      ]
+    },
+    "9b731ecaca22c4b5": {
+      "source": "留空表示允许免密调用；若填写，所有外部请求须携带此密钥。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 62,
+          "column": 44
         }
       ]
     },
@@ -3799,12 +3247,12 @@
           "column": 15
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 169,
           "column": 27
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 169,
           "column": 58
         }
@@ -3915,7 +3363,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 245,
+          "line": 178,
           "column": 26
         }
       ]
@@ -3944,18 +3392,6 @@
         }
       ]
     },
-    "a03a1a0cb35414f8": {
-      "source": "必须是 0–65535 之间的整数",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 63,
-          "column": 34
-        }
-      ]
-    },
     "a0ad0c340abf41c7": {
       "source": "缓存读取价格",
       "kind": "text",
@@ -3976,8 +3412,8 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 208,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 194,
           "column": 22
         }
       ]
@@ -4029,28 +3465,18 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 341,
-          "column": 432
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 329,
+          "column": 434
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 349,
-          "column": 193
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 169,
-          "column": 36
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 213,
-          "column": 22
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 334,
+          "column": 192
         },
         {
           "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 41,
+          "line": 50,
           "column": 27
         },
         {
@@ -4065,44 +3491,13 @@
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 180,
+          "line": 140,
           "column": 133
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 37,
-          "column": 103
         },
         {
           "file": "shared/ui/Modal.tsx",
           "line": 42,
           "column": 223
-        }
-      ]
-    },
-    "a340bdf12a15fd80": {
-      "source": "配置中的 {count} 个模型均已存在，无需重复导入",
-      "kind": "template",
-      "placeholders": [
-        "count"
-      ],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 43,
-          "column": 11
-        }
-      ]
-    },
-    "a363743025795ec7": {
-      "source": "我已初始化，刷新",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 22,
-          "column": 153
         }
       ]
     },
@@ -4138,9 +3533,21 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 136,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 122,
           "column": 15
+        }
+      ]
+    },
+    "a5c65fb3b6ae8d0e": {
+      "source": "添加自定义模型配置，或在「插件配置」中登录 Codex / Gemini 账号后即可使用。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddyGates.tsx",
+          "line": 19,
+          "column": 12
         }
       ]
     },
@@ -4151,7 +3558,7 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 239,
+          "line": 119,
           "column": 21
         }
       ]
@@ -4193,9 +3600,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 341,
-          "column": 715
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 329,
+          "column": 716
         }
       ]
     },
@@ -4215,7 +3622,7 @@
           "column": 25
         },
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 58,
           "column": 86
         }
@@ -4227,7 +3634,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 155,
           "column": 61
         }
@@ -4239,12 +3646,12 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 266,
           "column": 113
         },
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 266,
           "column": 131
         }
@@ -4280,7 +3687,7 @@
           "column": 15
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 160,
           "column": 25
         }
@@ -4292,8 +3699,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 308,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 35,
           "column": 107
         },
         {
@@ -4312,18 +3719,6 @@
           "file": "features/settings/AppLifecycleSettingsCard.tsx",
           "line": 59,
           "column": 25
-        }
-      ]
-    },
-    "ac58d0f9a3f8d389": {
-      "source": "请输入模型备注",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorModelEditor.tsx",
-          "line": 161,
-          "column": 118
         }
       ]
     },
@@ -4396,17 +3791,17 @@
         },
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 402,
+          "line": 352,
           "column": 84
         },
         {
           "file": "shell/AppLayout.tsx",
-          "line": 270,
+          "line": 129,
           "column": 64
         },
         {
           "file": "shell/AppLayout.tsx",
-          "line": 270,
+          "line": 129,
           "column": 125
         }
       ]
@@ -4420,54 +3815,32 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 435,
+          "line": 385,
           "column": 84
         }
       ]
     },
-    "b06325c5660f0c29": {
-      "source": "直连",
+    "b02cd52b5327e204": {
+      "source": "网关地址已复制",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 59,
-          "column": 63
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 31,
-          "column": 35
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 59,
-          "column": 41
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 326,
+          "column": 201
         }
       ]
     },
-    "b16c3b2ecedd6fe1": {
-      "source": "Cursor 接管已生效；添加模型配置后即可使用 BYOK 模型。",
+    "b073db9c0bd6f2ed": {
+      "source": "就绪",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorGates.tsx",
-          "line": 37,
-          "column": 12
-        }
-      ]
-    },
-    "b1968db970026087": {
-      "source": "基础地址",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 57,
-          "column": 18
+          "file": "shell/AppLayout.tsx",
+          "line": 106,
+          "column": 56
         }
       ]
     },
@@ -4494,14 +3867,26 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 137,
           "column": 10
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 349,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 334,
           "column": 49
+        }
+      ]
+    },
+    "b2ec73a84aadb019": {
+      "source": "桌面前端连接的本地管理服务端口；请使用固定端口（1–65535）。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/SettingsPage.tsx",
+          "line": 149,
+          "column": 21
         }
       ]
     },
@@ -4570,6 +3955,18 @@
         }
       ]
     },
+    "b67152b6bf63570d": {
+      "source": "开启 WorkBuddy 网关",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 312,
+          "column": 24
+        }
+      ]
+    },
     "b6725f218ebaef26": {
       "source": "已显示 Dock 栏图标",
       "kind": "text",
@@ -4589,7 +3986,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 156,
+          "line": 116,
           "column": 45
         }
       ]
@@ -4615,7 +4012,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 282,
+          "line": 215,
           "column": 22
         }
       ]
@@ -4626,33 +4023,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 42,
           "column": 50
-        }
-      ]
-    },
-    "b89a0e4584f27ab5": {
-      "source": "打开终端",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 346,
-          "column": 103
-        }
-      ]
-    },
-    "b8c9b486c83b5778": {
-      "source": "不再显示广告",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/ads/AdMenu.tsx",
-          "line": 88,
-          "column": 24
         }
       ]
     },
@@ -4696,11 +4069,6 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 217,
-          "column": 14
-        },
-        {
           "file": "features/settings/PricingSettingsCard.tsx",
           "line": 89,
           "column": 72
@@ -4713,7 +4081,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 160,
           "column": 99
         }
@@ -4726,7 +4094,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 485,
+          "line": 435,
           "column": 81
         }
       ]
@@ -4740,41 +4108,9 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 200,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 186,
           "column": 13
-        }
-      ]
-    },
-    "bb2b7736433ae867": {
-      "source": "Cursor 追踪",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/calls/CallDetails.tsx",
-          "line": 69,
-          "column": 62
-        },
-        {
-          "file": "features/calls/CallDetails.tsx",
-          "line": 74,
-          "column": 20
-        }
-      ]
-    },
-    "bb4e1ee4a6ae46df": {
-      "source": "调用记录 {calls} 条 · 追踪记录 {traces} 条",
-      "kind": "template",
-      "placeholders": [
-        "calls",
-        "traces"
-      ],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 283,
-          "column": 31
         }
       ]
     },
@@ -4785,20 +4121,8 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 274,
+          "line": 207,
           "column": 40
-        }
-      ]
-    },
-    "bda62ce1d5e4ace9": {
-      "source": "可以告诉我们原因",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/AppLayout.tsx",
-          "line": 261,
-          "column": 24
         }
       ]
     },
@@ -4820,14 +4144,26 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 354,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 339,
           "column": 45
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 357,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 342,
           "column": 42
+        }
+      ]
+    },
+    "bf080232753f4e75": {
+      "source": "WorkBuddy 填写的接口地址 (Base URL)",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 67,
+          "column": 18
         }
       ]
     },
@@ -4900,6 +4236,35 @@
         }
       ]
     },
+    "c3a66c564e21c58a": {
+      "source": "应用于该分组下的全部模型，并作为 WorkBuddy 模型选择器中的徽章标签；清空则恢复显示服务器域名。",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 336,
+          "column": 44
+        }
+      ]
+    },
+    "c4168cd07a924557": {
+      "source": "复制网关地址",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 326,
+          "column": 30
+        },
+        {
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 326,
+          "column": 124
+        }
+      ]
+    },
     "c54863655e879b36": {
       "source": "当前系统不支持插件运行时",
       "kind": "text",
@@ -4919,7 +4284,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 368,
+          "line": 318,
           "column": 66
         }
       ]
@@ -4930,9 +4295,21 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 341,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 329,
           "column": 62
+        }
+      ]
+    },
+    "c853f97b3cadadbd": {
+      "source": "WorkBuddy API 网关",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 49,
+          "column": 29
         }
       ]
     },
@@ -4942,12 +4319,12 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 166,
           "column": 27
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 166,
           "column": 58
         }
@@ -4984,7 +4361,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 371,
+          "line": 321,
           "column": 102
         },
         {
@@ -5013,6 +4390,23 @@
         }
       ]
     },
+    "ca92daf0fbb33f04": {
+      "source": "开启外部 API 网关",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 55,
+          "column": 20
+        },
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 58,
+          "column": 24
+        }
+      ]
+    },
     "cb2f1709f983d2f4": {
       "source": "模型名称",
       "kind": "text",
@@ -5024,14 +4418,28 @@
           "column": 15
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 159,
           "column": 25
         },
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 312,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 39,
           "column": 37
+        }
+      ]
+    },
+    "cb81d6b763abfd57": {
+      "source": "WorkBuddy 助手 v{version}",
+      "kind": "template",
+      "placeholders": [
+        "version"
+      ],
+      "refs": [
+        {
+          "file": "shell/AppHeader.tsx",
+          "line": 34,
+          "column": 18
         }
       ]
     },
@@ -5071,25 +4479,13 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 165,
+          "line": 125,
           "column": 22
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 171,
+          "line": 131,
           "column": 20
-        }
-      ]
-    },
-    "cfe085015632e9c8": {
-      "source": "桌面前端连接的本地管理服务端口；填写 0 时启动时随机选择。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 202,
-          "column": 21
         }
       ]
     },
@@ -5111,21 +4507,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 170,
           "column": 50
-        }
-      ]
-    },
-    "d1a3d72618d1ed27": {
-      "source": "所有调用汇总、详细内容和追踪记录都会被删除。模型配置、CA 和应用设置不会受到影响，此操作无法撤销。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 158,
-          "column": 7
         }
       ]
     },
@@ -5158,31 +4542,19 @@
         }
       ]
     },
-    "d34335433395cd3a": {
-      "source": "登录系统后自动启动 Cursor BYOK。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/AppLifecycleSettingsCard.tsx",
-          "line": 116,
-          "column": 17
-        }
-      ]
-    },
     "d3716cc5a2f5a810": {
       "source": "服务器地址",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 154,
           "column": 70
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 354,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 339,
           "column": 27
         }
       ]
@@ -5193,14 +4565,26 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 341,
-          "column": 675
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 329,
+          "column": 676
         },
         {
           "file": "shared/ui/Modal.tsx",
           "line": 100,
           "column": 153
+        }
+      ]
+    },
+    "d46e523370816171": {
+      "source": "必须是 1–65535 之间的整数",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/SettingsPage.tsx",
+          "line": 50,
+          "column": 34
         }
       ]
     },
@@ -5222,7 +4606,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorPresetChips.tsx",
+          "file": "features/models/WorkBuddyPresetChips.tsx",
           "line": 8,
           "column": 37
         }
@@ -5235,7 +4619,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 268,
+          "line": 271,
           "column": 32
         }
       ]
@@ -5246,17 +4630,17 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 163,
           "column": 121
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 165,
           "column": 122
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 168,
           "column": 122
         }
@@ -5268,21 +4652,9 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 170,
           "column": 137
-        }
-      ]
-    },
-    "d71b0171c44b668a": {
-      "source": "关闭后将移除 Cursor 本地代理配置。如果你需要登陆官方账号，通常不需要关闭操作，推荐直接登陆你的账号即可(byok模型与官方账号的模型已支持无缝衔接)，是否继续关闭并清理代理？",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 339,
-          "column": 11
         }
       ]
     },
@@ -5306,8 +4678,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 351,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 336,
           "column": 27
         }
       ]
@@ -5320,8 +4692,8 @@
       ],
       "refs": [
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 322,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 49,
           "column": 22
         }
       ]
@@ -5333,32 +4705,8 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 190,
+          "line": 72,
           "column": 54
-        }
-      ]
-    },
-    "d8c589c455675b46": {
-      "source": "提示词设置已保存",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 149,
-          "column": 15
-        }
-      ]
-    },
-    "da521d1c1cbd36af": {
-      "source": "需要授权安装证书",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 347,
-          "column": 47
         }
       ]
     },
@@ -5380,12 +4728,12 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 116,
           "column": 88
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 161,
           "column": 54
         }
@@ -5397,26 +4745,14 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 28,
           "column": 63
         },
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 29,
           "column": 92
-        }
-      ]
-    },
-    "dbd3596e4a86f3c2": {
-      "source": "配置模型",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 69,
-          "column": 56
         }
       ]
     },
@@ -5451,7 +4787,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 462,
+          "line": 412,
           "column": 11
         }
       ]
@@ -5468,36 +4804,24 @@
         }
       ]
     },
-    "df1baa9f706d970b": {
-      "source": "将新增",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 70,
-          "column": 61
-        }
-      ]
-    },
     "df3d58c7d84b85f2": {
       "source": "设置",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelCards.tsx",
+          "file": "features/models/WorkBuddyModelCards.tsx",
           "line": 194,
           "column": 64
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 318,
+          "line": 251,
           "column": 30
         },
         {
           "file": "shell/AppLayout.tsx",
-          "line": 78,
+          "line": 50,
           "column": 29
         }
       ]
@@ -5563,21 +4887,9 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 34,
           "column": 7
-        }
-      ]
-    },
-    "e1295adecbb77755": {
-      "source": "关闭广告",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "shell/ads/FloatingAd.tsx",
-          "line": 64,
-          "column": 66
         }
       ]
     },
@@ -5611,8 +4923,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 220,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 206,
           "column": 26
         }
       ]
@@ -5661,7 +4973,7 @@
       ],
       "refs": [
         {
-          "file": "features/models/CursorModelTestResult.tsx",
+          "file": "features/models/WorkBuddyModelTestResult.tsx",
           "line": 45,
           "column": 7
         }
@@ -5674,25 +4986,8 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 75,
+          "line": 47,
           "column": 44
-        }
-      ]
-    },
-    "e2ebc59779f012ed": {
-      "source": "生成模型",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 189,
-          "column": 24
-        },
-        {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 197,
-          "column": 24
         }
       ]
     },
@@ -5714,7 +5009,7 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 154,
           "column": 54
         }
@@ -5756,7 +5051,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 76,
+          "line": 62,
           "column": 17
         }
       ]
@@ -5768,7 +5063,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 268,
+          "line": 271,
           "column": 43
         }
       ]
@@ -5796,38 +5091,14 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 147,
           "column": 25
         },
         {
-          "file": "features/models/CursorModelEditor.tsx",
+          "file": "features/models/WorkBuddyModelEditor.tsx",
           "line": 147,
           "column": 55
-        }
-      ]
-    },
-    "e828bd3a0151edc2": {
-      "source": "需要在系统中信任本地 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 20,
-          "column": 33
-        }
-      ]
-    },
-    "e8b1268c1e3610f2": {
-      "source": "已存在",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/LegacyModelImport.tsx",
-          "line": 71,
-          "column": 66
         }
       ]
     },
@@ -5838,7 +5109,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 428,
+          "line": 378,
           "column": 100
         }
       ]
@@ -5850,7 +5121,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 162,
+          "line": 122,
           "column": 26
         }
       ]
@@ -5867,30 +5138,6 @@
         }
       ]
     },
-    "eb4a3db23661fb52": {
-      "source": "应用于该分组下的全部模型，并作为 Cursor 模型选择器中的徽章标签；清空则恢复显示服务器域名。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 351,
-          "column": 44
-        }
-      ]
-    },
-    "eb77492c9f76a7e1": {
-      "source": "安装命令已自动复制。点击“打开终端”，将命令粘贴到终端中执行，并按提示输入密码。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 347,
-          "column": 77
-        }
-      ]
-    },
     "eba54690937bc532": {
       "source": "账号管理",
       "kind": "text",
@@ -5900,6 +5147,18 @@
           "file": "features/plugins/PluginManagementPage.tsx",
           "line": 240,
           "column": 20
+        }
+      ]
+    },
+    "ebdcbdcf9c998d72": {
+      "source": "选填",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddyModelEditor.tsx",
+          "line": 161,
+          "column": 124
         }
       ]
     },
@@ -5928,21 +5187,9 @@
           "column": 15
         },
         {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 318,
+          "file": "features/models/WorkBuddySettingsPage.tsx",
+          "line": 314,
           "column": 98
-        }
-      ]
-    },
-    "edc70de18c6da1a6": {
-      "source": "安装本地 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 346,
-          "column": 53
         }
       ]
     },
@@ -5958,15 +5205,15 @@
         }
       ]
     },
-    "ee6b89a6a740a4c4": {
-      "source": "端口被占用时会自动选择新的随机端口并保存。修改后需要重启软件才会生效。",
+    "ee3a7e22f2abb6ee": {
+      "source": "还没有可供使用的模型",
       "kind": "text",
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 221,
-          "column": 16
+          "file": "features/models/WorkBuddyGates.tsx",
+          "line": 18,
+          "column": 14
         }
       ]
     },
@@ -5979,7 +5226,7 @@
       "refs": [
         {
           "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 434,
+          "line": 384,
           "column": 84
         }
       ]
@@ -6046,8 +5293,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 312,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 39,
           "column": 69
         }
       ]
@@ -6112,7 +5359,7 @@
         },
         {
           "file": "shell/AppLayout.tsx",
-          "line": 79,
+          "line": 51,
           "column": 46
         }
       ]
@@ -6126,7 +5373,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 249,
+          "line": 182,
           "column": 21
         }
       ]
@@ -6164,6 +5411,11 @@
           "file": "features/settings/ProxySettingsCard.tsx",
           "line": 72,
           "column": 132
+        },
+        {
+          "file": "shell/AppLayout.tsx",
+          "line": 106,
+          "column": 66
         }
       ]
     },
@@ -6205,18 +5457,6 @@
         }
       ]
     },
-    "fa5b4b8a751c7d1b": {
-      "source": "Cursor 使用的本地代理端口；填写 0 时启动时随机选择。",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/settings/SettingsPage.tsx",
-          "line": 189,
-          "column": 21
-        }
-      ]
-    },
     "fac2a67ad87807c4": {
       "source": "确定",
       "kind": "text",
@@ -6228,8 +5468,8 @@
           "column": 20
         },
         {
-          "file": "features/plugins/PluginResourcePanels.tsx",
-          "line": 304,
+          "file": "features/plugins/PluginModelManagementModal.tsx",
+          "line": 31,
           "column": 18
         }
       ]
@@ -6260,18 +5500,6 @@
           "file": "features/settings/AppLifecycleSettingsCard.tsx",
           "line": 162,
           "column": 25
-        }
-      ]
-    },
-    "fbe8778fa8b9bab5": {
-      "source": "需要先初始化本地 CA",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 20,
-          "column": 54
         }
       ]
     },
@@ -6307,18 +5535,6 @@
         }
       ]
     },
-    "fc50d0b72bc871db": {
-      "source": "关闭接管",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorSettingsPage.tsx",
-          "line": 332,
-          "column": 21
-        }
-      ]
-    },
     "fcd311fd8ad42462": {
       "source": "打开模型列表",
       "kind": "text",
@@ -6326,7 +5542,7 @@
       "refs": [
         {
           "file": "shared/ui/Select.tsx",
-          "line": 142,
+          "line": 150,
           "column": 90
         }
       ]
@@ -6398,7 +5614,7 @@
       "refs": [
         {
           "file": "shell/AppLayout.tsx",
-          "line": 81,
+          "line": 53,
           "column": 48
         }
       ]
@@ -6410,7 +5626,7 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 309,
+          "line": 242,
           "column": 38
         }
       ]
@@ -6421,13 +5637,8 @@
       "placeholders": [],
       "refs": [
         {
-          "file": "features/settings/CommitSettingsCard.tsx",
-          "line": 169,
-          "column": 24
-        },
-        {
           "file": "features/settings/ExternalApiSettingsCard.tsx",
-          "line": 41,
+          "line": 50,
           "column": 15
         },
         {
@@ -6442,25 +5653,8 @@
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 180,
+          "line": 140,
           "column": 121
-        },
-        {
-          "file": "features/settings/TabSettingsCard.tsx",
-          "line": 37,
-          "column": 91
-        }
-      ]
-    },
-    "ff66b1c7e010bbc2": {
-      "source": "请在终端中粘贴授权命令并输入密码，完成后点击下方按钮",
-      "kind": "text",
-      "placeholders": [],
-      "refs": [
-        {
-          "file": "features/models/CursorGates.tsx",
-          "line": 21,
-          "column": 31
         }
       ]
     },
@@ -6471,18 +5665,30 @@
       "refs": [
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 71,
+          "line": 57,
           "column": 46
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 201,
+          "line": 148,
           "column": 22
         },
         {
           "file": "features/settings/SettingsPage.tsx",
-          "line": 216,
+          "line": 162,
           "column": 58
+        }
+      ]
+    },
+    "ff7b833ec16e7fe1": {
+      "source": "留空表示免密",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/settings/ExternalApiSettingsCard.tsx",
+          "line": 63,
+          "column": 80
         }
       ]
     }

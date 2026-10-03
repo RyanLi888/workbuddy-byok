@@ -41,12 +41,12 @@ mod tests {
         });
 
         assert_eq!(
-            render_json_strings(&template, "cursor-conversation-id"),
+            render_json_strings(&template, "workbuddy-conversation-id"),
             serde_json::json!({
-                "session": "cursor-conversation-id",
+                "session": "workbuddy-conversation-id",
                 "nested": {
-                    "label": "conversation=cursor-conversation-id/cursor-conversation-id",
-                    "values": ["cursor-conversation-id", 42, true, null]
+                    "label": "conversation=workbuddy-conversation-id/workbuddy-conversation-id",
+                    "values": ["workbuddy-conversation-id", 42, true, null]
                 }
             })
         );
@@ -60,7 +60,7 @@ mod tests {
         });
 
         assert_eq!(
-            render_json_strings(&template, "cursor-conversation-id"),
+            render_json_strings(&template, "workbuddy-conversation-id"),
             template
         );
     }

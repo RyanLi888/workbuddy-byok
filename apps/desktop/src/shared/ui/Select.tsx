@@ -1,5 +1,5 @@
 import { autoUpdate, computePosition, flip, offset, shift, size } from "@floating-ui/dom";
-import { forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { VirtualList } from "../virtual/VirtualList";
 import type { VirtualListApi } from "../virtual/virtualTypes";
@@ -42,14 +42,22 @@ export function Select({ value, options, disabled, ariaLabel, onChange }: { valu
     setActive((index) => (index + step + options.length) % options.length);
   };
   const choose = (option: SelectOption) => { onChange(option.value); setOpen(false); button.current?.focus(); };
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "ArrowDown") { event.preventDefault(); move(1); }
+    if (event.key === "ArrowUp") { event.preventDefault(); move(-1); }
+    if (event.key === "Enter" && open && options[active]) { event.preventDefault(); choose(options[active]); }
+    if (event.key === "Escape" && open) {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(false);
+      button.current?.focus();
+    }
+  };
   return <>
     <button ref={button} type="button" className={styles.trigger} aria-label={ariaLabel} aria-haspopup="listbox" aria-controls={open ? menuId : undefined} aria-expanded={open} disabled={disabled} onClick={() => { const nextOpen = !open; setOpen(nextOpen); if (nextOpen) setActive(Math.max(0, options.findIndex((option) => option.value === value))); }} onKeyDown={(event) => {
-      if (event.key === "ArrowDown") { event.preventDefault(); move(1); }
-      if (event.key === "ArrowUp") { event.preventDefault(); move(-1); }
-      if (event.key === "Enter" && open) { event.preventDefault(); choose(options[active]); }
-      if (event.key === "Escape") setOpen(false);
+      onKeyDown(event);
     }}><span className={styles.optionContent}>{(selected?.icon || selected?.iconSrc) && <Icon icon={selected.icon} src={selected.iconSrc} />}<span>{selected?.label ?? value}</span></span><Icon icon={chevronDownIcon} size="1.1em" className={[styles.dropdownIcon, open && styles.dropdownIconOpen].filter(Boolean).join(" ")} /></button>
-    {open && createPortal(<div id={menuId} ref={menu} className={styles.menu} role="listbox" style={{ left: position.left, top: position.top, width: position.width }}>
+    {open && createPortal(<div id={menuId} ref={menu} className={styles.menu} role="listbox" onKeyDown={onKeyDown} style={{ left: position.left, top: position.top, width: position.width }}>
       <VirtualList items={options} itemKey="value" estimatedItemHeight={30} onReady={(api) => { listApi.current = api; api.scrollToIndex(active); }} style={{ height: Math.min(options.length * 30, Math.max(30, position.maxHeight - 8)) }}>
         {(option, index) => <button type="button" role="option" aria-selected={option.value === value} data-active={index === active || undefined} onMouseEnter={() => setActive(index)} onClick={() => choose(option)}><span className={styles.optionContent}>{(option.icon || option.iconSrc) && <Icon icon={option.icon} src={option.iconSrc} />}<span>{option.label}</span></span></button>}
       </VirtualList>
@@ -147,4 +155,3 @@ export const Combobox = forwardRef<ComboboxHandle, ComboboxProps>(function Combo
     </div>, document.body)}
   </div>{append}</div>;
 });
-

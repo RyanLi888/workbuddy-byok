@@ -120,7 +120,7 @@ pub struct PluginProviderDescriptor {
     pub models: Vec<PluginModelDescriptor>,
 }
 
-/// 一个可直接被 Cursor 调用的插件模型。
+/// 一个可直接被 WorkBuddy 调用的插件模型。
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PluginModelDescriptor {
@@ -135,7 +135,10 @@ pub struct PluginModelDescriptor {
     pub icon: String,
     pub provider_type: String,
     pub max_output_tokens: Option<u64>,
+    pub context_window_tokens: Option<u64>,
     pub images: bool,
+    pub reasoning: bool,
+    pub reasoning_efforts: Vec<String>,
     pub enabled: bool,
 }
 
@@ -274,6 +277,27 @@ pub fn parse_model_id(value: &str) -> Option<(&str, &str, &str)> {
 }
 
 impl PluginModelDescriptor {
+    pub fn configure(&self, model: &mut crate::model::ModelSpec) -> crate::Result<()> {
+        model.display_name = Some(self.display_name.clone());
+        if let Some(tokens) = self.max_output_tokens {
+            model.max_output_tokens.get_or_insert(tokens);
+        }
+        if let Some(effort) = &model.reasoning.effort {
+            if !self.reasoning_efforts.is_empty() && !self.reasoning_efforts.contains(effort) {
+                return Err(crate::Error::Protocol(format!(
+                    "unsupported reasoning effort for {}: {effort}",
+                    self.display_name
+                )));
+            }
+        }
+        model.reasoning.enabled |= model
+            .reasoning
+            .effort
+            .as_deref()
+            .is_some_and(|effort| effort != "none");
+        Ok(())
+    }
+
     pub fn new(
         plugin_id: &str,
         plugin_name: &str,
@@ -292,7 +316,10 @@ impl PluginModelDescriptor {
             icon: icon.to_owned(),
             provider_type: provider.provider_type.clone(),
             max_output_tokens: model.max_output_tokens,
+            context_window_tokens: model.context_window_tokens,
             images: model.images,
+            reasoning: model.reasoning,
+            reasoning_efforts: model.reasoning_efforts.clone(),
             enabled: model.enabled,
         }
     }
@@ -301,6 +328,31 @@ impl PluginModelDescriptor {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn preserves_workbuddy_effort_and_rejects_unsupported_effort() {
+        let provider = serde_json::from_value(serde_json::json!({
+            "id":"codex", "displayName":"Codex", "providerType":"openai", "hasModels":true
+        }))
+        .unwrap();
+        let stored = StoredModel::from_definition(&serde_json::json!({
+            "id":"test", "displayName":"Test", "reasoningEfforts":["low", "high"]
+        }))
+        .unwrap();
+        let descriptor = PluginModelDescriptor::new("dev.test", "Test", "", &provider, &stored);
+        let mut model = crate::model::ModelSpec::new("test");
+        descriptor.configure(&mut model).unwrap();
+        assert_eq!(model.reasoning.effort, None);
+        model.reasoning.effort = Some("low".into());
+        descriptor.configure(&mut model).unwrap();
+        assert_eq!(model.reasoning.effort.as_deref(), Some("low"));
+        model.reasoning.effort = Some("max".into());
+        assert!(descriptor.configure(&mut model).is_err());
+        let descriptor = PluginModelDescriptor::new("dev.test", "Test", "", &provider, &stored);
+        let mut model = crate::model::ModelSpec::new("test");
+        descriptor.configure(&mut model).unwrap();
+        assert_eq!(model.reasoning.effort, None);
+    }
 
     #[test]
     fn parses_stable_model_ids_with_slashes() {

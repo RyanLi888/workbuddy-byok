@@ -1,6 +1,5 @@
 import type {
   CallDetail,
-  CursorHarnessStatus,
   ExternalApiSettings,
   LlmCall,
   Model,
@@ -8,7 +7,6 @@ import type {
   OverviewTokenUsageBucket,
   ProxySettings,
   StatisticsStorage,
-  TabSettings,
 } from "../shared/api";
 
 const API_ROOT = "/__byok-api__/api";
@@ -74,19 +72,8 @@ const calls: LlmCall[] = Array.from({ length: 24 }, (_, index) => {
   };
 });
 
-let harnessStatus: CursorHarnessStatus = {
-  platform: "macos",
-  ca: "ready",
-  configured_models: models.length,
-  enabled_models: models.length,
-  integration: "enabled",
-  settings_applied: true,
-  proxy_url: "http://127.0.0.1:54321",
-  ca_install_command: null,
-};
-
 let detailed = true;
-let portSettings = { proxy_port: 0, service_port: 0 };
+let portSettings = { service_port: 3721 };
 let externalApiSettings: ExternalApiSettings = { enabled: false, api_key: "" };
 let proxySettings: ProxySettings = {
   mode: "default",
@@ -95,8 +82,7 @@ let proxySettings: ProxySettings = {
   username: "",
   has_password: false,
 };
-let tabSettings: TabSettings = { mode: "public", address: "" };
-let storage: StatisticsStorage = { call_count: calls.length, trace_count: calls.length };
+let storage: StatisticsStorage = { call_count: calls.length };
 
 export function installDemoApi() {
   const nativeFetch = window.fetch.bind(window);
@@ -110,15 +96,14 @@ export function installDemoApi() {
     const method = (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
     const body = await readBody(input, init);
 
-    if (path === "/promotions") return json({ slots: [] });
+    if (path === "/plugins") return json([]);
+    if (path === "/plugins/runtime") return json({state:"uninitialized",version:"2.9.6"});
+    if (path === "/workbuddy/status") return json({ enabled: externalApiSettings.enabled, base_url: "http://127.0.0.1:3721/v1", models_path: "~/.workbuddy/models.json", sync_error: null });
+    if (path === "/workbuddy/sync") return json({success:true,syncedCount:models.length,path:"~/.workbuddy/models.json"});
     if (path === "/models" && method === "GET") return json(models);
     if (path === "/models" && method === "POST") return json(models);
     if (path === "/models/order") return json(models);
     if (path === "/models/discover") return json({ models: models.map((model) => model.model_id) });
-    if (path === "/models/import-v0049" && method === "GET") {
-      return json({ source: "demo", total: 0, new_models: 0, existing_models: 0, models: [] });
-    }
-    if (path === "/models/import-v0049") return json({ imported: 0, skipped: 0, total: 0 });
     if (/^\/models\/[^/]+\/test\/[^/]+$/.test(path) && method === "POST") {
       return json({ duration_ms: 1_284, first_valid_response_ms: 418, output_tokens: 42, tokens_per_second: 38.6, tokens_estimated: false, output: "Mock connectivity test passed." });
     }
@@ -128,18 +113,6 @@ export function installDemoApi() {
     if (path === "/overview") return json(createOverview(url.searchParams));
     if (path === "/llm-calls") return json(calls);
     if (path.startsWith("/llm-calls/")) return json(createCallDetail(path.slice("/llm-calls/".length)));
-    if (path === "/harness/cursor/status") return json(harnessStatus);
-    if (path === "/harness/cursor/ca/initialize") return json(harnessStatus);
-    if (path === "/harness/cursor/enabled") {
-      const enabled = Boolean((body as { enabled?: unknown } | null)?.enabled);
-      harnessStatus = {
-        ...harnessStatus,
-        integration: enabled ? "enabled" : "disabled",
-        settings_applied: enabled,
-        proxy_url: enabled ? "http://127.0.0.1:54321" : null,
-      };
-      return json(harnessStatus);
-    }
     if (path === "/settings/observability" && method === "GET") return json({ detailed });
     if (path === "/settings/observability") {
       detailed = Boolean((body as { detailed?: unknown } | null)?.detailed);
@@ -158,7 +131,7 @@ export function installDemoApi() {
     if (path === "/settings/storage/statistics" && method === "GET") return json(storage);
     if (path === "/settings/storage/statistics") {
       const scope = (body as { scope?: string } | null)?.scope ?? "details";
-      storage = scope === "all" ? { call_count: 0, trace_count: 0 } : storage;
+      storage = scope === "all" ? { call_count: 0 } : storage;
       return json(storage);
     }
     if (path === "/settings/proxy" && method === "GET") return json(proxySettings);
@@ -166,11 +139,6 @@ export function installDemoApi() {
       const next = body as Partial<ProxySettings>;
       proxySettings = { ...proxySettings, ...next, has_password: Boolean(next.has_password) };
       return json(proxySettings);
-    }
-    if (path === "/settings/tab" && method === "GET") return json(tabSettings);
-    if (path === "/settings/tab") {
-      tabSettings = body as TabSettings;
-      return json(tabSettings);
     }
     if (path === "/settings/desktop" && method === "GET") return json({ silent_start: false, show_dock_icon: true });
     if (path === "/settings/desktop") return json(body);
@@ -286,7 +254,6 @@ function createCallDetail(id: string): CallDetail {
       { seq: 1, received_offset_ms: 418, data: "event: response.created", byte_count: 128 },
       { seq: 2, received_offset_ms: 512, data: "event: response.output_text.delta", byte_count: 256 },
     ],
-    cursor_trace: null,
   };
 }
 

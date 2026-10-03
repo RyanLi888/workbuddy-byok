@@ -1,5 +1,3 @@
-import type { AdRuntime } from "../shell/ads/types";
-import type { CommitPromptLocale, Locale } from "../i18n/runtime";
 
 export type ModelType = "openai" | "anthropic";
 
@@ -64,27 +62,8 @@ export interface ModelDiscoveryInput {
   custom_headers: Record<string, string>;
 }
 
-export interface LegacyModelImportPreviewItem {
-  model_hash: string;
-  display_name: string;
-  model_id: string;
-  type: ModelType;
-  existing: boolean;
-}
 
-export interface LegacyModelImportPreview {
-  source: string;
-  total: number;
-  new_models: number;
-  existing_models: number;
-  models: LegacyModelImportPreviewItem[];
-}
 
-export interface LegacyModelImportResult {
-  imported: number;
-  skipped: number;
-  total: number;
-}
 
 export interface ModelConnectivityResult {
   duration_ms: number;
@@ -95,21 +74,7 @@ export interface ModelConnectivityResult {
   output: string;
 }
 
-export type CaState = "missing" | "untrusted" | "ready" | "invalid";
-export type IntegrationState = "disabled" | "enabled" | "degraded";
-export interface CursorHarnessStatus {
-  platform: string;
-  ca: CaState;
-  configured_models: number;
-  enabled_models: number;
-  integration: IntegrationState;
-  settings_applied: boolean;
-  proxy_url: string | null;
-  ca_install_command: string | null;
-}
-
 export interface PortSettings {
-  proxy_port: number;
   service_port: number;
 }
 
@@ -120,7 +85,6 @@ export interface ExternalApiSettings {
 
 export interface StatisticsStorage {
   call_count: number;
-  trace_count: number;
 }
 
 export type StatisticsStorageScope = "details" | "all";
@@ -143,26 +107,9 @@ export interface ProxySettingsInput {
   password?: string;
 }
 
-export type TabMode = "public" | "direct" | "custom";
-
-export interface TabSettings {
-  mode: TabMode;
-  address: string;
-}
-
 export interface DesktopSettings {
   silent_start: boolean;
   show_dock_icon: boolean;
-}
-
-export interface CommitSettings {
-  model_id: string;
-  prompt: string;
-  prompt_locale: CommitPromptLocale;
-}
-
-export interface CommitSettingsView extends CommitSettings {
-  default_prompt: string;
 }
 
 export interface TokenPricingSettings {
@@ -289,7 +236,10 @@ export interface PluginModelDescriptor {
   icon: string;
   providerType: string;
   maxOutputTokens: number | null;
+  contextWindowTokens: number | null;
   images: boolean;
+  reasoning: boolean;
+  reasoningEfforts: string[];
   enabled: boolean;
 }
 
@@ -376,8 +326,8 @@ export interface Overview {
 }
 
 export interface LlmCall {
-  call_kind: "provider_llm" | "cursor_official";
-  route: "local_byok" | "cursor_official";
+  call_kind: "provider_llm";
+  route: "local_byok" | "external_api";
   call_id: string;
   run_id: string;
   conversation_id: string;
@@ -416,33 +366,6 @@ export interface CallDetail {
   call: LlmCall;
   request: { headers: unknown; body: unknown; byte_count: number } | null;
   response_chunks: Array<{ seq: number; received_offset_ms: number; data: string; byte_count: number }>;
-  cursor_trace: {
-    trace: {
-      request_id: string;
-      conversation_id: string | null;
-      route: "local_byok" | "cursor_official";
-      model_id: string | null;
-      status: string;
-      request_bytes: number;
-      response_bytes: number;
-      response_event_count: number;
-      http_status: number | null;
-      received_at_ms: number;
-      first_response_at_ms: number | null;
-      finished_at_ms: number | null;
-      error_message: string | null;
-    };
-    artifacts: Array<{
-      seq: number;
-      artifact_type: string;
-      source: string;
-      metadata: unknown;
-      created_at_ms: number;
-      byte_count: number;
-      encoding: "utf8" | "base64";
-      data: string;
-    }>;
-  } | null;
 }
 
 const packagedDesktop = "__TAURI_INTERNALS__" in window
@@ -476,22 +399,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  ads: (disabledAdIds: Iterable<string>, locale: Locale) => {
-    const value = [...disabledAdIds].join(",");
-    return request<AdRuntime>("/promotions", {
-      headers: {
-        "accept-language": locale,
-        ...(value ? { "disable-ad-ids": value } : {}),
-      },
-    });
-  },
-  dismissAd: (id: string, reason: string) => request<void>(`/promotions/${encodeURIComponent(id)}/dismissals`, { method: "POST", body: JSON.stringify({ reason }) }),
   models: () => request<Model[]>("/models"),
   createModels: (models: ModelInput[]) => request<Model[]>("/models", { method: "POST", body: JSON.stringify({ models }) }),
   reorderModels: (modelHashes: string[]) => request<Model[]>("/models/order", { method: "PUT", body: JSON.stringify({ model_hashes: modelHashes }) }),
   discoverModels: (input: ModelDiscoveryInput) => request<{ models: string[] }>("/models/discover", { method: "POST", body: JSON.stringify(input) }),
-  previewV0049Models: () => request<LegacyModelImportPreview>("/models/import-v0049"),
-  importV0049Models: () => request<LegacyModelImportResult>("/models/import-v0049", { method: "POST" }),
   updateModel: (hash: string, model: ModelInput) => request<Model>(`/models/${hash}`, { method: "PUT", body: JSON.stringify(model) }),
   deleteModel: (hash: string) => request<void>(`/models/${hash}`, { method: "DELETE" }),
   testModel: (hash: string, testId: string, signal?: AbortSignal) => request<ModelConnectivityResult>(`/models/${encodeURIComponent(hash)}/test/${encodeURIComponent(testId)}`, { method: "POST", signal }),
@@ -507,8 +418,6 @@ export const api = {
     const query = params.toString();
     return request<Overview>(`/overview${query ? `?${query}` : ""}`);
   },
-  cursorHarness: () => request<CursorHarnessStatus>("/harness/cursor/status"),
-  initializeCursorCa: () => request<CursorHarnessStatus>("/harness/cursor/ca/initialize", { method: "POST" }),
   plugins: () => request<PluginDescriptor[]>("/plugins"),
   pluginOAuthBegin: (pluginId: string, resourceType: string, methodId: string) => request<PluginOAuthBegin>(`/plugins/${encodeURIComponent(pluginId)}/resources/${encodeURIComponent(resourceType)}/add/${encodeURIComponent(methodId)}/begin`, { method: "POST" }),
   pluginOAuthPoll: (sessionId: string, signal?: AbortSignal) => request<PluginOAuthPoll>(`/plugins/oauth/${encodeURIComponent(sessionId)}/poll`, { method: "POST", signal }),
@@ -523,17 +432,13 @@ export const api = {
   pluginRuntime: () => request<PluginRuntimeStatus>("/plugins/runtime"),
   initializePluginRuntime: () => request<PluginRuntimeStatus>("/plugins/runtime", { method: "POST" }),
   cancelPluginRuntimeInitialization: () => request<PluginRuntimeStatus>("/plugins/runtime", { method: "DELETE" }),
-  openCursorCaInstallTerminal: async (command: string) => {
-    if (!packagedDesktop) throw new Error(t("请在桌面应用中打开终端安装 CA"));
-    const { invoke } = await import("@tauri-apps/api/core");
-    await invoke("open_terminal_with_command", { command });
-  },
-  copyCursorText: async (text: string) => {
-    if (!packagedDesktop) throw new Error(t("请在桌面应用中复制到系统剪贴板"));
+  copyText: async (text: string) => {
+    if (!packagedDesktop) return navigator.clipboard.writeText(text);
     const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
     await writeText(text);
   },
-  setCursorEnabled: (enabled: boolean) => request<CursorHarnessStatus>("/harness/cursor/enabled", { method: "PUT", body: JSON.stringify({ enabled }) }),
+  syncWorkBuddyModels: () => request<{ success: boolean; syncedCount: number; path: string }>("/workbuddy/sync", { method: "POST" }),
+  workBuddyStatus: () => request<{ enabled: boolean; base_url: string | null; models_path: string; sync_error: string | null }>("/workbuddy/status"),
   calls: () => request<LlmCall[]>("/llm-calls?limit=200"),
   call: (id: string) => request<CallDetail>(`/llm-calls/${encodeURIComponent(id)}`),
   openCallDetails: async (id: string) => {
@@ -552,12 +457,8 @@ export const api = {
   clearStatisticsStorage: (scope: StatisticsStorageScope) => request<StatisticsStorage>("/settings/storage/statistics", { method: "DELETE", body: JSON.stringify({ scope }) }),
   proxySettings: () => request<ProxySettings>("/settings/proxy"),
   setProxySettings: (settings: ProxySettingsInput) => request<ProxySettings>("/settings/proxy", { method: "PUT", body: JSON.stringify(settings) }),
-  tabSettings: () => request<TabSettings>("/settings/tab"),
-  setTabSettings: (settings: TabSettings) => request<TabSettings>("/settings/tab", { method: "PUT", body: JSON.stringify(settings) }),
   desktopSettings: () => request<DesktopSettings>("/settings/desktop"),
   setDesktopSettings: (settings: DesktopSettings) => request<DesktopSettings>("/settings/desktop", { method: "PUT", body: JSON.stringify(settings) }),
-  commitSettings: (locale: Locale) => request<CommitSettingsView>("/settings/commit", { headers: { "accept-language": locale } }),
-  setCommitSettings: (settings: CommitSettings) => request<CommitSettingsView>("/settings/commit", { method: "PUT", body: JSON.stringify(settings) }),
   pricingSettings: () => request<TokenPricingSettings>("/settings/pricing"),
   setPricingSettings: (settings: TokenPricingSettings) => request<TokenPricingSettings>("/settings/pricing", { method: "PUT", body: JSON.stringify(settings) }),
 };

@@ -3,11 +3,11 @@ import type {
   NetworkEventStream,
   NetworkResponse,
   PluginContext,
-} from "cursor-byok:plugin";
-import type { LlmRequest, ModelEvent } from "cursor-byok:provider";
-import type { ResourceSnapshot } from "cursor-byok:resource";
+} from "workbuddy-byok:plugin";
+import type { LlmRequest, ModelEvent } from "workbuddy-byok:provider";
+import type { ResourceSnapshot } from "workbuddy-byok:resource";
 import { grokDeviceOAuth } from "./oauth.ts";
-import { FALLBACK_MODELS, grokModels, parseGrokModels } from "./models.ts";
+import { grokModels, parseGrokModels } from "./models.ts";
 import { grokProvider, isQuotaError } from "./provider.ts";
 import {
   accountIdentity,
@@ -76,7 +76,7 @@ function request(): LlmRequest {
     instructions: "You are a coding assistant.",
     messages: [{ role: "user", content: [{ type: "text", text: "hi" }] }],
     tools: [],
-    reasoning: { enabled: true, effort: "medium" },
+    reasoning: { enabled: false, effort: null },
     latency: "fast",
     maxOutputTokens: 32_000,
     cacheKey: "conversation-1",
@@ -158,24 +158,217 @@ Deno.test("model discovery parses both language-models and standard list shapes"
       { id: "grok-4" },
     ],
   });
-  assertEquals(richModels.map((model) => model.id), ["grok-4", "grok-3-mini"]);
-  assertEquals(richModels[0].displayName, "Grok 4");
-  assertEquals(richModels[0].capabilities, { images: true });
-  assertEquals(richModels[1].capabilities, { images: false });
+  assertEquals(richModels.map((model) => model.id), ["grok-3-mini", "grok-4"]);
+  assertEquals(richModels[1].displayName, "Grok 4");
+  assertEquals(richModels[1].capabilities, { images: true, reasoning: false });
+  assertEquals(richModels[1].contextWindowTokens, 256000);
+  assertEquals(richModels[0].capabilities, { images: false, reasoning: false });
 
   const plainModels = parseGrokModels({ data: [{ id: "grok-4-fast" }] });
   assertEquals(plainModels.map((model) => model.id), ["grok-4-fast"]);
   assertEquals(plainModels[0].displayName, "Grok 4 Fast");
 });
 
-Deno.test("model discovery falls back to known models when the account cannot list", async () => {
+Deno.test("Grok discovery reads dynamic capabilities and removes only declared available aliases", () => {
+  const payload = {
+    models: [
+      {
+        id: "grok-10",
+        aliases: ["grok-latest"],
+        input_modalities: ["text", "image"],
+        output_modalities: ["text"],
+        context_length: 200000,
+        max_output_tokens: 4000,
+        capabilities: { reasoning_effort: ["low", "future-depth", "low"] },
+      },
+      { id: "grok-latest" },
+      { id: "grok-2", display_name: "Grok 2" },
+      { id: "other-version", display_name: "Grok 2" },
+      { id: "image-generator", output_modalities: ["image"] },
+    ],
+  };
+  const models = parseGrokModels(payload);
+  assertEquals(models.map((model) => model.id), ["grok-2", "other-version", "grok-10"]);
+  assertEquals(models[2].capabilities, { images: true, reasoning: true });
+  assertEquals(models[2].reasoningEfforts, ["low", "future-depth"]);
+  assertEquals(models[2].contextWindowTokens, 200000);
+  assertEquals(models[2].maxOutputTokens, 4000);
+  assertEquals(parseGrokModels({ models: [...payload.models].reverse() }), models);
+});
+
+Deno.test("Grok discovery keeps ambiguous and cyclic aliases without losing available models", () => {
+  const models = parseGrokModels({
+    models: [
+      { id: "a", aliases: ["shared", "b"] },
+      { id: "b", aliases: ["shared", "a"] },
+      { id: "shared" },
+      { id: "generator", aliases: ["standalone"], output_modalities: ["image"] },
+      { id: "standalone" },
+    ],
+  });
+  assertEquals(models.map((model) => model.id), ["a", "b", "shared", "standalone"]);
+});
+
+Deno.test("Grok resync replaces models and capabilities and forwards newly discovered efforts", async () => {
+  const resource = snapshot({ accessToken: "mock-token" });
+  let sync = 0;
+  const discovery = context({
+    fetch: (url, init) => {
+      assertEquals(init?.headers?.authorization, "Bearer mock-token");
+      if (url === "https://api.x.ai/v1/models") {
+        return { status: 200, headers: {}, body: JSON.stringify({ data: [] }) };
+      }
+      assertEquals(url, "https://api.x.ai/v1/language-models");
+      sync++;
+      return {
+        status: 200,
+        headers: {},
+        body: JSON.stringify({
+          models: sync === 1
+            ? [
+              {
+                id: "dynamic",
+                input_modalities: ["text", "image"],
+                context_length: 1000,
+                capabilities: { reasoning_effort: ["old-depth"] },
+              },
+              { id: "retired" },
+            ]
+            : [
+              {
+                id: "dynamic",
+                input_modalities: ["text"],
+                context_length: 2000,
+                capabilities: { reasoning_effort: ["new-depth"] },
+              },
+              { id: "new-model" },
+            ],
+        }),
+      };
+    },
+  });
+  const before = await grokModels.list({ resource }, discovery);
+  const after = await grokModels.list({ resource }, discovery);
+  assertEquals(before.map((model) => model.id), ["dynamic", "retired"]);
+  assertEquals(after.map((model) => model.id), ["dynamic", "new-model"]);
+  assertEquals(after[0].reasoningEfforts, ["new-depth"]);
+  assertEquals(after[0].contextWindowTokens, 2000);
+  assertEquals(after[0].capabilities?.images, false);
+  for (
+    const [model, effort, expected] of [
+      [before[0], "old-depth", "completed"],
+      [after[0], "new-depth", "completed"],
+      [after[0], "old-depth", "request-error"],
+      [after[0], "none", "request-error"],
+      [after[0], null, "completed"],
+    ] as const
+  ) {
+    let calls = 0;
+    const result = await grokProvider.invoke(
+      {
+        model,
+        resource,
+        request: { ...request(), reasoning: { enabled: effort !== null, effort } },
+      },
+      { emit: () => {} },
+      context({
+        stream: (_url, init) => {
+          calls++;
+          const body = JSON.parse(init?.body ?? "{}");
+          assertEquals(body.reasoning_effort, effort ?? undefined);
+          assertEquals(body.model, model.id);
+          assert(!("service_tier" in body));
+          return {
+            status: 200,
+            headers: {},
+            lines: sse(['data: {"choices":[{"delta":{},"finish_reason":"stop"}]}']),
+          };
+        },
+      }),
+    );
+    assertEquals(result.status, expected);
+    assertEquals(calls, expected === "completed" ? 1 : 0);
+  }
+});
+
+Deno.test("Grok discovery supplements metadata only for available language models", async () => {
+  let calls = 0;
+  const models = await grokModels.list(
+    { resource: snapshot({ accessToken: "mock-token" }) },
+    context({
+      fetch: (url) => {
+        calls++;
+        if (url.endsWith("/language-models")) {
+          return {
+            status: 200,
+            headers: {},
+            body: JSON.stringify({
+              models: [{ id: "dynamic", input_modalities: ["text", "image"] }],
+            }),
+          };
+        }
+        return {
+          status: 200,
+          headers: {},
+          body: JSON.stringify({
+            data: [
+              {
+                id: "dynamic",
+                context_length: 200000,
+                capabilities: { reasoning_effort: ["future-depth"] },
+              },
+              { id: "unavailable-language-model", capabilities: { reasoning_effort: ["high"] } },
+            ],
+          }),
+        };
+      },
+    }),
+  );
+  assertEquals(calls, 2);
+  assertEquals(models.map((model) => model.id), ["dynamic"]);
+  assertEquals(models[0].contextWindowTokens, 200000);
+  assertEquals(models[0].capabilities, { images: true, reasoning: true });
+  assertEquals(models[0].reasoningEfforts, ["future-depth"]);
+});
+
+Deno.test("Grok optional metadata failure preserves the language catalog", async () => {
+  const models = await grokModels.list(
+    { resource: snapshot({ accessToken: "mock-token" }) },
+    context({
+      fetch: (url) => {
+        if (url.endsWith("/language-models")) {
+          return {
+            status: 200,
+            headers: {},
+            body: JSON.stringify({
+              models: [{ id: "dynamic", capabilities: { reasoning_effort: ["future-depth"] } }],
+            }),
+          };
+        }
+        throw new Error("optional metadata unavailable");
+      },
+    }),
+  );
+  assertEquals(models.map((model) => model.id), ["dynamic"]);
+  assertEquals(models[0].reasoningEfforts, ["future-depth"]);
+});
+
+Deno.test("Grok empty discovery fails instead of publishing an empty catalog", async () => {
+  const error = await grokModels.list(
+    { resource: snapshot({ accessToken: "mock-token" }) },
+    context({ fetch: () => ({ status: 200, headers: {}, body: JSON.stringify({ models: [] }) }) }),
+  ).then(() => null, (cause: unknown) => cause);
+  assert(error instanceof Error && error.message.includes("no supported models"));
+});
+
+Deno.test("model discovery reports account errors without inventing models", async () => {
   const token = jwt({ sub: "user-1" });
   const draft = await credentialDraft({
     accessToken: token,
     refreshToken: null,
     displayName: null,
   });
-  const models = await grokModels.list(
+  const error = await grokModels.list(
     { resource: snapshot(draft.privateData) },
     context({
       fetch: () => ({
@@ -184,8 +377,8 @@ Deno.test("model discovery falls back to known models when the account cannot li
         body: JSON.stringify({ code: "personal-team-blocked:spending-limit" }),
       }),
     }),
-  );
-  assertEquals(models, FALLBACK_MODELS);
+  ).then(() => null, (cause: unknown) => cause);
+  assert(error instanceof Error && error.message.includes("HTTP 403"));
 });
 
 Deno.test("device OAuth begins with a host-held session and completes with a resource draft", async () => {
@@ -280,7 +473,7 @@ Deno.test("invoke streams normalized events from the xAI Chat Completions API", 
   assertEquals(body.model, "grok-4");
   assertEquals(body.stream, true);
   assertEquals(body.prompt_cache_key, "conversation-1");
-  assert(!("reasoning_effort" in body), "xAI endpoint rejects reasoning_effort");
+  assert(!("reasoning_effort" in body), "default request must leave reasoning effort to upstream");
   assert(!("service_tier" in body), "xAI endpoint rejects service_tier");
   assertEquals(requestHeaders["authorization"], `Bearer ${token}`);
   assertEquals(events, [

@@ -1,12 +1,11 @@
 //! Exposes the local control API.
-mod ads;
 mod calls;
-mod harness;
 mod models;
 mod overview;
 mod plugins;
 mod service;
 mod settings;
+mod workbuddy;
 
 use axum::{
     body::{to_bytes, Body},
@@ -22,8 +21,8 @@ use tower_http::{
 use url::{Host, Url};
 
 pub use service::{
-    CallDetail, CallSummary, ControlService, DiscoveredModels, LegacyModelImportPreview,
-    LegacyModelImportResult, ModelConnectivityResult, ModelDiscoveryInput, ObservabilitySettings,
+    CallDetail, CallSummary, ControlService, DiscoveredModels, ModelConnectivityResult,
+    ModelDiscoveryInput, ObservabilitySettings,
 };
 
 pub fn web_router(service: ControlService, assets: impl AsRef<std::path::Path>) -> Router {
@@ -111,24 +110,11 @@ fn proxy_error(error: impl std::fmt::Display) -> Response<Body> {
 
 pub fn api_router(service: ControlService) -> Router {
     Router::new()
-        .route("/__byok-api__/api/promotions", get(ads::get))
-        .route(
-            "/__byok-api__/api/promotions/images/{file_name}",
-            get(ads::image),
-        )
-        .route(
-            "/__byok-api__/api/promotions/{ad_id}/dismissals",
-            post(ads::dismiss),
-        )
         .route(
             "/__byok-api__/api/models",
             get(models::list).post(models::create),
         )
         .route("/__byok-api__/api/models/discover", post(models::discover))
-        .route(
-            "/__byok-api__/api/models/import-v0049",
-            get(models::preview_v0049).post(models::import_v0049),
-        )
         .route("/__byok-api__/api/models/order", put(models::reorder))
         .route("/__byok-api__/api/overview", get(overview::get))
         .route(
@@ -209,32 +195,20 @@ pub fn api_router(service: ControlService) -> Router {
             get(settings::get_proxy).put(settings::update_proxy),
         )
         .route(
-            "/__byok-api__/api/settings/tab",
-            get(settings::get_tab).put(settings::update_tab),
-        )
-        .route(
             "/__byok-api__/api/settings/desktop",
             get(settings::get_desktop).put(settings::update_desktop),
-        )
-        .route(
-            "/__byok-api__/api/settings/commit",
-            get(settings::get_commit).put(settings::update_commit),
         )
         .route(
             "/__byok-api__/api/settings/pricing",
             get(settings::get_pricing_settings).put(settings::update_pricing_settings),
         )
         .route(
-            "/__byok-api__/api/harness/cursor/status",
-            get(harness::status),
+            "/__byok-api__/api/workbuddy/status",
+            get(workbuddy::status),
         )
         .route(
-            "/__byok-api__/api/harness/cursor/ca/initialize",
-            post(harness::initialize_ca),
-        )
-        .route(
-            "/__byok-api__/api/harness/cursor/enabled",
-            put(harness::set_enabled),
+            "/__byok-api__/api/workbuddy/sync",
+            post(workbuddy::sync_models),
         )
         .with_state(service)
         .layer(desktop_cors())

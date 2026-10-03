@@ -1,4 +1,4 @@
-import type { PluginContext } from "cursor-byok:plugin";
+import type { PluginContext } from "workbuddy-byok:plugin";
 import { antigravityAuthorizationCodeOAuth } from "./oauth.ts";
 
 function assert(condition: unknown, message: string): asserts condition {

@@ -464,10 +464,10 @@ mod tests {
 
     #[test]
     fn sqlite_sidecar_paths_preserve_the_database_path() {
-        let database = Path::new(r"C:\Users\Test User\cursor-byok.db");
+        let database = Path::new(r"C:\Users\Test User\workbuddy-byok.db");
         assert_eq!(
             sidecar_path(database, "-wal"),
-            PathBuf::from(r"C:\Users\Test User\cursor-byok.db-wal")
+            PathBuf::from(r"C:\Users\Test User\workbuddy-byok.db-wal")
         );
     }
 

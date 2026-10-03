@@ -1,5 +1,5 @@
-import type { JsonValue, PluginContext } from "cursor-byok:plugin";
-import type { OAuth2AddMethod, OAuth2Begin, OAuth2Poll } from "cursor-byok:resource";
+import type { JsonValue, PluginContext } from "workbuddy-byok:plugin";
+import type { OAuth2AddMethod, OAuth2Begin, OAuth2Poll } from "workbuddy-byok:resource";
 import { type CredentialCandidate, credentialDraft } from "./resources.ts";
 
 const CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann";

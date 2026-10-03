@@ -1,4 +1,4 @@
-import type { JsonValue, PluginContext } from "cursor-byok:plugin";
+import type { JsonValue, PluginContext } from "workbuddy-byok:plugin";
 import type {
   ResourceDraft,
   ResourceImportFile,
@@ -9,7 +9,7 @@ import type {
   ResourceSnapshot,
   ResourceState,
   ResourceView,
-} from "cursor-byok:resource";
+} from "workbuddy-byok:resource";
 
 export const RESOURCE_TYPE = "grok-account";
 

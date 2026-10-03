@@ -1,9 +1,9 @@
-import type { JsonValue, PluginContext } from "cursor-byok:plugin";
+import type { JsonValue, PluginContext } from "workbuddy-byok:plugin";
 import type {
   OAuth2AuthorizationCodeAddMethod,
   OAuth2AuthorizationCodeBegin,
   ResourceDraft,
-} from "cursor-byok:resource";
+} from "workbuddy-byok:resource";
 import { credentialDraft, queryAccountQuota } from "./resources.ts";
 import {
   CLIENT_ID,
@@ -114,7 +114,7 @@ async function complete(
     // Account identity has a token fingerprint fallback.
   }
 
-  let projectId = "bamboo-precept-lgxtn";
+  let projectId: string | null = null;
   let quota = null;
   try {
     const result = await queryAccountQuota(accessToken, context.network);

@@ -122,21 +122,20 @@ pub async fn sync_models(
     Ok(Json(serde_json::json!({ "models": count })))
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ModelEnabledInput {
+    model_id: String,
+    enabled: bool,
+}
+
 pub async fn set_model_enabled(
     State(service): State<ControlService>,
     Path((plugin_id, provider_id)): Path<(String, String)>,
-    Json(input): Json<serde_json::Value>,
+    Json(input): Json<ModelEnabledInput>,
 ) -> Result<StatusCode> {
-    let model_id = input
-        .get("modelId")
-        .and_then(serde_json::Value::as_str)
-        .ok_or_else(|| crate::Error::Config("modelId must be a string".into()))?;
-    let enabled = input
-        .get("enabled")
-        .and_then(serde_json::Value::as_bool)
-        .ok_or_else(|| crate::Error::Config("enabled must be a boolean".into()))?;
     service
-        .plugin_set_model_enabled(&plugin_id, &provider_id, model_id, enabled)
+        .plugin_set_model_enabled(&plugin_id, &provider_id, &input.model_id, input.enabled)
         .await?;
     Ok(StatusCode::NO_CONTENT)
 }

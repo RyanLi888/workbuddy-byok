@@ -64,13 +64,10 @@ impl Provider for ProviderRouter {
                     // 插件模型与内置模型走完全相同的流程:资源选择与将来的
                     // 负载均衡都在插件 Provider 内部。
                     let plan = plugins.plan_model(&selected).await?;
-                    let recorder = start_recorder(&store, &invocation, &selected, &plan.model.display_name, ProviderType::Plugin, &plan.request_url, &plan.model.model_id).await?;
-                    let guard = recorder.cancel_on_drop();
                     let mut routed = invocation.clone();
-                    routed.request.model.display_name = Some(plan.model.display_name.clone());
-                    if let Some(tokens) = plan.model.max_output_tokens {
-                        routed.request.model.max_output_tokens.get_or_insert(tokens);
-                    }
+                    plan.model.configure(&mut routed.request.model)?;
+                    let recorder = start_recorder(&store, &routed, &selected, &plan.model.display_name, ProviderType::Plugin, &plan.request_url, &plan.model.model_id).await?;
+                    let guard = recorder.cancel_on_drop();
                     let provider: Arc<dyn Provider> = Arc::new(NormalizedProvider::new(Arc::new(PluginModelProvider {
                         registry: plugins.clone(),
                         recorder: recorder.clone(),
@@ -372,21 +369,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn renders_cursor_conversation_id_in_custom_header_values() {
+    fn renders_workbuddy_conversation_id_in_custom_header_values() {
         let template = serde_json::json!({
             "x-opencode-session-id": "{{SessionId}}",
-            "x-label": "cursor/{{SessionId}}"
+            "x-label": "workbuddy/{{SessionId}}"
         });
 
-        let headers = custom_headers(&template, "cursor-conversation-id").unwrap();
+        let headers = custom_headers(&template, "workbuddy-conversation-id").unwrap();
 
         assert_eq!(
             headers.get("x-opencode-session-id").unwrap(),
-            "cursor-conversation-id"
+            "workbuddy-conversation-id"
         );
         assert_eq!(
             headers.get("x-label").unwrap(),
-            "cursor/cursor-conversation-id"
+            "workbuddy/workbuddy-conversation-id"
         );
         assert_eq!(template["x-opencode-session-id"], "{{SessionId}}");
     }

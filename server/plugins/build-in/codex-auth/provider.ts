@@ -3,10 +3,10 @@ import type {
   ProviderOutput,
   ProviderResult,
   ProviderSupport,
-} from "cursor-byok:provider";
-import type { PluginContext } from "cursor-byok:plugin";
-import { HttpError, streamOpenAiResponses } from "cursor-byok:protocol/openai-responses";
-import { codexModels, reasoningEfforts } from "./models.ts";
+} from "workbuddy-byok:provider";
+import type { PluginContext } from "workbuddy-byok:plugin";
+import { HttpError, streamOpenAiResponses } from "workbuddy-byok:protocol/openai-responses";
+import { codexModels } from "./models.ts";
 import {
   type AccountData,
   accountData,
@@ -84,11 +84,14 @@ async function invoke(
     const message = error instanceof Error ? error.message : String(error);
     return invalidResult(message, message);
   }
-  const efforts = reasoningEfforts(input.model);
+  const efforts = input.model.reasoningEfforts ?? [];
   const reasoning = input.request.reasoning;
-  const effort = reasoning.effort !== null && efforts.includes(reasoning.effort)
-    ? reasoning.effort
-    : null;
+  if (reasoning.effort !== null && !efforts.includes(reasoning.effort)) {
+    return {
+      status: "request-error",
+      message: `unsupported Codex reasoning effort: ${reasoning.effort}`,
+    };
+  }
   try {
     await streamOpenAiResponses(
       {
@@ -98,7 +101,7 @@ async function invoke(
         // service_tier: "priority" 后透传。
         request: {
           ...input.request,
-          reasoning: { enabled: reasoning.enabled, effort },
+          reasoning,
           maxOutputTokens: null,
         },
         headers: headers(data, input.request.cacheKey),

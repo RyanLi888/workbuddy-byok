@@ -1,111 +1,136 @@
-<div align="center">
+# WorkBuddy BYOK
 
-# cursor-byok
-cursor-byok is a local implementation of Cursor's backend.
-<br>
-<br>
-<a href="https://trendshift.io/repositories/39260?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-39260" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/39260" alt="leookun/cursor-byok | Trendshift" width="250" height="55" /></a>
+[![CI](https://github.com/RyanLi888/workbuddy-byok/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanLi888/workbuddy-byok/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/RyanLi888/workbuddy-byok)](https://github.com/RyanLi888/workbuddy-byok/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[User Guide](https://docs.leokun.cn) · [Download](https://github.com/leookun/cursor-byok/releases/latest) · [Report an Issue](https://github.com/leookun/cursor-byok/issues) · [中文版本说明](./README-CN.md)
+A free, open-source local model gateway for WorkBuddy. Bring your own API endpoints and credentials, manage models, and sync them to WorkBuddy from a desktop app.
 
-[![Release](https://img.shields.io/github/v/release/leookun/cursor-byok?style=flat-square)](https://github.com/leookun/cursor-byok/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/leookun/cursor-byok/total?style=flat-square)](https://github.com/leookun/cursor-byok/releases)
-[![License](https://img.shields.io/github/license/leookun/cursor-byok?style=flat-square)](./LICENSE)
-[![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/leookun/cursor-byok/releases/latest)
+[中文说明](README-CN.md) · [Download](https://github.com/RyanLi888/workbuddy-byok/releases/latest) · [Report an issue](https://github.com/RyanLi888/workbuddy-byok/issues) · [Contributing](CONTRIBUTING.md)
 
-
-
-</div>
-
-![Connect cursor-byok to a wide range of model APIs](./images/en-brand-1.png)
-
-![cursor-byok dashboard](./images/en-home-1.png)
-
-## About
-
-cursor-byok is an open-source local model gateway for Cursor. It runs a service on your machine that connects Cursor to the model APIs you configure, routes model requests through your own providers, and preserves Cursor Agent capabilities such as tool calling, Skills, and MCP.
-
-You can connect OpenAI- and Anthropic-compatible services, customize endpoints, model IDs, API keys, and request parameters, and use model channels beyond the options built into the platform.
-
-> [!IMPORTANT]
-> cursor-byok is free and open source, but the model APIs you connect may charge for usage. This is an independent project and is not affiliated with or endorsed by Cursor or its developers.
+> This independent community project is adapted from [leookun/cursor-byok](https://github.com/leookun/cursor-byok). It is not affiliated with or endorsed by WorkBuddy, Tencent, Cursor, or the model providers. The software is free; connected APIs and account services may incur charges. Read the [disclaimer](#disclaimer) before use.
 
 ## Features
 
-- **Bring your own model channels:** Configure your own API endpoint, credentials, and model IDs.
-- **Multiple API protocols:** Use OpenAI- and Anthropic-compatible APIs or a custom endpoint.
-- **Model management:** Add, duplicate, edit, reorder, and batch-test multiple model configurations.
-- **Connection benchmarks:** Measure time to first token, generation speed, and inspect raw provider responses.
-- **Agent workflows:** Keep tool calling, Skills, MCP, and multi-turn conversations available.
-- **Session metrics:** Track token usage, cache hit rate, conversation turns, and estimated value.
-- **Cross-platform:** Run on macOS, Windows, and Linux.
+- Custom OpenAI Chat Completions, OpenAI Responses, and Anthropic-compatible APIs.
+- Model configuration, provider presets, connectivity tests, and automatic synchronization with WorkBuddy.
+- Built-in Codex, Google Antigravity, and Grok account plugins, with model discovery and credential management.
+- Streaming text, reasoning, tool calls, and usage forwarding. WorkBuddy manages conversations and executes tools.
+- Local call records, token statistics, latency charts, and estimated costs.
+- Windows, macOS, and Linux desktop builds, tray operation, and signed application updates.
 
-## Quick Start
+Account plugin availability depends on upstream access, account permissions, quotas, and service terms. Offline tests do not establish real-account compatibility.
 
-1. Download the latest build for your platform from [GitHub Releases](https://github.com/leookun/cursor-byok/releases/latest).
-2. Launch cursor-byok, open **Model Settings**, and enter the endpoint, API key, and model ID.
-3. Test the model configuration. Once it passes, return to the dashboard and start the service.
-4. Test the model configuration. Once it passes, return to the dashboard and start the service.
-5. After upgrading Cursor or configuring a model for the first time, quit Cursor completely and restart it, then start a new conversation and select the configured model.
+## Download and install
 
-For complete installation steps, system configuration, and Frequently Asked Questions, see the [User Guide](https://docs.leokun.cn).
+Download the matching asset from [GitHub Releases](https://github.com/RyanLi888/workbuddy-byok/releases/latest).
 
-## Model Management
+| Platform | Architecture | Package |
+| --- | --- | --- |
+| Windows | x64 | `*-setup.exe` (recommended), `.msi`, or portable `.zip` |
+| macOS | Apple Silicon / ARM64 | `*_aarch64.dmg` |
+| macOS | Intel / x64 | `*_x64.dmg` |
+| Linux | x64 | `.deb` or `.AppImage` |
 
-Model configurations support both OpenAI and Anthropic API protocols. Each model channel can independently define its context window, maximum output tokens, reasoning effort, custom headers, and additional request parameters.
+Choose the package for your CPU. `.sig`, `latest.json`, and `portable-latest.json` are update metadata. Desktop installation does not require Rust, Node.js, or a separate server. Account plugins download their runtime when initialized. The Windows portable build requires WebView2.
 
-![cursor-byok model settings](./images/en-model-1.png)
+Builds use updater signatures, which are separate from Windows publisher certificates and Apple notarization. These initial packages are not publisher-signed on Windows or notarized on macOS; the operating system may prompt before opening them. Check the source and release origin before allowing an application to run.
 
-## How It Works
+## Quick start
+
+1. Install WorkBuddy and WorkBuddy BYOK.
+2. Open **WorkBuddy models**, add your API protocol, endpoint, key, and model ID, then save and test the model.
+3. Enable **WorkBuddy gateway**; it is disabled on a fresh installation. Models synchronize within about two seconds. Use **One-click sync** for an immediate update.
+4. Refresh WorkBuddy model settings or restart WorkBuddy, select a synchronized model, and keep WorkBuddy BYOK running. Closing the window leaves it in the tray.
+
+For account plugins, first open **Plugins**, initialize the runtime, sign in or import credentials, and synchronize the account model catalog.
+
+The gateway base URL defaults to `http://127.0.0.1:3721/v1`. Synchronization writes the full `/v1/chat/completions` URL to `~/.workbuddy/models.json` using WorkBuddy's custom protocol option. See the [official WorkBuddy model configuration guide](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Model).
+
+## How it works
 
 ```text
-Cursor client
-    │
-    │ Agent requests and tool results
-    ▼
-cursor-byok local service
-    │
-    │ OpenAI- / Anthropic-compatible requests
-    ▼
-Your model API
+Desktop configuration / account sign-in
+    -> local model settings / plugin credentials
+    -> shared model catalog
+    -> ~/.workbuddy/models.json (gateway URL and gateway key)
+
+WorkBuddy conversation and tool results
+    -> local /v1/chat/completions
+    -> custom API provider or account plugin
+    -> streamed text, reasoning, tool calls and usage
+    -> WorkBuddy executes tools and sends the next request
+
+Gateway call records -> local SQLite database -> desktop statistics
 ```
 
-cursor-byok handles protocol adaptation, model request forwarding, tool-call coordination, and conversation state on your machine. API keys and application settings are stored locally; requests are still sent to the model provider you configure.
+WorkBuddy owns conversation state and agent execution. This gateway owns model routing, protocol conversion, credentials, synchronization, and call records.
 
-## Why This Project
+## Data and configuration
 
-Many Agent products bundle their tool capabilities with a fixed set of models, subscriptions, and billing options, leaving users limited to the channels offered by the platform.
+Settings, call records, plugin credentials, and runtime files default to `~/.workbuddy-byok`; the database is `workbuddy-byok.db`. Upstream API keys stay in this tool. Only the gateway URL and gateway key are synchronized to WorkBuddy. Credentials and request/response records may contain sensitive information; protect the data directory. Local storage does not mean offline processing: requests are sent to your chosen providers.
 
-cursor-byok is built to return model choice to the user. Developers can make full use of the APIs and credits they already have, choose the models and providers that fit their needs, and self-host related services when required.
+Synchronization preserves personal models, identifies managed entries using `workbuddy-byok:` tags, and backs up the model file to `models.json.bak` before replacing it. Invalid configuration is reported without overwriting it. Display names become unique model IDs; after renaming a model, select it again in existing conversations.
 
-## Roadmap
+Gateway access is disabled by default. An empty gateway key permits local calls; configure a key in Settings and synchronize again to require authentication. Keep the service on loopback unless you intentionally configure and protect remote access.
 
-The project will continue to improve model compatibility, Agent tooling, local runtime stability, and the self-hosting experience while exploring support for more IDE, chat, and Agent workflows.
+| Environment variable | Purpose |
+| --- | --- |
+| `WORKBUDDY_DATA_DIR` | Database, settings, plugin credentials, and runtime directory |
+| `WORKBUDDY_LISTEN_ADDR` | Standalone server address; default `127.0.0.1:3721` |
+| `WORKBUDDY_DATABASE_URL` | SQLite database URL |
+| `WORKBUDDY_MODELS_PATH` | WorkBuddy model configuration path |
+| `WORKBUDDY_PROVIDER_TIMEOUT_SECONDS` | Upstream request timeout |
+| `WORKBUDDY_CONSOLE_DIR` | Standalone frontend build directory |
+| `WORKBUDDY_CONSOLE_PROXY` | Development Vite URL |
 
-See the [release roadmap](https://github.com/leookun/cursor-byok/discussions/32) for plans and progress.
+Docker uses `/data` for storage and `/data/workbuddy/models.json` for synchronization. Mount the host WorkBuddy model directory at `/data/workbuddy` to share the file with the host application.
 
-## Community and Support
+## Build from source
 
-- [User Guide](https://docs.leokun.cn)
-- [GitHub Issues](https://github.com/leookun/cursor-byok/issues)
-- [Telegram community](https://t.me/cursor_byok)
-- QQ groups: `1095916242`, `1094411438`, `1095918002`, `1094419321`
+Install Rust stable, Node.js 22 or newer, and the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/).
 
+```sh
+git clone https://github.com/RyanLi888/workbuddy-byok.git
+cd workbuddy-byok
+npm ci --prefix apps/desktop
+npm run tauri:dev --prefix apps/desktop
+```
 
+For checks, packaging, Docker, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Development and Contributing
+```text
+workbuddy-byok/                 # Open-source application and build inputs
+├── apps/desktop/               # React frontend and Tauri desktop shell
+│   ├── src/                    # Model, plugin, settings, and statistics UI
+│   ├── plugins/                # Localization and embedded license build plugins
+│   └── src-tauri/              # Native startup, tray, and application updates
+├── server/                     # Local gateway and persistence
+│   ├── src/api/byok/           # Standard model HTTP endpoints
+│   ├── src/control/            # Desktop management HTTP endpoints
+│   ├── src/provider/           # Custom API transport and recording
+│   ├── src/plugin/             # Plugin authorization, runtime, and SDK
+│   ├── src/store/              # SQLite settings and call records
+│   ├── plugins/build-in/       # Bundled account adapters
+│   ├── migrations/             # Database schema history required at startup
+│   └── tests/                  # Gateway and synchronization integration tests
+└── .github/                    # CI and tagged multi-platform release workflow
+```
 
-Issues and pull requests are welcome. See the [Contributing Guide](./CONTRIBUTING_EN.md) for prerequisites, build commands, project structure, and contribution guidelines.
+## Acknowledgments and origin
 
-## Contributors
+This project began by adapting **[leookun/cursor-byok](https://github.com/leookun/cursor-byok)**. We thank leookun and upstream contributors for the original desktop gateway, provider integration, account plugins, and open-source work. WorkBuddy BYOK adapts that foundation to WorkBuddy's custom model configuration and standard HTTP model protocols.
 
-<a href="https://github.com/leookun/cursor-byok/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=leookun/cursor-byok" />
-</a>
+The upstream copyright and MIT license are retained. See [UPSTREAM.md](UPSTREAM.md) for attribution and third-party notices. Changes and support for this project are maintained in this repository; upstream maintainers are not responsible for them.
 
+## Disclaimer
 
-## License
+The software is provided **“AS IS”**, without warranties of availability, accuracy, security, model compatibility, or fitness for a particular purpose. To the extent permitted by applicable law, the authors and contributors are not liable for losses arising from use, including account restrictions, API charges, loss or disclosure of data, or service interruptions. The full warranty and liability terms are in [LICENSE](LICENSE).
 
-This project is open source under the [MIT License](./LICENSE).
+You are responsible for using accounts and API keys you are authorized to access, complying with applicable laws and upstream service terms, managing costs and quotas, backing up configuration, and reviewing model output before acting on it. This project grants no rights to bypass access controls or service restrictions and makes no promise of free or unlimited model access. Model output may be incorrect; tool execution remains under WorkBuddy and user control.
 
+Product names and logos belong to their respective owners and identify integration targets only; they do not imply partnership, sponsorship, or endorsement.
 
+## License and support
+
+Source code is licensed under the [MIT License](LICENSE), subject to the third-party notices in [UPSTREAM.md](UPSTREAM.md). Issues and pull requests are welcome. Report vulnerabilities privately using [SECURITY.md](SECURITY.md); do not post credentials or raw sensitive request logs in public issues.

@@ -75,32 +75,6 @@ impl Store {
         Ok(saved)
     }
 
-    pub(super) async fn create_models_if_missing(
-        &self,
-        inputs: &[ModelConfigInput],
-    ) -> Result<usize> {
-        let mut normalized = Vec::with_capacity(inputs.len());
-        let mut hashes = HashSet::with_capacity(inputs.len());
-        for input in inputs {
-            let input = normalize_model_input(input)?;
-            let hash = model_hash(&input)?;
-            if hashes.insert(hash.clone()) {
-                normalized.push((hash, input));
-            }
-        }
-        let now = now_ms();
-        let _write = self.writes.lock().await;
-        let mut transaction = self.pool.begin().await?;
-        let mut inserted = 0;
-        for (hash, input) in &normalized {
-            inserted += usize::from(
-                insert_model_with_conflict(&mut transaction, hash, input, now, true).await?,
-            );
-        }
-        transaction.commit().await?;
-        Ok(inserted)
-    }
-
     pub async fn update_model(
         &self,
         current_hash: &str,
@@ -364,6 +338,38 @@ mod tests {
             anthropic_thinking_effort: None,
             thinking_budget_tokens: None,
         }
+    }
+
+    #[tokio::test]
+    async fn optional_tooltip_round_trips_on_create_and_update() {
+        let directory = tempfile::tempdir().unwrap();
+        let store = Store::connect(&format!(
+            "sqlite://{}",
+            directory.path().join("test.db").display()
+        ))
+        .await
+        .unwrap();
+        let mut value = serde_json::to_value(model_input(None)).unwrap();
+        value.as_object_mut().unwrap().remove("tooltip_data");
+        let mut input: ModelConfigInput = serde_json::from_value(value).unwrap();
+        let created = store.create_model(&input).await.unwrap();
+        assert_eq!(created.tooltip_data, "");
+
+        input.tooltip_data = "  My note  ".into();
+        let updated = store
+            .update_model(&created.model_hash, &input)
+            .await
+            .unwrap();
+        assert_eq!(updated.tooltip_data, "My note");
+        assert_eq!(updated.model_hash, created.model_hash);
+
+        input.tooltip_data = "  \n ".into();
+        let cleared = store
+            .update_model(&created.model_hash, &input)
+            .await
+            .unwrap();
+        assert_eq!(cleared.tooltip_data, "");
+        assert_eq!(store.models().await.unwrap()[0].tooltip_data, "");
     }
 
     /// 分组名是纯展示字段:入库时去除首尾空白、空串归一为 NULL,

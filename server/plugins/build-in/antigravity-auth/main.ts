@@ -1,4 +1,4 @@
-import { defineProviderPlugin } from "cursor-byok:plugin";
+import { defineProviderPlugin } from "workbuddy-byok:plugin";
 import { antigravityAuthorizationCodeOAuth } from "./oauth.ts";
 import { antigravityProvider } from "./provider.ts";
 import { credentialImport, presentAccount, refreshAccount, RESOURCE_TYPE } from "./resources.ts";

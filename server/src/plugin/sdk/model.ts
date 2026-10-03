@@ -3,6 +3,7 @@ import type { ResourceSnapshot } from "./resource.ts";
 
 export type ModelCapabilities = {
   images?: boolean;
+  reasoning?: boolean;
 };
 
 export type ModelDefinition = {
@@ -10,7 +11,10 @@ export type ModelDefinition = {
   displayName: string;
   description?: string;
   maxOutputTokens?: number;
+  contextWindowTokens?: number;
   capabilities?: ModelCapabilities;
+  /** 模型支持的思考强度;宿主发布给 WorkBuddy 原生选择并校验请求。 */
+  reasoningEfforts?: string[];
   /** 之后的调用原样传回;永远不会展示给用户。 */
   privateData?: JsonValue;
 };

@@ -1,223 +1,136 @@
-<div align="center">
+# WorkBuddy BYOK
 
-# cursor-byok
+[![CI](https://github.com/RyanLi888/workbuddy-byok/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanLi888/workbuddy-byok/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/RyanLi888/workbuddy-byok)](https://github.com/RyanLi888/workbuddy-byok/releases/latest)
+[![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-cursor-byok 是一个运行在本机的 Cursor 模型网关，帮助你在 Cursor 中使用自己配置的模型服务。
+免费、开源的 WorkBuddy 本地模型网关。使用自己的 API 地址和凭据，在桌面工具中管理模型，并自动同步到 WorkBuddy。
 
-[English README](./README.md) · [使用指南](https://docs.leokun.cn) · [下载](https://github.com/leookun/cursor-byok/releases/latest) · [提交问题](https://github.com/leookun/cursor-byok/issues)
+[English](README.md) · [下载安装包](https://github.com/RyanLi888/workbuddy-byok/releases/latest) · [反馈问题](https://github.com/RyanLi888/workbuddy-byok/issues) · [参与贡献](CONTRIBUTING.md)
 
-[![Release](https://img.shields.io/github/v/release/leookun/cursor-byok?style=flat-square)](https://github.com/leookun/cursor-byok/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/leookun/cursor-byok/total?style=flat-square)](https://github.com/leookun/cursor-byok/releases)
-[![License](https://img.shields.io/github/license/leookun/cursor-byok?style=flat-square)](./LICENSE)
-[![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/leookun/cursor-byok/releases/latest)
+> 本项目基于 [leookun/cursor-byok](https://github.com/leookun/cursor-byok) 二次开发，是独立社区项目，与 WorkBuddy、腾讯、Cursor 及模型服务商无隶属、合作或官方背书关系。工具本身免费，所接入的 API 和账号服务可能收费。使用前请阅读下方免责声明。
 
-</div>
+## 功能
 
-![将 cursor-byok 连接到多种模型 API](./images/en-brand-1.png)
+- 接入 OpenAI Chat Completions、OpenAI Responses 和 Anthropic 兼容 API。
+- 配置模型、使用服务商预设、测试连接，并自动同步到 WorkBuddy。
+- 内置 Codex、Google Antigravity 和 Grok 账号插件，管理登录凭据与账号模型目录。
+- 转发流式文本、思考、工具调用和用量；对话管理与工具执行由 WorkBuddy 完成。
+- 本地调用记录、Token 统计、延迟图表与费用估算。
+- Windows、macOS 和 Linux 桌面构建、托盘运行及带签名校验的应用更新。
 
-![cursor-byok 控制面板](./images/en-home-1.png)
+账号插件能否使用取决于上游接口、账号权限、额度及服务条款。离线测试通过不代表真实账号始终可用。
 
-## 项目简介
+## 下载与安装
 
-cursor-byok 是一个开源的本地模型网关。它在你的设备上运行服务，接收 Cursor 发出的 Agent 请求，将请求转发到你配置的模型服务，并尽可能保留 Cursor Agent 的工具调用、Skills、MCP 和多轮对话能力。
+从 [GitHub Releases](https://github.com/RyanLi888/workbuddy-byok/releases/latest) 下载对应平台的文件。
 
-你可以连接兼容 OpenAI 或 Anthropic 协议的服务，自定义服务地址、模型 ID、API Key 和请求参数，也可以使用 Cursor 平台默认选项之外的模型通道。
+| 平台 | 架构 | 安装文件 |
+| --- | --- | --- |
+| Windows | x64 | `*-setup.exe`（推荐）、`.msi` 或便携版 `.zip` |
+| macOS | Apple Silicon / ARM64 | `*_aarch64.dmg` |
+| macOS | Intel / x64 | `*_x64.dmg` |
+| Linux | x64 | `.deb` 或 `.AppImage` |
 
-> [!IMPORTANT]
-> cursor-byok 免费且开源，但你连接的模型服务商可能会按用量收费。本项目是独立项目，与 Cursor 或其开发者没有关联，也未获得其认可。
+请选择与 CPU 对应的安装包。`.sig`、`latest.json` 和 `portable-latest.json` 用于自动更新。安装桌面工具无需 Rust、Node.js 或单独启动服务；账号插件在初始化时下载运行时。Windows 便携版需要系统安装 WebView2。
 
-## 主要功能
-
-- **自定义模型通道**：配置自己的 API 地址、凭据和模型 ID。
-- **多种 API 协议**：支持 OpenAI Responses API、OpenAI Chat Completions API 和 Anthropic Messages API 兼容服务。
-- **模型管理**：添加、复制、编辑、排序模型配置，并批量测试连接。
-- **连接性能测试**：查看首字延迟、生成速度、总耗时和原始服务商响应。
-- **Agent 工作流**：继续使用工具调用、Skills、MCP 和多轮对话。
-- **会话指标**：查看 Token 用量、缓存命中率、对话轮次和估算价值。
-- **TAB 补全服务**：在公益服务、官方直连和自定义服务之间选择连接方式。
-- **跨平台运行**：支持 macOS、Windows 和 Linux。
+更新文件的签名校验与 Windows 发布者证书、Apple 公证不同。首发安装包没有 Windows 发布者证书和 Apple 公证，系统可能提示确认。运行前请核对源码及发布来源。
 
 ## 快速开始
 
-1. 从 [GitHub Releases](https://github.com/leookun/cursor-byok/releases/latest) 下载适合你操作系统的最新版本。
-2. 启动 cursor-byok，打开 **Cursor 配置**，按提示初始化本地 CA（证书颁发机构）。
-3. 在模型设置中添加模型，填写服务地址、API Key 和模型名称，然后保存并运行 **测试**。
-4. 确认测试通过后，保持 cursor-byok 运行。
-5. **首次升级 Cursor 或首次配置模型后，完全退出并重新启动 Cursor，然后新开一个对话**。在模型列表中选择已配置的模型，开始使用 Agent。
+1. 安装 WorkBuddy 与 WorkBuddy BYOK。
+2. 在「WorkBuddy 模型」添加接口协议、API 地址、密钥和模型标识，保存并测试。
+3. 开启「WorkBuddy 网关」（首次安装默认关闭）。开启后约 2 秒自动同步模型，也可点击「一键同步」立即写入。
+4. 在 WorkBuddy 刷新模型设置或重启，选择同步后的模型。调用期间保持 WorkBuddy BYOK 运行；关闭窗口可留在托盘。
 
-完整的安装步骤、配置说明和常见问题，请参阅[中文使用指南](https://docs.leokun.cn/zh/docs)。
+使用账号插件时，先在「插件配置」初始化运行时，登录或导入凭据，再同步账号模型目录。
 
-> [!TIP]
-> 首次升级 Cursor 或首次完成配置后，必须完全退出并重新启动 Cursor，再新开一个对话。配置前已经打开的对话不会加载新连接；使用自定义模型时，请在模型列表中手动选择该模型，不要选择 **Auto**。
+默认基础地址为 `http://127.0.0.1:3721/v1`。同步会将完整 `/v1/chat/completions` URL 写入 `~/.workbuddy/models.json`，使用 WorkBuddy 自定义协议选项。参见 [WorkBuddy 官方模型配置说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Model)。
 
-## 模型配置
-
-每个模型配置都是独立的上游通道，可以单独设置服务商、协议、凭据和生成参数。
-
-![模型设置页面](./images/en-model-1.png)
-
-### 类型与协议选择
-
-| 模型系列 | 模型类型 | 请求协议 |
-| --- | --- | --- |
-| Claude 系列 | **Anthropic** | Messages API |
-| GPT / OpenAI 系列 | **OpenAI** | **Responses API** |
-| 其他模型 | **OpenAI** | **Chat Completions API** |
-
-GPT 系列建议使用 **Responses API**。如果使用 Chat Completions，可能无法保留提示词缓存，导致速度变慢和费用增加。
-
-### 常用字段
-
-- **模型类型**：选择 OpenAI 或 Anthropic，决定上游接口格式。
-- **请求协议**：OpenAI 类型需要继续选择 Responses API 或 Chat Completions API。
-- **服务器地址**：可以填写服务商基础地址，让应用按协议追加标准端点，也可以填写完整请求 URL 并原样使用。
-- **API Key**：填写上游服务要求的访问密钥。密钥保存在本机，用于发送模型请求。
-- **模型名称**：填写服务商接口接受的模型标识，也可以使用 **获取模型** 读取服务商返回的模型列表。
-- **显示名称**：Cursor 模型列表中显示的名称，不会改变发送给上游的模型标识。
-- **备注**：显示在 Cursor 的模型说明中。
-
-还可以根据模型能力设置上下文窗口 Token、最大输出 Token、推理或思考强度、自定义 Headers，以及 OpenAI 或 Anthropic 的额外参数。自定义 Headers 和额外参数必须是 JSON 对象，只应填写服务商明确支持的字段。
-
-保存配置后运行 **测试**，确认地址、协议、API Key、模型标识和流式响应都正常，再在 Cursor 中使用该模型。
-
-## TAB 补全服务
-
-Cursor 的 Tab 补全由独立的 TAB 服务处理，不经过模型通道。你可以在 **系统设置 → TAB 设置** 中选择以下模式：
-
-- **使用公益服务（默认）**：使用项目作者部署的公共服务，无需额外配置。
-- **直连**：直接连接当前 Cursor 账号对应的官方 TAB 服务，适合账号拥有官方额度的情况。
-- **自定义**：自行部署 [`cursor-tab-server`](https://github.com/leookun/cursor-byok/tree/archive/v0.0.49/cursor-tab-server)，然后填写 TAB 服务地址。
-
-修改 TAB 设置后，建议重启 Cursor 并新开一个对话，确保新的连接方式生效。
-
-## 与官方账号并存
-
-新版设计支持 cursor-byok 与 Cursor 官方服务并存：
-
-- 直接在 Cursor 中登录自己的账号。如果之前使用旧版生成的 fake 账户，请先退出该账户，再登录自己的账号。
-- 账号拥有官方额度时，官方模型和本地模型可以随时切换混用。
-- **Auto 只使用官方模型**，不会自动使用你配置的本地模型。账号没有官方额度时，请手动选择自己配置的模型。
-- 插件、代码库索引等 Cursor 功能可以继续使用。
-
-## 数据流转
+## 工作方式
 
 ```text
-Cursor 客户端
-    │
-    │ Agent 请求与工具结果
-    ▼
-cursor-byok 本地服务
-    │
-    │ OpenAI / Anthropic 兼容请求
-    ▼
-你配置的模型 API
+桌面配置 API / 登录账号
+    -> 本地模型设置 / 插件凭据
+    -> 统一模型目录
+    -> ~/.workbuddy/models.json（网关地址和网关密钥）
+
+WorkBuddy 对话和工具结果
+    -> 本地 /v1/chat/completions
+    -> 自定义 API 或账号插件
+    -> 流式文本、思考、工具调用和用量
+    -> WorkBuddy 执行工具，继续发起下一次模型请求
+
+网关调用记录 -> 本地 SQLite 数据库 -> 桌面统计
 ```
 
-API Key、模型配置和应用设置保存在本机。模型请求仍会发送到你选择的上游服务商，请根据对应服务商的隐私政策和计费规则使用。
+WorkBuddy 负责对话状态与 Agent 执行；本工具负责模型路由、协议转换、凭据、配置同步和调用记录。
 
-## 项目结构
+## 数据与配置
+
+设置、调用记录、插件凭据与运行时默认位于 `~/.workbuddy-byok`，数据库为 `workbuddy-byok.db`。上游 API 密钥保留在本工具中，同步到 WorkBuddy 的仅为网关地址与网关密钥。凭据和请求、响应记录可能含有敏感信息，请保护数据目录。本地存储不代表离线推理：模型请求仍会发送至你配置的服务商。
+
+同步通过 `workbuddy-byok:` 标签识别托管模型，保留个人模型及其字段。写入前备份为 `models.json.bak`，再原子替换；无法解析的文件会报错并保留。显示名称用于生成唯一模型 ID，重命名后已有对话需要重新选择模型。
+
+网关默认关闭；网关密钥留空时允许本地免密调用。需要鉴权时，在设置中配置密钥并重新同步。除非有明确需求并已配置访问保护，建议保持本地回环监听。
+
+| 环境变量 | 用途 |
+| --- | --- |
+| `WORKBUDDY_DATA_DIR` | 数据库、设置、插件凭据和运行时目录 |
+| `WORKBUDDY_LISTEN_ADDR` | 独立服务地址，默认 `127.0.0.1:3721` |
+| `WORKBUDDY_DATABASE_URL` | SQLite 数据库 URL |
+| `WORKBUDDY_MODELS_PATH` | WorkBuddy 模型文件位置 |
+| `WORKBUDDY_PROVIDER_TIMEOUT_SECONDS` | 上游请求超时秒数 |
+| `WORKBUDDY_CONSOLE_DIR` | 独立服务的前端资源目录 |
+| `WORKBUDDY_CONSOLE_PROXY` | 开发时的 Vite 地址 |
+
+Docker 数据位于 `/data`，模型同步文件为 `/data/workbuddy/models.json`。将宿主 WorkBuddy 模型目录挂载到 `/data/workbuddy`，才能与宿主应用共享配置。
+
+## 从源码运行
+
+安装 Rust stable、Node.js 22 或更新版本，以及 [Tauri 对应平台的构建依赖](https://v2.tauri.app/start/prerequisites/)。
+
+```sh
+git clone https://github.com/RyanLi888/workbuddy-byok.git
+cd workbuddy-byok
+npm ci --prefix apps/desktop
+npm run tauri:dev --prefix apps/desktop
+```
+
+检查、打包、Docker 和贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ```text
-cursor-byok/
-├── apps/
-│   ├── desktop/
-│   │   ├── src/
-│   │   │   ├── features/ # 首页、模型、调用记录与设置
-│   │   │   ├── shell/    # 窗口框架、页面布局与广告外壳
-│   │   │   ├── shared/   # UI、虚拟列表、状态、API 与平台能力
-│   │   │   ├── i18n/     # 本地化运行时与语言目录
-│   │   │   └── styles/   # 全局主题与排版令牌
-│   │   └── src-tauri/    # Tauri 桌面生命周期
-├── server/
-│   ├── src/
-│   │   ├── cursor/    # Cursor 协议适配
-│   │   ├── run/       # 通用 Agent Runtime 与内部 Port
-│   │   ├── provider/  # 模型供应商适配
-│   │   ├── model/     # 聚合领域模型
-│   │   ├── store/     # SQLite Repository
-│   │   ├── control/   # 管理面 API
-│   │   ├── harness/   # Cursor 本地集成
-│   │   └── search/    # Web 与 Semble 搜索接入
-│   ├── prompt/
-│   └── migrations/
-├── crates/
-│   └── semble-core/   # 本地代码索引与搜索核心库
-├── protocols/
-│   └── cursor/        # Cursor 协议定义的唯一来源
-├── support/                     # 仓库辅助设施
-│   ├── cursor-protocol-extractor/ # Cursor 协议提取与 Go 代码生成工具
-│   ├── cursor-capture/            # Cursor 协议抓取和调试工具
-│   └── benchmarks/                # 代码搜索和索引基准测试
-├── images/            # README 展示图片
-├── Cargo.toml         # Rust 工作区配置
-└── Makefile           # 常用开发、检查和构建命令
+workbuddy-byok/                 # 开源应用及构建输入
+├── apps/desktop/               # React 界面和 Tauri 桌面壳
+│   ├── src/                    # 模型、插件、设置和统计界面
+│   ├── plugins/                # 本地化与内嵌许可证构建插件
+│   └── src-tauri/              # 原生启动、托盘及更新
+├── server/                     # 本地网关和持久化
+│   ├── src/api/byok/           # 标准模型 HTTP 接口
+│   ├── src/control/            # 桌面管理 HTTP 接口
+│   ├── src/provider/           # 自定义 API 转发及记录
+│   ├── src/plugin/             # 插件授权、运行时和 SDK
+│   ├── src/store/              # SQLite 设置及调用记录
+│   ├── plugins/build-in/       # 随应用打包的账号适配器
+│   ├── migrations/             # 启动所需的数据库结构历史
+│   └── tests/                  # 网关和模型同步集成测试
+└── .github/                    # 持续检查和标签触发的多平台发布
 ```
 
-## 本地开发
+## 来源与致谢
 
-### 环境要求
+本项目最初基于 **[leookun/cursor-byok](https://github.com/leookun/cursor-byok)** 二次开发。感谢 leookun 和上游贡献者提供的桌面网关、模型服务适配、账号插件及开源成果。WorkBuddy BYOK 在这一基础上，针对 WorkBuddy 的自定义模型配置与标准 HTTP 模型协议进行改造。
 
-- Rust 工具链和 Cargo
-- Node.js 与 npm
-- Tauri 2 的系统构建依赖
-- Docker（仅在构建 Docker 镜像时需要）
+保留上游版权声明与 MIT 许可证，详细来源和第三方声明见 [UPSTREAM.md](UPSTREAM.md)。本仓库的修改与支持由本项目维护者负责，上游维护者不对这些修改承担责任。
 
-### 安装依赖
+## 免责声明
 
-```bash
-npm --prefix apps/desktop install
-```
+本软件按 **“原样”（AS IS）** 提供，不对可用性、准确性、安全性、模型兼容性或特定用途适用性作出保证。在适用法律允许的范围内，作者与贡献者不对使用本软件造成的损失承担责任，包括账号限制、API 费用、数据丢失或泄露、服务中断等；完整担保及责任条款以 [LICENSE](LICENSE) 为准。
 
-### 启动开发环境
+使用者应仅使用有权访问的账号和 API 密钥，自行遵守适用法律及上游服务条款，管理费用和额度、备份配置，并在执行前核查模型输出。本项目不授予绕过访问控制或服务限制的权利，也不承诺免费或无限额度的模型访问。模型输出可能有误，工具执行仍由 WorkBuddy 与使用者控制。
 
-启动桌面前端：
+WorkBuddy、腾讯、Cursor、OpenAI、Google、xAI 等产品名称和标识归各自权利人所有，仅用于说明适配对象，不表示合作、赞助或官方认可。
 
-```bash
-make dev-web
-```
+## 许可证与反馈
 
-启动桌面应用：
-
-```bash
-make dev-desktop
-```
-
-### 检查与构建
-
-运行完整检查：
-
-```bash
-make check
-```
-
-分别构建各部分：
-
-```bash
-make build-web       # 构建桌面前端
-make build-server    # 构建 Rust 本地服务
-make build-desktop   # 构建 Tauri 桌面安装包
-make build-docker    # 构建 Docker 镜像
-```
-
-## 路线图
-
-项目将继续改进模型兼容性、Agent 工具、本地运行稳定性和自托管体验，并探索支持更多 IDE、聊天和 Agent 工作流。
-
-计划与进展请参阅[发布路线图](https://github.com/leookun/cursor-byok/discussions/32)。
-
-## 社区与反馈
-
-- [中文使用指南](https://docs.leokun.cn/zh/docs)
-- [GitHub Issues](https://github.com/leookun/cursor-byok/issues)
-- [Telegram 社区](https://t.me/cursor_byok)
-- QQ 群：`1095916242`、`1094411438`、`1095918002`、`1094419321`
-
-提交问题时，请附上操作系统、cursor-byok 版本、模型类型、请求协议、已脱敏的服务地址、错误信息和复现步骤。请勿公开 API Key 或其他凭据。
-
-## 参与贡献
-
-欢迎提交 Issue 和 Pull Request。提交代码前请先阅读项目中的开发说明，并运行 `make check` 确认格式、测试和前端构建检查通过。
-
-## 许可证
-
-本项目采用 [MIT License](./LICENSE) 开源。
+源码采用 [MIT License](LICENSE)，第三方内容适用 [UPSTREAM.md](UPSTREAM.md) 中的声明。欢迎提交 Issue 和 Pull Request。安全漏洞请依照 [SECURITY.md](SECURITY.md) 私下报告；公开反馈中请勿包含密钥、登录凭据或原始敏感请求日志。

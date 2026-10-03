@@ -12,7 +12,9 @@ use axum::{
     routing::post,
     Json, Router,
 };
-use cursor_server::{
+use serde_json::{json, Value};
+use tower::ServiceExt;
+use workbuddy_server::{
     api::byok,
     control,
     model::{
@@ -24,8 +26,10 @@ use cursor_server::{
     provider::{FinishReason, ModelEvent, ProviderRouter},
     store::ExternalApiSettings,
 };
-use serde_json::{json, Value};
-use tower::ServiceExt;
+
+fn public_model_id() -> String {
+    model_input().display_name
+}
 
 fn model_input() -> ModelConfigInput {
     ModelConfigInput {
@@ -57,7 +61,7 @@ fn model_input() -> ModelConfigInput {
 async fn setup() -> (
     axum::Router,
     fake_provider::FakeProvider,
-    cursor_server::store::Store,
+    workbuddy_server::store::Store,
     tempfile::TempDir,
 ) {
     let (directory, store) = fixtures::temp_store().await;
@@ -72,7 +76,6 @@ async fn setup() -> (
         runtime,
         plugins.clone(),
         NetworkClients::new(store.clone()),
-        "0.1.0".into(),
     )
     .unwrap();
     let router = byok::router(store.clone(), plugins, shared_provider, None)
@@ -96,6 +99,27 @@ async fn management_settings_enable_the_external_route_without_restart() {
         serde_json::from_str::<Value>(&body).unwrap()["enabled"],
         false
     );
+    assert_eq!(
+        send(router.clone(), "GET", "/v1/models", None, json!({}))
+            .await
+            .0,
+        StatusCode::FORBIDDEN
+    );
+    let (status, _) = send(
+        router.clone(),
+        "PUT",
+        "/__byok-api__/api/settings/external-api",
+        None,
+        json!({"enabled":false,"api_key":""}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        send(router.clone(), "GET", "/v1/models", None, json!({}))
+            .await
+            .0,
+        StatusCode::FORBIDDEN
+    );
     let (status, _) = send(
         router.clone(),
         "PUT",
@@ -106,15 +130,9 @@ async fn management_settings_enable_the_external_route_without_restart() {
     .await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
-        send(
-            router,
-            "GET",
-            "/byok/v1/models",
-            Some("changed-key"),
-            json!({})
-        )
-        .await
-        .0,
+        send(router, "GET", "/v1/models", Some("changed-key"), json!({}))
+            .await
+            .0,
         StatusCode::OK
     );
 }
@@ -145,11 +163,18 @@ async fn send(
 #[tokio::test]
 async fn disabled_and_unauthorized_requests_cannot_list_models() {
     let (router, _provider, store, _directory) = setup().await;
+    store
+        .set_external_api_settings(ExternalApiSettings {
+            enabled: false,
+            api_key: String::new(),
+        })
+        .await
+        .unwrap();
     assert_eq!(
         send(
             router.clone(),
             "GET",
-            "/byok/v1/models",
+            "/v1/models",
             Some("secret"),
             json!({})
         )
@@ -165,7 +190,7 @@ async fn disabled_and_unauthorized_requests_cannot_list_models() {
         .await
         .unwrap();
     assert_eq!(
-        send(router.clone(), "GET", "/byok/v1/models", None, json!({}))
+        send(router.clone(), "GET", "/v1/models", None, json!({}))
             .await
             .0,
         StatusCode::UNAUTHORIZED
@@ -174,7 +199,7 @@ async fn disabled_and_unauthorized_requests_cannot_list_models() {
         send(
             router.clone(),
             "GET",
-            "/byok/v1/models",
+            "/v1/models",
             Some("wrong"),
             json!({})
         )
@@ -182,16 +207,16 @@ async fn disabled_and_unauthorized_requests_cannot_list_models() {
         .0,
         StatusCode::UNAUTHORIZED
     );
-    let (status, body) = send(router, "GET", "/byok/v1/models", Some("secret"), json!({})).await;
+    let (status, body) = send(router, "GET", "/v1/models", Some("secret"), json!({})).await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         serde_json::from_str::<Value>(&body).unwrap()["data"][0]["id"],
-        "work/qwen/model"
+        public_model_id()
     );
 }
 
 #[tokio::test]
-async fn duplicate_public_model_ids_use_the_first_configured_model() {
+async fn duplicate_model_names_are_distinct_and_ambiguous_aliases_are_rejected() {
     let (router, provider, store, _directory) = setup().await;
     let first = store.models().await.unwrap().remove(0);
     let mut duplicate = model_input();
@@ -214,7 +239,7 @@ async fn duplicate_public_model_ids_use_the_first_configured_model() {
     let (status, body) = send(
         router.clone(),
         "GET",
-        "/byok/v1/models",
+        "/v1/models",
         Some("secret"),
         json!({}),
     )
@@ -227,7 +252,20 @@ async fn duplicate_public_model_ids_use_the_first_configured_model() {
         .iter()
         .map(|model| model["id"].as_str().unwrap())
         .collect::<Vec<_>>();
-    assert_eq!(ids, ["work/qwen/model", "work/qwen/other"]);
+    assert_eq!(ids.len(), 3);
+    assert_eq!(ids.iter().copied().collect::<HashSet<_>>().len(), 3);
+    assert_eq!(
+        send(
+            router.clone(),
+            "POST",
+            "/v1/chat/completions",
+            Some("secret"),
+            json!({"model":"qwen/model","messages":[{"role":"user","content":"hello"}]})
+        )
+        .await
+        .0,
+        StatusCode::BAD_REQUEST
+    );
 
     provider.push(vec![
         ModelEvent::TextDelta("ok".into()),
@@ -236,9 +274,9 @@ async fn duplicate_public_model_ids_use_the_first_configured_model() {
     let (status, body) = send(
         router,
         "POST",
-        "/byok/v1/chat/completions",
+        "/v1/chat/completions",
         Some("secret"),
-        json!({"model":"work/qwen/model","messages":[{"role":"user","content":"hello"}]}),
+        json!({"model":ids[0],"messages":[{"role":"user","content":"hello"}]}),
     )
     .await;
     assert_eq!(status, StatusCode::OK, "{body}");
@@ -257,16 +295,16 @@ async fn all_three_protocols_use_the_public_model_id() {
         .unwrap();
     for (path, body) in [
         (
-            "/byok/v1/chat/completions",
-            json!({"model":"work/qwen/model","messages":[{"role":"user","content":"hello"}]}),
+            "/v1/chat/completions",
+            json!({"model":public_model_id(),"messages":[{"role":"user","content":"hello"}]}),
         ),
         (
-            "/byok/v1/responses",
-            json!({"model":"work/qwen/model","input":"hello"}),
+            "/v1/responses",
+            json!({"model":public_model_id(),"input":"hello"}),
         ),
         (
-            "/byok/v1/messages",
-            json!({"model":"work/qwen/model","max_tokens":100,"messages":[{"role":"user","content":"hello"}]}),
+            "/v1/messages",
+            json!({"model":public_model_id(),"max_tokens":100,"messages":[{"role":"user","content":"hello"}]}),
         ),
     ] {
         provider.push(vec![
@@ -283,7 +321,7 @@ async fn all_three_protocols_use_the_public_model_id() {
     assert!(provider
         .requests()
         .iter()
-        .all(|request| request.model.model_id != "work/qwen/model"));
+        .all(|request| request.model.model_id != public_model_id()));
 }
 
 #[tokio::test]
@@ -312,8 +350,8 @@ async fn streaming_chat_returns_incremental_sse_and_tool_calls() {
         ModelEvent::ToolCallEnd { index: 0 },
         ModelEvent::Done(FinishReason::ToolUse),
     ]);
-    let (status, body) = send(router, "POST", "/byok/v1/chat/completions", Some("secret"),
-        json!({"model":"work/qwen/model","stream":true,"messages":[{"role":"user","content":"hello"}]})).await;
+    let (status, body) = send(router, "POST", "/v1/chat/completions", Some("secret"),
+        json!({"model":public_model_id(),"stream":true,"messages":[{"role":"user","content":"hello"}]})).await;
     assert_eq!(status, StatusCode::OK);
     assert!(body.contains("chat.completion.chunk"));
     assert!(body.contains("lookup"));
@@ -335,21 +373,15 @@ async fn chat_tool_result_keeps_the_assistant_function_name() {
         ModelEvent::TextDelta("done".into()),
         ModelEvent::Done(FinishReason::Stop),
     ]);
-    let body = json!({"model":"work/qwen/model","messages":[
+    let body = json!({"model":public_model_id(),"messages":[
         {"role":"user","content":"find it"},
         {"role":"assistant","tool_calls":[{"id":"call_1","type":"function","function":{"name":"lookup","arguments":"{\"q\":1}"}}]},
         {"role":"tool","tool_call_id":"call_1","content":"found"}
     ]});
     assert_eq!(
-        send(
-            router,
-            "POST",
-            "/byok/v1/chat/completions",
-            Some("secret"),
-            body
-        )
-        .await
-        .0,
+        send(router, "POST", "/v1/chat/completions", Some("secret"), body)
+            .await
+            .0,
         StatusCode::OK
     );
     let requests = provider.requests();
@@ -371,13 +403,13 @@ async fn responses_and_messages_stream_with_protocol_end_events() {
         .unwrap();
     for (path, request, terminal) in [
         (
-            "/byok/v1/responses",
-            json!({"model":"work/qwen/model","input":"hello","stream":true}),
+            "/v1/responses",
+            json!({"model":public_model_id(),"input":"hello","stream":true}),
             "response.completed",
         ),
         (
-            "/byok/v1/messages",
-            json!({"model":"work/qwen/model","max_tokens":100,"messages":[{"role":"user","content":"hello"}],"stream":true}),
+            "/v1/messages",
+            json!({"model":public_model_id(),"max_tokens":100,"messages":[{"role":"user","content":"hello"}],"stream":true}),
             "message_stop",
         ),
     ] {
@@ -420,9 +452,9 @@ async fn responses_stream_emits_complete_text_and_tool_item_lifecycles() {
     let (status, body) = send(
         router,
         "POST",
-        "/byok/v1/responses",
+        "/v1/responses",
         Some("secret"),
-        json!({"model":"work/qwen/model","input":"hello","stream":true}),
+        json!({"model":public_model_id(),"input":"hello","stream":true}),
     )
     .await;
     assert_eq!(status, StatusCode::OK);
@@ -477,8 +509,8 @@ async fn messages_stream_closes_each_content_block_before_stopping() {
         ModelEvent::ToolCallEnd { index: 0 },
         ModelEvent::Done(FinishReason::ToolUse),
     ]);
-    let (status, body) = send(router, "POST", "/byok/v1/messages", Some("secret"),
-        json!({"model":"work/qwen/model","max_tokens":100,"messages":[{"role":"user","content":"hello"}],"stream":true})).await;
+    let (status, body) = send(router, "POST", "/v1/messages", Some("secret"),
+        json!({"model":public_model_id(),"max_tokens":100,"messages":[{"role":"user","content":"hello"}],"stream":true})).await;
     assert_eq!(status, StatusCode::OK);
     let events = body
         .lines()
@@ -522,22 +554,22 @@ async fn all_protocols_preserve_cached_usage_in_streaming_and_complete_responses
     };
     for (path, request, usage_pointer, cached_pointer, expected_input) in [
         (
-            "/byok/v1/chat/completions",
-            json!({"model":"work/qwen/model","messages":[{"role":"user","content":"hello"}]}),
+            "/v1/chat/completions",
+            json!({"model":public_model_id(),"messages":[{"role":"user","content":"hello"}]}),
             "/usage",
             "/prompt_tokens_details/cached_tokens",
             1_000,
         ),
         (
-            "/byok/v1/responses",
-            json!({"model":"work/qwen/model","input":"hello"}),
+            "/v1/responses",
+            json!({"model":public_model_id(),"input":"hello"}),
             "/response/usage",
             "/input_tokens_details/cached_tokens",
             1_000,
         ),
         (
-            "/byok/v1/messages",
-            json!({"model":"work/qwen/model","max_tokens":100,"messages":[{"role":"user","content":"hello"}]}),
+            "/v1/messages",
+            json!({"model":public_model_id(),"max_tokens":100,"messages":[{"role":"user","content":"hello"}]}),
             "/usage",
             "/cache_read_input_tokens",
             180,
@@ -558,8 +590,8 @@ async fn all_protocols_preserve_cached_usage_in_streaming_and_complete_responses
                     .filter_map(|line| line.strip_prefix("data: "))
                     .filter_map(|line| serde_json::from_str::<Value>(line).ok())
                     .find(|event| match path {
-                        "/byok/v1/chat/completions" => event.get("usage").is_some(),
-                        "/byok/v1/responses" => event["type"] == "response.completed",
+                        "/v1/chat/completions" => event.get("usage").is_some(),
+                        "/v1/responses" => event["type"] == "response.completed",
                         _ => event["type"] == "message_delta",
                     })
                     .unwrap_or_else(|| panic!("missing usage event in {path}: {body}"))
@@ -574,7 +606,7 @@ async fn all_protocols_preserve_cached_usage_in_streaming_and_complete_responses
                 Some(&json!(800)),
                 "{path} stream={stream}: {body}"
             );
-            let input_field = if path == "/byok/v1/chat/completions" {
+            let input_field = if path == "/v1/chat/completions" {
                 "prompt_tokens"
             } else {
                 "input_tokens"
@@ -583,10 +615,10 @@ async fn all_protocols_preserve_cached_usage_in_streaming_and_complete_responses
                 usage[input_field], expected_input,
                 "{path} stream={stream}: {body}"
             );
-            if path == "/byok/v1/messages" {
+            if path == "/v1/messages" {
                 assert_eq!(usage["cache_creation_input_tokens"], 20, "{body}");
             }
-            if stream && path == "/byok/v1/chat/completions" {
+            if stream && path == "/v1/chat/completions" {
                 let finished = body.find("\"finish_reason\":\"stop\"").unwrap();
                 let usage_position = body.find("\"cached_tokens\":800").unwrap();
                 let done = body.find("[DONE]").unwrap();
@@ -631,8 +663,8 @@ async fn all_entry_and_upstream_protocol_pairs_preserve_cache_usage() {
         model.group_name = Some(group.into());
         model.model_type = model_type;
         model.openai_endpoint = endpoint.into();
-        model.base_url = format!("http://127.0.0.1:{port}/byok/v1");
-        model.model_id = "work/qwen/model".into();
+        model.base_url = format!("http://127.0.0.1:{port}/v1");
+        model.model_id = public_model_id();
         model.api_key = "secret".into();
         store.create_model(&model).await.unwrap();
     }
@@ -656,17 +688,17 @@ async fn all_entry_and_upstream_protocol_pairs_preserve_cache_usage() {
     );
     for (path, request) in [
         (
-            "/byok/v1/chat/completions",
+            "/v1/chat/completions",
             json!({"messages":[{"role":"user","content":"hello"}],
                 "tools":[{"type":"function","function":{"name":"lookup","description":"Look up a value","parameters":{"type":"object","properties":{"q":{"type":"string"}}}}}]}),
         ),
         (
-            "/byok/v1/responses",
+            "/v1/responses",
             json!({"input":"hello",
             "tools":[{"type":"function","name":"lookup","description":"Look up a value","parameters":{"type":"object","properties":{"q":{"type":"string"}}}}]}),
         ),
         (
-            "/byok/v1/messages",
+            "/v1/messages",
             json!({"max_tokens":100,"messages":[{"role":"user","content":"hello"}],
                 "tools":[{"name":"lookup","description":"Look up a value","input_schema":{"type":"object","properties":{"q":{"type":"string"}}}}]}),
         ),
@@ -705,7 +737,14 @@ async fn all_entry_and_upstream_protocol_pairs_preserve_cache_usage() {
                     ModelEvent::Done(FinishReason::ToolUse),
                 ]);
                 let mut request = request.clone();
-                request["model"] = json!(format!("{group}/work/qwen/model"));
+                let selected = store
+                    .models()
+                    .await
+                    .unwrap()
+                    .into_iter()
+                    .find(|model| model.group_name.as_deref() == Some(group))
+                    .unwrap();
+                request["model"] = json!(selected.display_name);
                 request["stream"] = json!(stream);
                 let (status, body) =
                     send(outer.clone(), "POST", path, Some("secret"), request).await;
@@ -800,7 +839,7 @@ async fn matching_http_protocols_forward_native_requests_and_responses() {
             "chat",
             ModelType::OpenAi,
             OPENAI_CHAT_ENDPOINT,
-            "/byok/v1/chat/completions",
+            "/v1/chat/completions",
             json!({"messages":[{"role":"user","content":"hi"}],"native_extension":{"keep":1}}),
         ),
         (
@@ -808,7 +847,7 @@ async fn matching_http_protocols_forward_native_requests_and_responses() {
             "responses",
             ModelType::OpenAi,
             OPENAI_RESPONSES_ENDPOINT,
-            "/byok/v1/responses",
+            "/v1/responses",
             json!({"input":[{"type":"native_unsupported","value":1}],"native_extension":{"keep":2}}),
         ),
         (
@@ -816,7 +855,7 @@ async fn matching_http_protocols_forward_native_requests_and_responses() {
             "messages",
             ModelType::Anthropic,
             "",
-            "/byok/v1/messages",
+            "/v1/messages",
             json!({"max_tokens":100,"messages":[{"role":"user","content":[{"type":"document","source":{"type":"url","url":"https://example.com"}}]}],"native_extension":{"keep":3}}),
         ),
     ] {
@@ -825,7 +864,7 @@ async fn matching_http_protocols_forward_native_requests_and_responses() {
         model.group_name = Some(group.into());
         model.model_type = model_type;
         model.openai_endpoint = endpoint.into();
-        model.base_url = format!("http://127.0.0.1:{port}/byok/v1");
+        model.base_url = format!("http://127.0.0.1:{port}/v1");
         model.model_id = "native-model".into();
         store.create_model(&model).await.unwrap();
         for stream in [false, true] {
@@ -886,7 +925,7 @@ async fn matching_http_protocols_forward_native_requests_and_responses() {
             )),
         ),
         "POST",
-        "/byok/v1/chat/completions",
+        "/v1/chat/completions",
         Some("secret"),
         error_request.clone(),
     )

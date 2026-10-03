@@ -3,9 +3,9 @@ import type {
   ProviderOutput,
   ProviderResult,
   ProviderSupport,
-} from "cursor-byok:provider";
-import type { PluginContext } from "cursor-byok:plugin";
-import { HttpError, streamOpenAiChat } from "cursor-byok:protocol/openai-chat";
+} from "workbuddy-byok:provider";
+import type { PluginContext } from "workbuddy-byok:plugin";
+import { HttpError, streamOpenAiChat } from "workbuddy-byok:protocol/openai-chat";
 import { grokModels } from "./models.ts";
 import { type AccountData, accountData, quotaExhaustedPatch, RESOURCE_TYPE } from "./resources.ts";
 
@@ -59,15 +59,23 @@ async function invoke(
     const message = error instanceof Error ? error.message : String(error);
     return invalidResult(message, message);
   }
+  const efforts = input.model.reasoningEfforts ?? [];
+  const reasoning = input.request.reasoning;
+  if (reasoning.effort !== null && !efforts.includes(reasoning.effort)) {
+    return {
+      status: "request-error",
+      message: `unsupported Grok reasoning effort: ${reasoning.effort}`,
+    };
+  }
   try {
     await streamOpenAiChat(
       {
         url: CHAT_URL,
         model: input.model.id,
-        // xAI 不接受 reasoning_effort 与 service_tier;思考由模型自身决定。
+        // Send only a strength advertised by this model; leave the default to upstream.
         request: {
           ...input.request,
-          reasoning: { enabled: false, effort: null },
+          reasoning,
           latency: "standard",
         },
         headers: { authorization: `Bearer ${data.accessToken}` },

@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::{ToolImageReference, ToolRoundId};
+use super::ToolImageReference;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -72,7 +72,7 @@ pub enum MessageContent {
         text: String,
         thinking: String,
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        tool_round_id: Option<ToolRoundId>,
+        tool_round_id: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         replay_state: Option<ProviderReplayState>,
         tool_calls: Vec<ToolCallContent>,

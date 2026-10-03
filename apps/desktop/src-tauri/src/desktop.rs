@@ -1,5 +1,5 @@
 use std::{
-    process::{Command, ExitCode},
+    process::ExitCode,
     sync::{
         atomic::{AtomicBool, Ordering},
         Mutex,
@@ -21,8 +21,8 @@ use tauri_plugin_opener::OpenerExt;
 use tokio_util::sync::CancellationToken;
 
 #[cfg(dev)]
-use cursor_server::config::ConsoleSource;
-use cursor_server::{App, Config, Result};
+use workbuddy_server::config::ConsoleSource;
+use workbuddy_server::{App, Config, Result};
 
 #[cfg(not(dev))]
 use crate::frontend;
@@ -37,49 +37,6 @@ struct DesktopRuntime {
     server: Mutex<Option<JoinHandle<Result<()>>>>,
     exiting: AtomicBool,
     server_addr: std::net::SocketAddr,
-}
-
-#[tauri::command]
-fn open_terminal_with_command(command: String) -> tauri::Result<()> {
-    #[cfg(target_os = "macos")]
-    {
-        let _ = command;
-        Command::new("open").args(["-a", "Terminal"]).status()?;
-        Ok(())
-    }
-    #[cfg(target_os = "windows")]
-    {
-        Command::new("cmd")
-            .args(["/C", "start", "cmd", "/K", &command])
-            .spawn()?;
-        Ok(())
-    }
-    #[cfg(target_os = "linux")]
-    {
-        const TERMINALS: &[(&str, &[&str])] = &[
-            ("x-terminal-emulator", &["-e"]),
-            ("gnome-terminal", &["--"]),
-            ("konsole", &["-e"]),
-            ("xfce4-terminal", &["--execute"]),
-            ("alacritty", &["-e"]),
-            ("kitty", &[]),
-        ];
-        let script = format!("{command}; exec bash");
-        for (terminal, separator) in TERMINALS {
-            let mut process = Command::new(terminal);
-            process.args(*separator);
-            process.arg("bash").arg("-c").arg(&script);
-            match process.spawn() {
-                Ok(_) => return Ok(()),
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
-                Err(error) => return Err(error.into()),
-            }
-        }
-        Err(tauri::Error::from(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "no supported terminal emulator found",
-        )))
-    }
 }
 
 #[derive(serde::Deserialize)]
@@ -124,7 +81,10 @@ fn create_main_window(
         .parse()
         .expect("local frontend URL");
     let builder = WebviewWindowBuilder::new(app, MAIN_WINDOW_LABEL, WebviewUrl::External(url))
-        .title("Cursor BYOK")
+        .title("WorkBuddy BYOK")
+        // Tauri decodes the first ICO frame (16px) as its default window icon.
+        // Use the full-resolution source so Windows can scale it for the taskbar DPI.
+        .icon(tauri::include_image!("./icons/icon.png"))?
         .inner_size(820.0, 558.0)
         .min_inner_size(820.0, 558.0)
         .center()
@@ -194,7 +154,6 @@ pub fn run() -> ExitCode {
 
     let app = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            open_terminal_with_command,
             crate::update::check_portable_update,
             crate::update::install_portable_update,
         ])
@@ -234,7 +193,6 @@ pub fn run() -> ExitCode {
             let server = server.merge_router(frontend::router(app.handle().clone()));
             let listener = tauri::async_runtime::block_on(server.bind())?;
             let address = listener.local_addr()?;
-            tauri::async_runtime::block_on(server.harness().cleanup_stale_settings())?;
             let desktop_settings =
                 tauri::async_runtime::block_on(server.store().desktop_settings())
                     .unwrap_or_default();

@@ -24,7 +24,7 @@ export function VirtualPage({ title, sections, className, contentClassName }: { 
     overscan={2}
     itemGap={16}
     scrollbarSize={7}
-    scrollbarInsetTop="var(--app-content-top)"
+    scrollbarInsetTop="var(--page-content-top)"
     className={[styles.root, "scroll-shadow-top", className].filter(Boolean).join(" ")}
     contentClassName={[styles.content, contentClassName].filter(Boolean).join(" ")}
   />;

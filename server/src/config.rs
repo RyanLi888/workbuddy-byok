@@ -6,29 +6,22 @@ use std::os::unix::fs::PermissionsExt;
 
 use crate::{Error, Result};
 
-const DATA_DIR_NAME: &str = ".cursor-byok-v3";
-const DATABASE_FILE_NAME: &str = "cursor-byok.db";
-const V0049_DATA_DIR_NAME: &str = ".cursor-local-assistant-v2";
-const V0049_CONFIG_FILE_NAME: &str = "config.yaml";
+const DATA_DIR_NAME: &str = ".workbuddy-byok";
+const DATABASE_FILE_NAME: &str = "workbuddy-byok.db";
 const DEFAULT_PROVIDER_REQUEST_TIMEOUT: Duration = Duration::from_secs(60 * 60);
 const DEFAULT_PROVIDER_STREAM_IDLE_TIMEOUT: Duration = Duration::from_secs(30 * 60);
 
 pub fn managed_data_dir() -> Result<PathBuf> {
-    let home_dir = dirs::home_dir()
-        .ok_or_else(|| Error::Config("cannot resolve user home directory".into()))?;
-    let data_dir = home_dir.join(DATA_DIR_NAME);
+    let data_dir = match env::var_os("WORKBUDDY_DATA_DIR") {
+        Some(path) => PathBuf::from(path),
+        None => dirs::home_dir()
+            .ok_or_else(|| Error::Config("cannot resolve user home directory".into()))?
+            .join(DATA_DIR_NAME),
+    };
     fs::create_dir_all(&data_dir)?;
     #[cfg(unix)]
     fs::set_permissions(&data_dir, fs::Permissions::from_mode(0o700))?;
     Ok(data_dir)
-}
-
-pub fn v0049_config_path() -> Result<PathBuf> {
-    let home_dir = dirs::home_dir()
-        .ok_or_else(|| Error::Config("cannot resolve user home directory".into()))?;
-    Ok(home_dir
-        .join(V0049_DATA_DIR_NAME)
-        .join(V0049_CONFIG_FILE_NAME))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -69,34 +62,32 @@ pub enum ConsoleSource {
 
 impl Config {
     pub fn from_env() -> Result<Self> {
-        let listen_addr = env::var("CURSOR_LISTEN_ADDR")
-            .unwrap_or_else(|_| "127.0.0.1:3000".into())
+        let listen_addr = env::var("WORKBUDDY_LISTEN_ADDR")
+            .unwrap_or_else(|_| "127.0.0.1:3721".into())
             .parse()
-            .map_err(|error| Error::Config(format!("invalid CURSOR_LISTEN_ADDR: {error}")))?;
-        let request_timeout = match env::var("CURSOR_PROVIDER_TIMEOUT_SECONDS") {
-            Ok(value) => Duration::from_secs(value.parse().map_err(|error| {
-                Error::Config(format!("invalid CURSOR_PROVIDER_TIMEOUT_SECONDS: {error}"))
-            })?),
+            .map_err(|error| Error::Config(format!("invalid listen address: {error}")))?;
+        let request_timeout = match env::var("WORKBUDDY_PROVIDER_TIMEOUT_SECONDS") {
+            Ok(value) => Duration::from_secs(
+                value
+                    .parse()
+                    .map_err(|error| Error::Config(format!("invalid provider timeout: {error}")))?,
+            ),
             Err(env::VarError::NotPresent) => DEFAULT_PROVIDER_REQUEST_TIMEOUT,
-            Err(error) => {
-                return Err(Error::Config(format!(
-                    "invalid CURSOR_PROVIDER_TIMEOUT_SECONDS: {error}"
-                )))
-            }
+            Err(error) => return Err(Error::Config(format!("invalid provider timeout: {error}"))),
         };
-        let console_dir = env::var_os("CURSOR_CONSOLE_DIR").map(PathBuf::from);
-        let console_proxy = env::var("CURSOR_CONSOLE_PROXY")
+        let console_dir = env::var_os("WORKBUDDY_CONSOLE_DIR").map(PathBuf::from);
+        let console_proxy = env::var("WORKBUDDY_CONSOLE_PROXY")
             .ok()
             .map(|value| {
-                value.parse().map_err(|error| {
-                    Error::Config(format!("invalid CURSOR_CONSOLE_PROXY: {error}"))
-                })
+                value
+                    .parse()
+                    .map_err(|error| Error::Config(format!("invalid console proxy URL: {error}")))
             })
             .transpose()?;
         let console = match (console_dir, console_proxy) {
             (Some(_), Some(_)) => {
                 return Err(Error::Config(
-                    "CURSOR_CONSOLE_DIR and CURSOR_CONSOLE_PROXY cannot both be set".into(),
+                    "console directory and console proxy cannot both be set".into(),
                 ))
             }
             (Some(directory), None) => Some(ConsoleSource::Directory(directory)),
@@ -130,12 +121,10 @@ impl Config {
 }
 
 fn database_url_from_env() -> Result<String> {
-    match env::var("CURSOR_DATABASE_URL") {
+    match env::var("WORKBUDDY_DATABASE_URL") {
         Ok(database_url) => Ok(database_url),
         Err(env::VarError::NotPresent) => default_database_url(),
-        Err(error) => Err(Error::Config(format!(
-            "invalid CURSOR_DATABASE_URL: {error}"
-        ))),
+        Err(error) => Err(Error::Config(format!("invalid database URL: {error}"))),
     }
 }
 

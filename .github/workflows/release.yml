@@ -87,11 +87,11 @@ jobs:
         include:
           - platform: linux-x86_64
             os: ubuntu-22.04
-            args: ""
+            args: "--bundles deb,appimage"
             target: ""
           - platform: windows-x86_64
             os: windows-latest
-            args: "--bundles nsis"
+            args: "--bundles nsis,msi"
             target: ""
           - platform: macos-aarch64
             os: macos-15
@@ -142,23 +142,15 @@ jobs:
         with:
           projectPath: apps/desktop
           tagName: v__VERSION__
-          releaseName: Cursor BYOK v__VERSION__
+          releaseName: WorkBuddy BYOK v__VERSION__
           releaseBody: ${{ contains(needs.prepare.outputs.version, '-') && 'Beta release. Download the installer for your platform from the assets below.' || 'Download the installer for your platform from the assets below.' }}
           releaseDraft: true
           prerelease: false
           uploadUpdaterJson: true
-          args: ${{ matrix.args }}
+          updaterJsonPreferNsis: true
+          args: ${{ matrix.platform == 'windows-x86_64' && contains(needs.prepare.outputs.version, '-') && '--bundles nsis' || matrix.args }}
 
-      - name: Package legacy Linux updater asset
-        if: matrix.platform == 'linux-x86_64'
-        shell: bash
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          mkdir -p legacy-update
-          tar -czf "legacy-update/cursor-byok-${VERSION}-linux-amd64.tar.gz" -C target/release cursor-byok-desktop
-
-      - name: Package and sign legacy Windows updater asset
+      - name: Package and sign portable Windows updater asset
         if: matrix.platform == 'windows-x86_64'
         shell: pwsh
         env:
@@ -166,39 +158,26 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
-          New-Item -ItemType Directory -Force legacy-update | Out-Null
-          $asset = "legacy-update/cursor-byok-$env:VERSION-windows-amd64.zip"
-          Compress-Archive -LiteralPath target/release/cursor-byok-desktop.exe -DestinationPath $asset
+          New-Item -ItemType Directory -Force portable-update | Out-Null
+          $asset = "portable-update/workbuddy-byok-$env:VERSION-windows-amd64.zip"
+          Compress-Archive -LiteralPath target/release/workbuddy-byok-desktop.exe -DestinationPath $asset
           Push-Location apps/desktop
-          npm exec tauri signer sign -- "../../$asset"
+          npm exec -- tauri signer sign --app-version "$env:VERSION" "../../$asset"
           Pop-Location
           $entries = @(tar -tf $asset)
-          if ($entries.Count -ne 1 -or [System.IO.Path]::GetFileName($entries[0]) -ne 'cursor-byok-desktop.exe') {
-            throw "Windows updater archive must contain only cursor-byok-desktop.exe"
+          if ($entries.Count -ne 1 -or [System.IO.Path]::GetFileName($entries[0]) -ne 'workbuddy-byok-desktop.exe') {
+            throw "Windows updater archive must contain only workbuddy-byok-desktop.exe"
           }
           if (!(Test-Path "$asset.sig")) {
             throw "Windows updater archive signature was not generated"
           }
 
-      - name: Package legacy macOS updater asset
-        if: contains(matrix.platform, 'macos')
-        shell: bash
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          mkdir -p legacy-update
-          archive=$(find "target/${{ matrix.target }}/release/bundle/macos" -maxdepth 1 -name '*.app.tar.gz' -print -quit)
-          test -n "${archive}"
-          legacy_platform=macos-arm64
-          if [[ "${{ matrix.platform }}" = "macos-x86_64" ]]; then
-            legacy_platform=macos-amd64
-          fi
-          cp "${archive}" "legacy-update/cursor-byok-${VERSION}-${legacy_platform}.tar.gz"
-
       - uses: actions/upload-artifact@v4
+        if: matrix.platform == 'windows-x86_64'
         with:
-          name: legacy-update-${{ matrix.platform }}
-          path: legacy-update/*
+          name: portable-update-${{ matrix.platform }}
+          # Only Windows has a standalone portable updater archive.
+          path: portable-update/*
           if-no-files-found: error
 
   finalize:
@@ -211,34 +190,23 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: legacy-update-*
-          path: legacy-update
+          pattern: portable-update-*
+          path: portable-update
           merge-multiple: true
-
-      - name: Generate legacy update manifest
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          node .github/scripts/generate-legacy-update.mjs \
-            --version "${VERSION}" \
-            --repository "${GITHUB_REPOSITORY}" \
-            --assets-dir legacy-update \
-            --output legacy-update/update.json \
-            --notes "Cursor BYOK v${VERSION}"
 
       - name: Generate signed Windows portable update manifest
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          asset="cursor-byok-${VERSION}-windows-amd64.zip"
-          test -f "legacy-update/${asset}"
-          test -f "legacy-update/${asset}.sig"
+          asset="workbuddy-byok-${VERSION}-windows-amd64.zip"
+          test -f "portable-update/${asset}"
+          test -f "portable-update/${asset}.sig"
           node .github/scripts/generate-portable-update.mjs \
             --version "${VERSION}" \
             --repository "${GITHUB_REPOSITORY}" \
             --asset "${asset}" \
-            --signature "legacy-update/${asset}.sig" \
-            --output legacy-update/portable-latest.json
+            --signature "portable-update/${asset}.sig" \
+            --output portable-update/portable-latest.json
 
       - name: Normalize Tauri updater download URLs
         env:
@@ -270,11 +238,11 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: gh release upload "v${VERSION}" tauri-update/latest.json --clobber
 
-      - name: Upload legacy updater assets
+      - name: Upload portable updater assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.prepare.outputs.version }}
-        run: gh release upload "v${VERSION}" legacy-update/* --clobber
+        run: gh release upload "v${VERSION}" portable-update/* --clobber
 
       - name: Publish the completed release
         env:

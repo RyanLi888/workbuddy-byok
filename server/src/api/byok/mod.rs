@@ -1,6 +1,5 @@
 //! External OpenAI and Anthropic compatible API.
 mod direct;
-mod models;
 mod output;
 mod protocol;
 
@@ -21,6 +20,7 @@ use crate::{
 };
 
 use self::protocol::Protocol;
+use crate::catalog as models;
 pub use direct::NativeForwarder;
 
 #[derive(Clone)]
@@ -38,10 +38,12 @@ pub fn router(
     native: Option<NativeForwarder>,
 ) -> Router {
     Router::new()
-        .route("/byok/v1/models", get(list_models))
-        .route("/byok/v1/chat/completions", post(chat))
-        .route("/byok/v1/responses", post(responses))
-        .route("/byok/v1/messages", post(messages))
+        // Standard OpenAI & Anthropic routes
+        .route("/v1/models", get(list_models))
+        .route("/v1/chat/completions", post(chat))
+        .route("/v1/responses", post(responses))
+        .route("/v1/messages", post(messages))
+        .layer(tower_http::cors::CorsLayer::permissive())
         .with_state(ApiState {
             store,
             plugins,
@@ -69,6 +71,10 @@ async fn authorized(
             "external API is disabled",
         )));
     }
+    let configured_key = settings.api_key.trim();
+    if configured_key.is_empty() {
+        return Ok(());
+    }
     let supplied = headers
         .get(header::AUTHORIZATION)
         .and_then(|value| value.to_str().ok())
@@ -79,7 +85,7 @@ async fn authorized(
                 .and_then(|value| value.to_str().ok())
         })
         .unwrap_or_default();
-    if supplied.is_empty() || !constant_time_eq(supplied.as_bytes(), settings.api_key.as_bytes()) {
+    if supplied.is_empty() || !constant_time_eq(supplied.as_bytes(), configured_key.as_bytes()) {
         return Err(Box::new(api_error(
             StatusCode::UNAUTHORIZED,
             "invalid API key",
@@ -155,11 +161,15 @@ async fn generate(
         Ok(models) => models,
         Err(error) => return api_error(StatusCode::CONFLICT, error),
     };
-    let Some(model) = models
-        .iter()
-        .find(|model| model.public_id == public_model_id)
-    else {
-        return api_error(StatusCode::NOT_FOUND, "model not found");
+    let resolved = match models::resolve(&models, public_model_id) {
+        Ok(model) => model,
+        Err(error) => return api_error(StatusCode::BAD_REQUEST, error),
+    };
+    let Some(model) = resolved else {
+        return api_error(
+            StatusCode::NOT_FOUND,
+            format!("model '{public_model_id}' not found"),
+        );
     };
     if let Some(native) = &state.native {
         match state.store.model(&model.internal_id).await {

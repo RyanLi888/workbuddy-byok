@@ -2,6 +2,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/src/shared/assets/icons/workbuddy.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#141414" />
     <style>
@@ -17,7 +18,7 @@
     <script>
       (() => {
         try {
-          const theme = localStorage.getItem("cursor-byok.theme") === "default-light"
+          const theme = localStorage.getItem("workbuddy-byok.theme") === "default-light"
             ? "default-light"
             : "default-dark";
           const light = theme === "default-light";
@@ -31,11 +32,11 @@
         }
       })();
     </script>
-    <title>Cursor BYOK</title>
+    <title>WorkBuddy BYOK</title>
   </head>
 
   <body>
-    <noscript>Cursor BYOK 需要 JavaScript 才能运行。</noscript>
+    <noscript>WorkBuddy BYOK 需要 JavaScript 才能运行。</noscript>
     <div id="root"></div>
 
     <script src="/src/index.tsx" type="module"></script>

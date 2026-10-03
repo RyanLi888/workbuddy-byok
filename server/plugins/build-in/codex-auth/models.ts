@@ -1,5 +1,5 @@
-import type { JsonValue } from "cursor-byok:plugin";
-import type { ModelDefinition, ModelSnapshot, ModelSupport } from "cursor-byok:model";
+import type { JsonValue } from "workbuddy-byok:plugin";
+import type { ModelDefinition, ModelSupport } from "workbuddy-byok:model";
 import { accountData, accountHeaders } from "./resources.ts";
 
 const MODELS_URL = "https://chatgpt.com/backend-api/codex/models?client_version=1.0.0";
@@ -59,7 +59,10 @@ export function parseOfficialModels(body: unknown): ModelDefinition[] {
   for (const raw of source) {
     const model = object(raw);
     if (!model || model.supported_in_api === false || model.supportedInApi === false) continue;
-    if (text(model.visibility)?.toLowerCase() === "hidden") continue;
+    if (
+      ["hide", "hidden", "none"].includes(text(model.visibility)?.toLowerCase() ?? "") ||
+      model.show_in_picker === false
+    ) continue;
     const id = modelId(model);
     if (!id || seen.has(id)) continue;
     seen.add(id);
@@ -75,8 +78,19 @@ export function parseOfficialModels(body: unknown): ModelDefinition[] {
         id,
       ...(description ? { description } : {}),
       ...(maxOutputTokens !== null ? { maxOutputTokens } : {}),
-      capabilities: { images: true },
-      privateData: { reasoningEfforts: efforts },
+      capabilities: {
+        images: Array.isArray(model.input_modalities) && model.input_modalities.includes("image"),
+        reasoning: efforts.some((effort) => effort !== "none"),
+      },
+      ...(positiveInteger(model.context_window ?? model.contextWindow ?? model.max_input_tokens) !==
+          null
+        ? {
+          contextWindowTokens: positiveInteger(
+            model.context_window ?? model.contextWindow ?? model.max_input_tokens,
+          )!,
+        }
+        : {}),
+      reasoningEfforts: efforts,
     });
   }
   const defaultModel = modelId(
@@ -87,19 +101,13 @@ export function parseOfficialModels(body: unknown): ModelDefinition[] {
       root?.primary_model ??
       root?.primaryModel,
   );
-  // 把上游默认模型排在最前,让宿主自然选中它。
-  if (defaultModel) {
-    models.sort((left, right) =>
-      Number(right.id === defaultModel) - Number(left.id === defaultModel)
-    );
-  }
+  // Upstream chooses the default; the rest keep a predictable natural order.
+  models.sort((left, right) =>
+    Number(right.id === defaultModel) - Number(left.id === defaultModel) ||
+    left.displayName.localeCompare(right.displayName, "en", { numeric: true }) ||
+    left.id.localeCompare(right.id)
+  );
   return models;
-}
-
-export function reasoningEfforts(model: ModelSnapshot): string[] {
-  const data = object(model.privateData);
-  const efforts = data?.reasoningEfforts;
-  return Array.isArray(efforts) ? efforts.filter((item) => typeof item === "string") : [];
 }
 
 export const codexModels: ModelSupport = {

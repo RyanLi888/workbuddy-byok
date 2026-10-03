@@ -71,6 +71,19 @@ pub(super) fn parse(protocol: Protocol, body: &Value) -> Result<ParsedRequest> {
             model.max_output_tokens = body.get("max_tokens").and_then(Value::as_u64);
         }
     }
+    let effort = match protocol {
+        Protocol::Chat => body.get("reasoning_effort"),
+        Protocol::Responses => body.pointer("/reasoning/effort"),
+        Protocol::Messages => body.pointer("/output_config/effort"),
+    };
+    if let Some(value) = effort.filter(|value| !value.is_null()) {
+        let effort = value
+            .as_str()
+            .filter(|effort| !effort.trim().is_empty())
+            .ok_or_else(|| Error::Protocol("reasoning effort must be a non-empty string".into()))?;
+        model.reasoning.effort = Some(effort.to_owned());
+        model.reasoning.enabled = effort != "none";
+    }
     if history.is_empty() {
         return Err(Error::Protocol(
             "at least one input message is required".into(),
@@ -468,4 +481,60 @@ fn tool_name(history: &[ProjectedMessage], call_id: &str) -> Option<String> {
                 .map(|call| call.name.clone()),
             _ => None,
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn preserves_reasoning_effort_across_protocols() {
+        for (protocol, body) in [
+            (
+                Protocol::Chat,
+                json!({"model":"test", "messages":[{"role":"user","content":"hello"}], "reasoning_effort":"high"}),
+            ),
+            (
+                Protocol::Responses,
+                json!({"model":"test", "input":"hello", "reasoning":{"effort":"high"}}),
+            ),
+            (
+                Protocol::Messages,
+                json!({"model":"test", "messages":[{"role":"user","content":"hello"}], "output_config":{"effort":"high"}}),
+            ),
+        ] {
+            let parsed = parse(protocol, &body).unwrap();
+            assert_eq!(
+                parsed.request.model.reasoning.effort.as_deref(),
+                Some("high")
+            );
+            assert!(parsed.request.model.reasoning.enabled);
+        }
+    }
+
+    #[test]
+    fn distinguishes_default_disabled_and_invalid_reasoning() {
+        let mut body = json!({"model":"test", "input":"hello"});
+        assert_eq!(
+            parse(Protocol::Responses, &body)
+                .unwrap()
+                .request
+                .model
+                .reasoning
+                .effort,
+            None
+        );
+        body["reasoning"] = json!({"effort":"none"});
+        let parsed = parse(Protocol::Responses, &body).unwrap();
+        assert_eq!(
+            parsed.request.model.reasoning.effort.as_deref(),
+            Some("none")
+        );
+        assert!(!parsed.request.model.reasoning.enabled);
+        for value in [json!(false), json!(10), json!(" ")] {
+            body["reasoning"]["effort"] = value;
+            assert!(parse(Protocol::Responses, &body).is_err());
+        }
+    }
 }

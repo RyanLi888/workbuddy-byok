@@ -20,7 +20,6 @@ pub struct NetworkClients {
 #[derive(Default)]
 struct ClientCache {
     default: Option<reqwest::Client>,
-    cursor: Option<reqwest::Client>,
     provider: Option<(Duration, reqwest::Client)>,
 }
 
@@ -42,22 +41,6 @@ impl NetworkClients {
         }
         let client = client_builder(&self.store).await?.build()?;
         cache.default = Some(client.clone());
-        Ok(client)
-    }
-
-    pub async fn cursor_client(&self) -> Result<reqwest::Client> {
-        if let Some(client) = self.cache.read().await.cursor.clone() {
-            return Ok(client);
-        }
-        let mut cache = self.cache.write().await;
-        if let Some(client) = cache.cursor.clone() {
-            return Ok(client);
-        }
-        let client = client_builder(&self.store)
-            .await?
-            .redirect(reqwest::redirect::Policy::none())
-            .build()?;
-        cache.cursor = Some(client.clone());
         Ok(client)
     }
 
@@ -134,7 +117,7 @@ pub fn reject_self_proxy(address: &str, local_proxy_port: u16) -> Result<()> {
         .map_err(|error| Error::Config(format!("invalid proxy address: {error}")))?;
     if url.port_or_known_default() == Some(local_proxy_port) && url_host_is_loopback(&url) {
         return Err(Error::Config(
-            "proxy address cannot point to the Cursor BYOK local proxy".into(),
+            "proxy address cannot point to the WorkBuddy BYOK gateway".into(),
         ));
     }
     Ok(())

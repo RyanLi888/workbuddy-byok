@@ -24,9 +24,9 @@ mod replacement;
 
 #[cfg(target_os = "windows")]
 const PORTABLE_UPDATE_ENDPOINT: &str =
-    "https://github.com/leookun/cursor-byok/releases/latest/download/portable-latest.json";
+    "https://github.com/RyanLi888/workbuddy-byok/releases/latest/download/portable-latest.json";
 #[cfg(any(target_os = "windows", test))]
-const WINDOWS_PAYLOAD_NAME: &str = "cursor-byok-desktop.exe";
+const WINDOWS_PAYLOAD_NAME: &str = "workbuddy-byok-desktop.exe";
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -192,7 +192,7 @@ fn ensure_target_writable(target: &Path) -> std::io::Result<()> {
         .parent()
         .ok_or_else(|| std::io::Error::other("application executable has no parent directory"))?;
     let probe = parent.join(format!(
-        ".cursor-byok-update-write-test-{}",
+        ".workbuddy-byok-update-write-test-{}",
         std::process::id()
     ));
     let mut file = OpenOptions::new()
@@ -237,7 +237,7 @@ fn extract_windows_payload(bytes: &[u8]) -> Result<Vec<u8>, String> {
 #[cfg(target_os = "windows")]
 fn stage_payload(target: &Path, payload: &[u8]) -> std::io::Result<PathBuf> {
     let directory = tempfile::Builder::new()
-        .prefix("cursor-byok-portable-update-")
+        .prefix("workbuddy-byok-portable-update-")
         .tempdir()?;
     let name = target
         .file_name()

@@ -85,4 +85,4 @@ jobs:
           workspaces: ". -> target"
 
       - name: Run platform Clippy
-        run: cargo clippy --package cursor-byok-desktop --all-targets -- -D warnings
+        run: cargo clippy --package workbuddy-byok-desktop --all-targets -- -D warnings

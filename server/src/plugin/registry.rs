@@ -173,7 +173,7 @@ impl PluginRegistry {
         plugins
     }
 
-    /// 已满足调用条件的全部插件模型;每个模型独立进入 Cursor 目录。
+    /// 已满足调用条件的全部插件模型;每个模型独立进入 WorkBuddy 目录。
     pub async fn configured_models(&self) -> Vec<PluginModelDescriptor> {
         let Some(executable) = self.inner.runtime.executable() else {
             return Vec::new();
@@ -1148,6 +1148,11 @@ impl PluginRegistry {
         let plugin_id = &entry.manifest.id;
         let resource = match &provider.resource_type {
             Some(resource_type) => {
+                let record = self.select_resource(plugin_id, resource_type).await?;
+                if find_resource(entry, resource_type)?.can_refresh {
+                    self.refresh_resource(plugin_id, resource_type, &record.id)
+                        .await?;
+                }
                 let record = self.select_resource(plugin_id, resource_type).await?;
                 Some(record.snapshot(resource_type))
             }

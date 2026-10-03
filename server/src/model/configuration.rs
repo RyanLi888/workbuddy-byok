@@ -96,6 +96,7 @@ pub struct ModelConfigInput {
     #[serde(default)]
     pub use_full_url: bool,
     pub api_key: String,
+    #[serde(default)]
     pub tooltip_data: String,
     pub model_id: String,
     #[serde(default)]
@@ -192,7 +193,7 @@ impl ModelConfig {
     pub fn configure(&self, model: &mut super::ModelSpec) {
         model.display_name = Some(self.display_name.clone());
         // A request-selected context is authoritative.  Use the saved model
-        // value only when Cursor did not send a context parameter.
+        // value only when WorkBuddy did not send a context parameter.
         if model.context_window_tokens.is_none() {
             model.context_window_tokens = self.context_window_tokens;
         }
@@ -216,7 +217,7 @@ pub fn normalize_model_input(input: &ModelConfigInput) -> Result<ModelConfigInpu
         .map(String::from);
     let base_url = normalize_request_url(&input.base_url)?;
     let api_key = required(&input.api_key, "model API key")?;
-    let tooltip_data = required(&input.tooltip_data, "model tooltip")?;
+    let tooltip_data = input.tooltip_data.trim().to_owned();
     let model_id = required(&input.model_id, "model id")?;
     let reasoning_effort = normalize_effort(input.reasoning_effort.as_deref(), true)?;
     let anthropic_thinking_effort = match input.model_type {

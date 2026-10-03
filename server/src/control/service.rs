@@ -5,31 +5,23 @@ use std::{
     time::Instant,
 };
 
-use base64::{engine::general_purpose::STANDARD, Engine};
 use futures_util::StreamExt;
 use reqwest::header::{HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
 use tokio_util::sync::CancellationToken;
 use url::Url;
 
-use super::ads::{
-    AdDismissalInput, AdRuntime, ADS_ENDPOINT, APP_VERSION_HEADER, DEVICE_ID_HEADER,
-    DISABLED_AD_IDS_HEADER, LANGUAGE_HEADER, OS_HEADER,
-};
-
 use crate::{
-    local_app::CursorHarness,
     model::{
-        ContentPart, CursorRunTraceArtifact, CursorRunTraceSummary, LlmCallRequest,
-        LlmCallResponseChunk, LlmCallSummary, ModelConfig, ModelConfigInput, ModelInvocation,
-        ModelRequest, ModelSpec, ModelType, Overview, ProjectedContent, ProjectedMessage,
-        PromptSpec, ProviderType, Role,
+        ContentPart, LlmCallRequest, LlmCallResponseChunk, LlmCallSummary, ModelConfig,
+        ModelConfigInput, ModelInvocation, ModelRequest, ModelSpec, ModelType, Overview,
+        ProjectedContent, ProjectedMessage, PromptSpec, ProviderType, Role,
     },
     plugin::{PluginDescriptor, PluginRegistry, PluginRuntime, PluginRuntimeStatus},
     provider::{is_valid_response_event, ModelEvent, Provider},
     store::{
-        CommitSettings, DesktopSettings, ExternalApiSettings, PortSettings, ProxySettings,
-        ProxySettingsInput, StatisticsStorage, Store, TabSettings, TokenPricingSettings,
+        DesktopSettings, ExternalApiSettings, PortSettings, ProxySettings, ProxySettingsInput,
+        StatisticsStorage, Store, TokenPricingSettings,
     },
     Error, Result,
 };
@@ -37,44 +29,19 @@ use crate::{
 #[derive(Clone)]
 pub struct ControlService {
     store: Store,
-    cursor_harness: CursorHarness,
     provider: Arc<dyn Provider>,
     plugin_runtime: PluginRuntime,
     plugins: PluginRegistry,
     clients: crate::network::NetworkClients,
-    app_version: String,
     model_tests: Arc<Mutex<BTreeMap<String, CancellationToken>>>,
+    pub(super) workbuddy_sync: Arc<tokio::sync::Mutex<()>>,
+    pub(super) gateway_addr: Arc<parking_lot::RwLock<Option<std::net::SocketAddr>>>,
+    pub(super) workbuddy_sync_error: Arc<parking_lot::RwLock<Option<String>>>,
 }
 
 #[derive(Clone, Debug, Serialize)]
 pub struct DiscoveredModels {
     pub models: Vec<String>,
-}
-
-#[derive(Clone, Debug, Serialize)]
-pub struct LegacyModelImportResult {
-    pub imported: usize,
-    pub skipped: usize,
-    pub total: usize,
-}
-
-#[derive(Clone, Debug, Serialize)]
-pub struct LegacyModelImportPreview {
-    pub source: String,
-    pub total: usize,
-    pub new_models: usize,
-    pub existing_models: usize,
-    pub models: Vec<LegacyModelImportPreviewItem>,
-}
-
-#[derive(Clone, Debug, Serialize)]
-pub struct LegacyModelImportPreviewItem {
-    pub model_hash: String,
-    pub display_name: String,
-    pub model_id: String,
-    #[serde(rename = "type")]
-    pub model_type: ModelType,
-    pub existing: bool,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -113,7 +80,6 @@ pub struct CallDetail {
     pub call: CallSummary,
     pub request: Option<LlmCallRequest>,
     pub response_chunks: Vec<LlmCallResponseChunk>,
-    pub cursor_trace: Option<CursorTraceDetail>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -122,24 +88,6 @@ pub struct CallSummary {
     pub call: LlmCallSummary,
     pub call_kind: &'static str,
     pub route: &'static str,
-}
-
-#[derive(Clone, Debug, Serialize)]
-pub struct CursorTraceDetail {
-    pub trace: CursorRunTraceSummary,
-    pub artifacts: Vec<CursorTraceArtifactDetail>,
-}
-
-#[derive(Clone, Debug, Serialize)]
-pub struct CursorTraceArtifactDetail {
-    pub seq: i64,
-    pub artifact_type: String,
-    pub source: String,
-    pub metadata: serde_json::Value,
-    pub created_at_ms: i64,
-    pub byte_count: usize,
-    pub encoding: &'static str,
-    pub data: String,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -154,26 +102,60 @@ impl ControlService {
         plugin_runtime: PluginRuntime,
         plugins: PluginRegistry,
         clients: crate::network::NetworkClients,
-        app_version: String,
     ) -> Result<Self> {
         Ok(Self {
-            cursor_harness: CursorHarness::new(store.clone())?,
             store,
             provider,
             plugin_runtime,
             plugins,
             clients,
-            app_version,
             model_tests: Arc::new(Mutex::new(BTreeMap::new())),
+            workbuddy_sync: Arc::new(tokio::sync::Mutex::new(())),
+            gateway_addr: Arc::new(parking_lot::RwLock::new(None)),
+            workbuddy_sync_error: Arc::new(parking_lot::RwLock::new(None)),
         })
-    }
-
-    pub fn cursor_harness(&self) -> &CursorHarness {
-        &self.cursor_harness
     }
 
     pub async fn plugins(&self) -> Vec<PluginDescriptor> {
         self.plugins.plugins().await
+    }
+
+    pub async fn sync_to_workbuddy(&self) -> Result<(usize, String)> {
+        let _sync = self.workbuddy_sync.lock().await;
+        let result = self.write_workbuddy_models().await;
+        *self.workbuddy_sync_error.write() = result.as_ref().err().map(ToString::to_string);
+        result
+    }
+
+    async fn write_workbuddy_models(&self) -> Result<(usize, String)> {
+        let settings = self.store.external_api_settings().await?;
+        if !settings.enabled {
+            return Err(Error::Config(
+                "enable the WorkBuddy gateway before syncing models".into(),
+            ));
+        }
+        let path = crate::workbuddy::models_path()?;
+        let models = crate::catalog::list(&self.store, &self.plugins).await?;
+        let address = (*self.gateway_addr.read())
+            .ok_or_else(|| Error::Config("gateway is not listening yet".into()))?;
+        let endpoint = format!("http://127.0.0.1:{}/v1/chat/completions", address.port());
+        let count = crate::workbuddy::sync(&path, &models, &endpoint, &settings.api_key).await?;
+        Ok((count, path.display().to_string()))
+    }
+
+    pub fn set_gateway_addr(&self, address: std::net::SocketAddr) {
+        *self.gateway_addr.write() = Some(address);
+    }
+
+    pub async fn gateway_status(&self) -> Result<serde_json::Value> {
+        let settings = self.store.external_api_settings().await?;
+        let address = *self.gateway_addr.read();
+        Ok(serde_json::json!({
+            "enabled": settings.enabled,
+            "base_url": address.map(|address| format!("http://127.0.0.1:{}/v1", address.port())),
+            "models_path": crate::workbuddy::models_path()?.display().to_string(),
+            "sync_error": self.workbuddy_sync_error.read().clone(),
+        }))
     }
 
     pub async fn plugin_oauth_begin(
@@ -280,69 +262,6 @@ impl ControlService {
 
     pub fn cancel_plugin_runtime_initialization(&self) -> PluginRuntimeStatus {
         self.plugin_runtime.cancel_initialization()
-    }
-
-    pub(super) async fn ads(
-        &self,
-        disabled_ad_ids: Option<&str>,
-        language: &str,
-    ) -> Result<AdRuntime> {
-        let client = self.clients.default_client().await?;
-        let installation_id = self.store.installation_id().await?;
-        let mut request = client
-            .get(ADS_ENDPOINT)
-            .header(DEVICE_ID_HEADER, installation_id)
-            .header(OS_HEADER, std::env::consts::OS)
-            .header(APP_VERSION_HEADER, &self.app_version)
-            .header(LANGUAGE_HEADER, language)
-            .timeout(std::time::Duration::from_secs(60));
-        if let Some(disabled_ad_ids) = disabled_ad_ids.filter(|value| !value.is_empty()) {
-            request = request.header(DISABLED_AD_IDS_HEADER, disabled_ad_ids);
-        }
-        let response = request.send().await?;
-        let status = response.status();
-        if !status.is_success() {
-            let message = response.text().await.unwrap_or_default();
-            return Err(Error::Provider(format!(
-                "advertisement service failed ({status}): {}",
-                message.chars().take(200).collect::<String>()
-            )));
-        }
-        let mut runtime = response.json::<AdRuntime>().await?.into_menu_slots()?;
-        runtime.cache_images(&client).await;
-        Ok(runtime)
-    }
-
-    pub(super) async fn dismiss_ad(&self, ad_id: &str, input: &AdDismissalInput) -> Result<()> {
-        let client = self.clients.default_client().await?;
-        let installation_id = self.store.installation_id().await?;
-        let mut endpoint = Url::parse(ADS_ENDPOINT).map_err(|error| {
-            Error::Config(format!("advertisement endpoint is invalid: {error}"))
-        })?;
-        endpoint.set_query(None);
-        endpoint
-            .path_segments_mut()
-            .map_err(|_| Error::Config("advertisement endpoint cannot contain an ad id".into()))?
-            .push(ad_id)
-            .push("dismissals");
-        let response = client
-            .post(endpoint)
-            .header(DEVICE_ID_HEADER, installation_id)
-            .header(OS_HEADER, std::env::consts::OS)
-            .header(APP_VERSION_HEADER, &self.app_version)
-            .json(input)
-            .timeout(std::time::Duration::from_secs(5))
-            .send()
-            .await?;
-        let status = response.status();
-        if !status.is_success() {
-            let message = response.text().await.unwrap_or_default();
-            return Err(Error::Provider(format!(
-                "advertisement dismissal failed ({status}): {}",
-                message.chars().take(200).collect::<String>()
-            )));
-        }
-        Ok(())
     }
 
     pub async fn models(&self) -> Result<Vec<ModelConfig>> {
@@ -565,42 +484,8 @@ impl ControlService {
         .await
     }
 
-    pub async fn import_v0049_models(&self) -> Result<LegacyModelImportResult> {
-        let path = crate::config::v0049_config_path()?;
-        let outcome = self.store.import_v0049_model_config(&path).await?;
-        Ok(LegacyModelImportResult {
-            imported: outcome.imported,
-            skipped: outcome.skipped,
-            total: outcome.total,
-        })
-    }
-
-    pub async fn preview_v0049_models(&self) -> Result<LegacyModelImportPreview> {
-        let path = crate::config::v0049_config_path()?;
-        let plan = self.store.preview_v0049_model_config(&path).await?;
-        let total = plan.models.len();
-        let existing_models = plan.models.iter().filter(|model| model.existing).count();
-        Ok(LegacyModelImportPreview {
-            source: path.display().to_string(),
-            total,
-            new_models: total - existing_models,
-            existing_models,
-            models: plan
-                .models
-                .into_iter()
-                .map(|model| LegacyModelImportPreviewItem {
-                    model_hash: model.model_hash,
-                    display_name: model.input.display_name,
-                    model_id: model.input.model_id,
-                    model_type: model.input.model_type,
-                    existing: model.existing,
-                })
-                .collect(),
-        })
-    }
-
     pub async fn calls(&self, limit: i64) -> Result<Vec<CallSummary>> {
-        let mut calls = self
+        Ok(self
             .store
             .llm_calls(limit)
             .await?
@@ -613,68 +498,25 @@ impl ControlService {
                     route,
                 }
             })
-            .collect::<Vec<_>>();
-        calls.extend(
-            self.store
-                .official_cursor_traces(limit)
-                .await?
-                .into_iter()
-                .map(official_call),
-        );
-        calls.sort_by_key(|call| std::cmp::Reverse(call.call.created_at_ms));
-        calls.truncate(limit.clamp(1, 500) as usize);
-        Ok(calls)
+            .collect())
     }
 
     pub async fn call(&self, call_id: &str) -> Result<CallDetail> {
-        if let Some(call) = self.store.llm_call(call_id).await? {
-            let cursor_trace = self.cursor_trace_detail(&call.run_id).await?;
-            let route = call_route(&call.run_id);
-            return Ok(CallDetail {
-                request: self.store.llm_call_request(call_id).await?,
-                response_chunks: self.store.llm_call_chunks(call_id).await?,
-                call: CallSummary {
-                    call,
-                    call_kind: "provider_llm",
-                    route,
-                },
-                cursor_trace,
-            });
-        }
-        let request_id = call_id.strip_prefix("cursor:").unwrap_or(call_id);
-        let trace = self
+        let call = self
             .store
-            .cursor_trace(request_id)
+            .llm_call(call_id)
             .await?
-            .filter(|trace| trace.route == "cursor_official")
             .ok_or_else(|| Error::RunNotFound(format!("call {call_id}")))?;
+        let route = call_route(&call.run_id);
         Ok(CallDetail {
-            call: official_call(trace.clone()),
-            request: None,
-            response_chunks: Vec::new(),
-            cursor_trace: Some(self.cursor_trace_detail_from(trace).await?),
+            request: self.store.llm_call_request(call_id).await?,
+            response_chunks: self.store.llm_call_chunks(call_id).await?,
+            call: CallSummary {
+                call,
+                call_kind: "provider_llm",
+                route,
+            },
         })
-    }
-
-    async fn cursor_trace_detail(&self, request_id: &str) -> Result<Option<CursorTraceDetail>> {
-        let Some(trace) = self.store.cursor_trace(request_id).await? else {
-            return Ok(None);
-        };
-        Ok(Some(self.cursor_trace_detail_from(trace).await?))
-    }
-
-    async fn cursor_trace_detail_from(
-        &self,
-        trace: CursorRunTraceSummary,
-    ) -> Result<CursorTraceDetail> {
-        let artifacts = self
-            .store
-            .cursor_trace_artifacts(&trace.request_id)
-            .await?
-            .into_iter()
-            .map(cursor_artifact)
-            .collect();
-        Ok(CursorTraceDetail { trace, artifacts })
     }
 
     pub async fn observability(&self) -> Result<ObservabilitySettings> {
@@ -729,23 +571,14 @@ impl ControlService {
 
     pub async fn set_proxy_settings(&self, settings: ProxySettingsInput) -> Result<ProxySettings> {
         if settings.mode.is_custom() {
-            let local_proxy_port = match self.cursor_harness.proxy_port().await {
-                Some(port) => port,
-                None => self.store.port_settings().await?.proxy_port,
-            };
-            crate::network::reject_self_proxy(&settings.address, local_proxy_port)?;
+            crate::network::reject_self_proxy(
+                &settings.address,
+                self.store.port_settings().await?.service_port,
+            )?;
         }
         let settings = self.store.set_proxy_settings(settings).await?;
         self.clients.invalidate().await;
         Ok(settings)
-    }
-
-    pub async fn tab_settings(&self) -> Result<TabSettings> {
-        self.store.tab_settings().await
-    }
-
-    pub async fn set_tab_settings(&self, settings: TabSettings) -> Result<TabSettings> {
-        self.cursor_harness.set_tab_settings(settings).await
     }
 
     pub async fn desktop_settings(&self) -> Result<DesktopSettings> {
@@ -754,14 +587,6 @@ impl ControlService {
 
     pub async fn set_desktop_settings(&self, settings: DesktopSettings) -> Result<()> {
         self.store.set_desktop_settings(settings).await
-    }
-
-    pub async fn commit_settings(&self) -> Result<CommitSettings> {
-        self.store.commit_settings().await
-    }
-
-    pub async fn set_commit_settings(&self, settings: CommitSettings) -> Result<CommitSettings> {
-        self.store.set_commit_settings(settings).await
     }
 
     pub async fn pricing_settings(&self) -> Result<TokenPricingSettings> {
@@ -782,95 +607,6 @@ fn call_route(run_id: &str) -> &'static str {
     } else {
         "local_byok"
     }
-}
-
-fn official_call(trace: CursorRunTraceSummary) -> CallSummary {
-    let model_id = trace.model_id.clone().unwrap_or_else(|| "Cursor".into());
-    let ttfb = trace
-        .first_response_at_ms
-        .map(|value| (value - trace.received_at_ms).max(0));
-    let duration = trace
-        .finished_at_ms
-        .map(|value| (value - trace.received_at_ms).max(0));
-    let error = trace.error_message.clone();
-    CallSummary {
-        call: LlmCallSummary {
-            call_id: format!("cursor:{}", trace.request_id),
-            run_id: trace.request_id.clone(),
-            conversation_id: trace
-                .conversation_id
-                .clone()
-                .unwrap_or_else(|| trace.request_id.clone()),
-            provider_call_index: 0,
-            model_hash: None,
-            provider_type: "cursor-official".into(),
-            provider_url: "https://api2.cursor.sh".into(),
-            request_type: "cursor-run-sse".into(),
-            request_url: "https://api2.cursor.sh/agent.v1.AgentService/RunSSE".into(),
-            model_id: model_id.clone(),
-            display_name: model_id,
-            reasoning_effort: None,
-            fast: None,
-            status: trace.status.clone(),
-            finish_reason: None,
-            created_at_ms: trace.received_at_ms,
-            request_started_at_ms: Some(trace.received_at_ms),
-            response_headers_at_ms: trace.first_response_at_ms,
-            first_event_at_ms: trace.first_response_at_ms,
-            first_text_at_ms: None,
-            first_valid_response_at_ms: None,
-            finished_at_ms: trace.finished_at_ms,
-            queue_ms: None,
-            ttfb_ms: ttfb,
-            ttft_ms: None,
-            ttfr_ms: None,
-            duration_ms: duration,
-            input_tokens: None,
-            output_tokens: None,
-            total_tokens: None,
-            cache_read_tokens: None,
-            cache_write_tokens: None,
-            reasoning_tokens: None,
-            usage: None,
-            message_count: 0,
-            tool_count: 0,
-            request_bytes: Some(trace.request_bytes),
-            response_bytes: trace.response_bytes,
-            stream_event_count: trace.response_event_count,
-            http_status: trace.http_status,
-            error_kind: error.as_ref().map(|_| "cursor_official".into()),
-            error_message: error,
-            detailed: true,
-        },
-        call_kind: "cursor_official",
-        route: "cursor_official",
-    }
-}
-
-fn cursor_artifact(artifact: CursorRunTraceArtifact) -> CursorTraceArtifactDetail {
-    let byte_count = artifact.data.len();
-    let (encoding, data) = match readable_utf8(&artifact.data) {
-        Some(value) => ("utf8", value.into()),
-        None => ("base64", STANDARD.encode(&artifact.data)),
-    };
-    CursorTraceArtifactDetail {
-        seq: artifact.seq,
-        artifact_type: artifact.artifact_type,
-        source: artifact.source,
-        metadata: artifact.metadata,
-        created_at_ms: artifact.created_at_ms,
-        byte_count,
-        encoding,
-        data,
-    }
-}
-
-fn readable_utf8(data: &[u8]) -> Option<&str> {
-    let value = std::str::from_utf8(data).ok()?;
-    value
-        .chars()
-        .all(|character| !character.is_control() || matches!(character, '\n' | '\r' | '\t'))
-        .then_some(value)
 }
 
 async fn discover_models_from_endpoint(

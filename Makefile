@@ -1,4 +1,4 @@
-LOCAL_TAURI_SIGNING_KEY := $(CURDIR)/.tauri/cursor-byok.local.key
+LOCAL_TAURI_SIGNING_KEY := $(CURDIR)/.tauri/workbuddy-byok.local.key
 
 .PHONY: check dev-web dev-server dev-desktop build-web build-server build-desktop build-docker
 
@@ -12,7 +12,7 @@ dev-web:
 	npm --prefix apps/desktop run dev:web
 
 dev-server:
-	CURSOR_CONSOLE_DIR=apps/desktop/dist cargo run --package cursor-server --bin cursor-server
+	WORKBUDDY_CONSOLE_DIR=apps/desktop/dist cargo run --package workbuddy-server --bin workbuddy-server
 
 dev-desktop:
 	npm --prefix apps/desktop run tauri:dev
@@ -21,7 +21,7 @@ build-web:
 	npm --prefix apps/desktop run build
 
 build-server:
-	cargo build --release --package cursor-server --bin cursor-server
+	cargo build --release --package workbuddy-server --bin workbuddy-server
 
 ifeq ($(OS),Windows_NT)
 $(LOCAL_TAURI_SIGNING_KEY):
@@ -40,4 +40,4 @@ build-desktop: $(LOCAL_TAURI_SIGNING_KEY)
 endif
 
 build-docker:
-	docker build --tag cursor-byok:local .
+	docker build --tag workbuddy-byok:local .

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import appIcon from "../../src-tauri/icons/32x32.png";
+import appIcon from "../shared/assets/icons/workbuddy.png";
 import { currentAppVersion } from "../shared/native/appLifecycle";
 import type { DesktopPlatform } from "../shared/native/platform";
 import { WindowControls } from "./WindowControls";
@@ -29,9 +29,9 @@ export function AppHeader({ platform, nativeDesktop }: AppHeaderProps) {
     <div className={styles.uiLayer}>
       {showMacTrafficLights && <MacTrafficLights />}
       {showNativeUi && <>
-        <div className={styles.identity} aria-label="Cursor BYOK">
+        <div className={styles.identity} aria-label="WorkBuddy BYOK">
           <img src={appIcon} alt="" />
-          <span>{t("Cursor 助手 v{version}", { version })}</span>
+          <span>{t("WorkBuddy 助手 v{version}", { version })}</span>
         </div>
         <WindowControls />
       </>}
