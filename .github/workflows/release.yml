@@ -244,6 +244,7 @@ jobs:
             -H "Accept: application/octet-stream" \
             "repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}" \
             > tauri-update/latest.json
+          jq -e '.platforms | has("darwin-aarch64") and has("darwin-x86_64") and has("linux-x86_64") and has("windows-x86_64")' tauri-update/latest.json
           node .github/scripts/normalize-tauri-update.mjs \
             --manifest tauri-update/latest.json \
             --release tauri-update/release.json \
