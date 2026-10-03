@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_publish: ${{ steps.release.outputs.should_publish }}
+      release_id: ${{ steps.release.outputs.release_id }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
@@ -69,11 +70,29 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
-          state=$(gh release view "v${VERSION}" --json isDraft --jq 'if .isDraft then "draft" else "published" end' 2>/dev/null || true)
-          if [[ "${state}" = "published" ]]; then
+          gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" > releases.json
+          published_id=$(jq -r --arg tag "v${VERSION}" '.[] | select(.tag_name == $tag and .draft == false) | .id' releases.json)
+          if [[ -n "${published_id}" ]]; then
             echo "Version ${VERSION} is already published; nothing to do."
             echo "should_publish=false" >> "${GITHUB_OUTPUT}"
           else
+            draft_count=$(jq --arg tag "v${VERSION}" '[.[] | select(.tag_name == $tag and .draft == true)] | length' releases.json)
+            if [[ "${draft_count}" -gt 1 ]]; then
+              echo "Multiple drafts exist for v${VERSION}; resolve them before publishing." >&2
+              exit 1
+            fi
+            if [[ "${draft_count}" -eq 0 ]]; then
+              notes="Download the installer for your platform from the assets below."
+              if [[ "${VERSION}" == *-* ]]; then
+                notes="Beta release. ${notes}"
+              fi
+              gh release create "v${VERSION}" --verify-tag --draft \
+                --title "WorkBuddy BYOK v${VERSION}" --notes "${notes}"
+              gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" > releases.json
+            fi
+            release_id=$(jq -r --arg tag "v${VERSION}" '.[] | select(.tag_name == $tag and .draft == true) | .id' releases.json)
+            [[ "${release_id}" =~ ^[0-9]+$ ]]
+            echo "release_id=${release_id}" >> "${GITHUB_OUTPUT}"
             echo "should_publish=true" >> "${GITHUB_OUTPUT}"
           fi
 
@@ -141,6 +160,7 @@ jobs:
           APPLE_SIGNING_IDENTITY: ${{ contains(matrix.platform, 'macos') && '-' || '' }}
         with:
           projectPath: apps/desktop
+          releaseId: ${{ needs.prepare.outputs.release_id }}
           tagName: v__VERSION__
           releaseName: WorkBuddy BYOK v__VERSION__
           releaseBody: ${{ contains(needs.prepare.outputs.version, '-') && 'Beta release. Download the installer for your platform from the assets below.' || 'Download the installer for your platform from the assets below.' }}
@@ -212,14 +232,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.prepare.outputs.version }}
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
         run: |
           mkdir -p tauri-update
-          release_id=$(
-            gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
-              --jq ".[] | select(.tag_name == \"v${VERSION}\") | .id"
-          )
-          test -n "${release_id}"
-          gh api "repos/${GITHUB_REPOSITORY}/releases/${release_id}" > tauri-update/release.json
+          [[ "${RELEASE_ID}" =~ ^[0-9]+$ ]]
+          gh api "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" > tauri-update/release.json
+          jq -e --arg tag "v${VERSION}" '.tag_name == $tag and .draft == true' tauri-update/release.json
           asset_id=$(node -p 'require("./tauri-update/release.json").assets.find(({ name }) => name === "latest.json")?.id ?? ""')
           test -n "${asset_id}"
           gh api \
@@ -232,20 +250,28 @@ jobs:
             --repository "${GITHUB_REPOSITORY}" \
             --version "${VERSION}"
 
-      - name: Upload normalized Tauri updater manifest
+      - name: Upload completed updater assets to the prepared release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: gh release upload "v${VERSION}" tauri-update/latest.json --clobber
-
-      - name: Upload portable updater assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: gh release upload "v${VERSION}" portable-update/* --clobber
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+        run: |
+          for asset in tauri-update/latest.json portable-update/*; do
+            name=$(basename "${asset}")
+            asset_id=$(jq -r --arg name "${name}" '.assets[] | select(.name == $name) | .id' tauri-update/release.json)
+            if [[ -n "${asset_id}" ]]; then
+              [[ "${asset_id}" =~ ^[0-9]+$ ]]
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"
+            fi
+            curl --fail-with-body --silent --show-error \
+              --header "Authorization: Bearer ${GH_TOKEN}" \
+              --header "Content-Type: application/octet-stream" \
+              --data-binary "@${asset}" \
+              "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}/assets?name=${name}" \
+              > /dev/null
+          done
 
       - name: Publish the completed release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: gh release edit "v${VERSION}" --draft=false --latest
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+        run: gh api --method PATCH "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" -F draft=false -f make_latest=true
