@@ -64,6 +64,26 @@ jobs:
         working-directory: apps/desktop
         run: npm run check
 
+      - name: Check updater manifest generation
+        run: node --test .github/scripts/*.test.mjs
+
+  plugins:
+    name: Account plugins
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.6
+
+      - name: Run offline account plugin tests
+        shell: bash
+        run: |
+          for plugin in server/plugins/build-in/*; do
+            (cd "${plugin}" && deno test --config deno.json)
+          done
+
   desktop-rust:
     name: Desktop Rust (${{ matrix.os }})
     strategy:
