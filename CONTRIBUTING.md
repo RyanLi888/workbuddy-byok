@@ -33,7 +33,7 @@ npm --prefix apps/desktop run tauri:build -- --no-bundle
 npm --prefix apps/desktop run tauri -- bundle --bundles nsis
 ```
 
-The second command is the Windows example; use `app,dmg` on macOS or `deb,appimage` on Linux. To generate signed updater artifacts, set `TAURI_SIGNING_PRIVATE_KEY` to your own signing-key path and configure its password as needed. Local packages signed with a different key cannot replace the official updater key. Never commit private keys.
+The second command is the Windows example; use `app,dmg` on macOS or `deb,appimage` on Linux. To generate signed updater artifacts, set `TAURI_SIGNING_PRIVATE_KEY` to the contents of your own signing key and configure its password as needed. Local packages signed with a different key cannot replace the official updater key. Never commit private keys.
 
 Platform installer output is under `target/release/bundle/`; cross-target macOS builds use `target/<target>/release/bundle/`. Official releases are built by `.github/workflows/release.yml` from an owner-pushed `v<version>` tag already contained in `main`. Ordinary pushes run CI only. Desktop versions must agree in package manifests, package locks, and Tauri configuration. All platform builds must finish before a release is published.
 

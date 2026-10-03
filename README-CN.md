@@ -34,6 +34,8 @@
 
 请选择与 CPU 对应的安装包。`.sig`、`latest.json` 和 `portable-latest.json` 用于自动更新。安装桌面工具无需 Rust、Node.js 或单独启动服务；账号插件在初始化时下载运行时。Windows 便携版需要系统安装 WebView2。
 
+Windows 推荐 EXE 安装包，默认按当前用户安装，适合自动更新。MSI 为全局安装，默认写入 Program Files，升级时需要管理员权限或重新运行新版 MSI。便携版需放在当前用户可写的目录中才能更新。
+
 更新文件的签名校验与 Windows 发布者证书、Apple 公证不同。首发安装包没有 Windows 发布者证书和 Apple 公证，系统可能提示确认。运行前请核对源码及发布来源。
 
 ## 快速开始

@@ -34,6 +34,8 @@ Download the matching asset from [GitHub Releases](https://github.com/RyanLi888/
 
 Choose the package for your CPU. `.sig`, `latest.json`, and `portable-latest.json` are update metadata. Desktop installation does not require Rust, Node.js, or a separate server. Account plugins download their runtime when initialized. The Windows portable build requires WebView2.
 
+The Windows EXE installer uses a per-user directory and is recommended for automatic updates. MSI installs for all users under Program Files; upgrading that installation requires administrator permissions or running a newer MSI installer. Portable updates require a writable application directory.
+
 Builds use updater signatures, which are separate from Windows publisher certificates and Apple notarization. These initial packages are not publisher-signed on Windows or notarized on macOS; the operating system may prompt before opening them. Check the source and release origin before allowing an application to run.
 
 ## Quick start
