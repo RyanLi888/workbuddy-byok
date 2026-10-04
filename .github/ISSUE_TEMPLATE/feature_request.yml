@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an improvement to WorkBuddy BYOK.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user problem and the outcome you want. Do not include credentials or sensitive account data.
+        For general questions, use [Discussions](https://github.com/RyanLi888/workbuddy-byok/discussions).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to do, and what currently gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain the desired user-visible outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe any existing options or workarounds you have tried.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Optional examples, mockups, or related issues, with sensitive data removed.

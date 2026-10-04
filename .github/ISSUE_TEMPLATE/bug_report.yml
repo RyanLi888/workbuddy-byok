@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a reproducible problem with WorkBuddy BYOK.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For vulnerabilities, use [private vulnerability reporting](https://github.com/RyanLi888/workbuddy-byok/security/advisories/new).
+        Redact API keys, tokens, cookies, account identifiers, prompts, and request logs. Use synthetic data in examples.
+  - type: input
+    id: version
+    attributes:
+      label: Application version
+      description: Copy the WorkBuddy BYOK version from the app, or provide the commit hash for a source build.
+      placeholder: "0.0.1 or a commit hash"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS version, architecture, installation method (installer, portable, Docker, or source), and WorkBuddy version if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest sequence that reproduces the problem, including relevant configuration with secrets removed.
+      placeholder: |
+        1. Open ...
+        2. Configure ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted logs or screenshots
+      description: Optional. Review every attachment for sensitive data before posting. Avoid full databases and raw request recordings.

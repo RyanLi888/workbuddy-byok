@@ -136,3 +136,5 @@ Product names and logos belong to their respective owners and identify integrati
 ## License and support
 
 Source code is licensed under the [MIT License](LICENSE), subject to the third-party notices in [UPSTREAM.md](UPSTREAM.md). Issues and pull requests are welcome. Report vulnerabilities privately using [SECURITY.md](SECURITY.md); do not post credentials or raw sensitive request logs in public issues.
+
+Use [Discussions](https://github.com/RyanLi888/workbuddy-byok/discussions) for questions and community conversations. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) when participating.

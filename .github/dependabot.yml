@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # The root Cargo workspace includes server and apps/desktop/src-tauri.
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: "/apps/desktop"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

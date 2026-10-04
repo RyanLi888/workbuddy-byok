@@ -136,3 +136,5 @@ WorkBuddy、腾讯、Cursor、OpenAI、Google、xAI 等产品名称和标识归�
 ## 许可证与反馈
 
 源码采用 [MIT License](LICENSE)，第三方内容适用 [UPSTREAM.md](UPSTREAM.md) 中的声明。欢迎提交 Issue 和 Pull Request。安全漏洞请依照 [SECURITY.md](SECURITY.md) 私下报告；公开反馈中请勿包含密钥、登录凭据或原始敏感请求日志。
+
+使用问题与社区交流请前往 [Discussions](https://github.com/RyanLi888/workbuddy-byok/discussions)，参与时请遵守[行为准则](CODE_OF_CONDUCT.md)。

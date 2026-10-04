@@ -2,6 +2,8 @@
 
 Issues and pull requests are welcome. For a bug, include your application version, operating system, reproduction steps, and expected and actual behavior. Redact keys, account identifiers, prompts, and request logs. Report security problems privately as described in [SECURITY.md](SECURITY.md).
 
+Use the issue forms for bug reports and feature requests, and [Discussions](https://github.com/RyanLi888/workbuddy-byok/discussions) for usage questions and community conversations. All participants must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Development
 
 Install Rust stable, Node.js 22 or newer, and the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/). Linux builds need WebKitGTK 4.1, Ayatana AppIndicator, librsvg, and patchelf. Windows builds need the Microsoft C++ build tools and WebView2.
