@@ -81,16 +81,16 @@ jobs:
               echo "Multiple drafts exist for v${VERSION}; resolve them before publishing." >&2
               exit 1
             fi
+            release_id=$(jq -r --arg tag "v${VERSION}" '.[] | select(.tag_name == $tag and .draft == true) | .id' releases.json)
             if [[ "${draft_count}" -eq 0 ]]; then
               notes="Download the installer for your platform from the assets below."
               if [[ "${VERSION}" == *-* ]]; then
                 notes="Beta release. ${notes}"
               fi
-              gh release create "v${VERSION}" --verify-tag --draft \
-                --title "WorkBuddy BYOK v${VERSION}" --notes "${notes}"
-              gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" > releases.json
+              release_id=$(gh api --method POST "repos/${GITHUB_REPOSITORY}/releases" \
+                -f tag_name="v${VERSION}" -f name="WorkBuddy BYOK v${VERSION}" \
+                -f body="${notes}" -F draft=true -F prerelease=false --jq '.id')
             fi
-            release_id=$(jq -r --arg tag "v${VERSION}" '.[] | select(.tag_name == $tag and .draft == true) | .id' releases.json)
             [[ "${release_id}" =~ ^[0-9]+$ ]]
             echo "release_id=${release_id}" >> "${GITHUB_OUTPUT}"
             echo "should_publish=true" >> "${GITHUB_OUTPUT}"
