@@ -6,7 +6,7 @@
 
 A free, open-source local model gateway for WorkBuddy. Bring your own API endpoints and credentials, manage models, and sync them to WorkBuddy from a desktop app.
 
-[中文说明](README-CN.md) · [Download](https://github.com/RyanLi888/workbuddy-byok/releases/latest) · [Report an issue](https://github.com/RyanLi888/workbuddy-byok/issues) · [Contributing](CONTRIBUTING.md)
+[中文说明](README-CN.md) · [User guide (中文)](docs/usage-cn.md) · [Download](https://github.com/RyanLi888/workbuddy-byok/releases/latest) · [Report an issue](https://github.com/RyanLi888/workbuddy-byok/issues) · [Contributing](CONTRIBUTING.md)
 
 > This independent community project is adapted from [leookun/cursor-byok](https://github.com/leookun/cursor-byok). It is not affiliated with or endorsed by WorkBuddy, Tencent, Cursor, or the model providers. The software is free; connected APIs and account services may incur charges. Read the [disclaimer](#disclaimer) before use.
 
@@ -39,6 +39,8 @@ The Windows EXE installer uses a per-user directory and is recommended for autom
 Builds use updater signatures, which are separate from Windows publisher certificates and Apple notarization. These initial packages are not publisher-signed on Windows or notarized on macOS; the operating system may prompt before opening them. Check the source and release origin before allowing an application to run.
 
 ## Quick start
+
+For step-by-step instructions with screenshots, see the [Chinese user guide](docs/usage-cn.md), covering API models, account plugins, WorkBuddy synchronization, statistics, and troubleshooting.
 
 1. Install WorkBuddy and WorkBuddy BYOK.
 2. Open **WorkBuddy models**, add your API protocol, endpoint, key, and model ID, then save and test the model.

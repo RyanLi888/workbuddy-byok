@@ -6,7 +6,7 @@
 
 免费、开源的 WorkBuddy 本地模型网关。使用自己的 API 地址和凭据，在桌面工具中管理模型，并自动同步到 WorkBuddy。
 
-[English](README.md) · [下载安装包](https://github.com/RyanLi888/workbuddy-byok/releases/latest) · [反馈问题](https://github.com/RyanLi888/workbuddy-byok/issues) · [参与贡献](CONTRIBUTING.md)
+[English](README.md) · [图文使用教程](docs/usage-cn.md) · [下载安装包](https://github.com/RyanLi888/workbuddy-byok/releases/latest) · [反馈问题](https://github.com/RyanLi888/workbuddy-byok/issues) · [参与贡献](CONTRIBUTING.md)
 
 > 本项目基于 [leookun/cursor-byok](https://github.com/leookun/cursor-byok) 二次开发，是独立社区项目，与 WorkBuddy、腾讯、Cursor 及模型服务商无隶属、合作或官方背书关系。工具本身免费，所接入的 API 和账号服务可能收费。使用前请阅读下方免责声明。
 
@@ -39,6 +39,8 @@ Windows 推荐 EXE 安装包，默认按当前用户安装，适合自动更新�
 更新文件的签名校验与 Windows 发布者证书、Apple 公证不同。首发安装包没有 Windows 发布者证书和 Apple 公证，系统可能提示确认。运行前请核对源码及发布来源。
 
 ## 快速开始
+
+完整操作步骤见[图文使用教程](docs/usage-cn.md)，包含自定义 API 模型、账号插件、WorkBuddy 同步、调用统计与常见问题排查。
 
 1. 安装 WorkBuddy 与 WorkBuddy BYOK。
 2. 在「WorkBuddy 模型」添加接口协议、API 地址、密钥和模型标识，保存并测试。
