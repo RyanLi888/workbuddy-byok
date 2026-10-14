@@ -192,7 +192,7 @@ jobs:
             throw "Windows updater archive signature was not generated"
           }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.platform == 'windows-x86_64'
         with:
           name: portable-update-${{ matrix.platform }}
