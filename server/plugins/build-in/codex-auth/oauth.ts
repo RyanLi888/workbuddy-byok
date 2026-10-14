@@ -1,11 +1,10 @@
 import type { JsonValue, PluginContext } from "workbuddy-byok:plugin";
 import type { OAuth2AddMethod, OAuth2Begin, OAuth2Poll } from "workbuddy-byok:resource";
 import { type CredentialCandidate, credentialDraft } from "./resources.ts";
+import { CLIENT_ID, OAUTH_TOKEN_URL } from "./tokens.ts";
 
-const CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann";
 const DEVICE_CODE_URL = "https://auth.openai.com/api/accounts/deviceauth/usercode";
 const DEVICE_TOKEN_URL = "https://auth.openai.com/api/accounts/deviceauth/token";
-const OAUTH_TOKEN_URL = "https://auth.openai.com/oauth/token";
 const REDIRECT_URI = "https://auth.openai.com/deviceauth/callback";
 const VERIFICATION_URI = "https://auth.openai.com/codex/device";
 

@@ -2,7 +2,7 @@
   "apiVersion": 1,
   "id": "dev.workbuddybyok.plugins.antigravity-auth",
   "name": "Google",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "author": "@masudranaxpert",
   "minAppVersion": "0.0.1",
   "icon": "assets/antigravity.svg",

@@ -7,6 +7,13 @@ use crate::Result;
 /// 随二进制打包的内置插件文件;发布构建没有源码目录,靠这里预装。
 const CODEX_AUTH: &[(&str, &str)] = &[
     (
+        "tokens.ts",
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/plugins/build-in/codex-auth/tokens.ts"
+        )),
+    ),
+    (
         "plugin.json",
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -268,6 +275,7 @@ mod tests {
         let plugin = root.path().join("codex-auth");
 
         install(root.path()).unwrap();
+        assert!(plugin.join("tokens.ts").is_file());
         assert_eq!(
             std::fs::read_to_string(plugin.join("main.ts")).unwrap(),
             embedded_main()

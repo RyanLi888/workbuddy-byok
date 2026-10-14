@@ -71,13 +71,15 @@ export function parseAntigravityModels(payload: unknown): ModelDefinition[] {
 
   for (const [modelId, raw] of Object.entries(rawModels)) {
     const model = object(raw);
-    if (!model) continue;
+    if (!model || model.isInternal === true) continue;
 
     const id = modelId.trim();
     if (!id || seen.has(id) || ANTIGRAVITY_DENYLIST.has(id)) continue;
     seen.add(id);
 
-    const rawName = text(model.displayName) ?? id;
+    // The endpoint also returns autocomplete/internal entries without a picker label.
+    const rawName = text(model.displayName);
+    if (!rawName) continue;
     const nameSuffix = rawName.match(EFFORT_SUFFIX);
     const idSuffix = id.match(/[-_](none|minimal|low|medium|high|xhigh|max)$/i);
     const effort = (nameSuffix?.[1] ?? nameSuffix?.[2] ?? idSuffix?.[1])?.toLowerCase() ?? null;

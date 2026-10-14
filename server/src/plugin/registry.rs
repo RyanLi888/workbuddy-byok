@@ -19,7 +19,10 @@ use super::{
     },
     oauth_callback::{self, CallbackHandle, CallbackOutcome, CallbackRequest},
     runtime::PluginRuntime,
-    state::{now_ms, PluginStateStore, ResourceDraft, ResourcePatch, ResourceRecord, StoredModel},
+    state::{
+        now_ms, PluginStateStore, ResourceDraft, ResourcePatch, ResourceRecord, ResourceState,
+        StoredModel,
+    },
     wire,
     worker::{PluginWorker, WorkerStreamItem},
 };
@@ -1154,6 +1157,11 @@ impl PluginRegistry {
                         .await?;
                 }
                 let record = self.select_resource(plugin_id, resource_type).await?;
+                if let ResourceState::Invalid { message } = &record.state {
+                    return Err(Error::Provider(message.clone().unwrap_or_else(|| {
+                        "account authorization is invalid; sign in again".into()
+                    })));
+                }
                 Some(record.snapshot(resource_type))
             }
             None => None,

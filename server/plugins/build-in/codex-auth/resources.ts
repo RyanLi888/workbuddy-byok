@@ -1,4 +1,5 @@
 import type { JsonValue, PluginContext } from "workbuddy-byok:plugin";
+import { refreshAccessToken } from "./tokens.ts";
 import type {
   ResourceAction,
   ResourceActionCard,
@@ -493,22 +494,58 @@ export async function refreshAccount(
   context: PluginContext,
 ): Promise<ResourcePatch> {
   const data = accountData(resource);
-  const response = await context.network.fetch(USAGE_URL, {
-    method: "GET",
-    headers: accountHeaders(data),
+  const invalid: ResourcePatch = {
+    state: { status: "invalid", message: "ChatGPT authorization expired; sign in again" },
+  };
+  let renewed = false;
+  const renew = async (): Promise<boolean> => {
+    if (!data.refreshToken) return false;
+    const tokens = await refreshAccessToken(data.refreshToken, context);
+    if (!tokens) return false;
+    Object.assign(data, tokens);
+    renewed = true;
+    return true;
+  };
+  const expiresAt = number(decodeJwtPayload(data.accessToken)?.exp);
+  if (expiresAt !== null && expiresAt * 1000 <= Date.now() + 60_000) {
+    if (!await renew()) return invalid;
+  }
+  const lookup = () =>
+    context.network.fetch(USAGE_URL, {
+      method: "GET",
+      headers: accountHeaders(data),
+    });
+  const savedCredentials = (): ResourcePatch => ({
+    privateData: data as unknown as JsonValue,
+    state: quotaState(data.quota),
   });
+  let response;
+  try {
+    response = await lookup();
+    if (response.status === 401 && !renewed) {
+      if (!await renew()) return invalid;
+      response = await lookup();
+    }
+  } catch (error) {
+    // A rotated refresh token must survive an unrelated quota lookup failure.
+    if (renewed) return savedCredentials();
+    throw error;
+  }
   if (response.status < 200 || response.status >= 300) {
     if (response.status === 401) {
       return {
-        state: { status: "invalid", message: "ChatGPT authorization expired; sign in again" },
+        ...savedCredentials(),
+        ...invalid,
       };
     }
+    if (renewed) return savedCredentials();
     throw new Error(`Codex usage lookup failed (HTTP ${response.status}): ${response.body}`);
   }
   let body: unknown;
   try {
     body = JSON.parse(response.body);
   } catch {
+    if (renewed) return savedCredentials();
     throw new Error("Codex usage lookup returned invalid JSON");
   }
   const quota = parseCodexUsage(body);

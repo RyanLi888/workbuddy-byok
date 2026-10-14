@@ -118,6 +118,11 @@ export const codexModels: ModelSupport = {
       method: "GET",
       headers: accountHeaders(data),
     });
+    if (response.status === 401) {
+      throw new Error(
+        "Codex model discovery failed (HTTP 401); refresh the account or sign in again",
+      );
+    }
     if (response.status < 200 || response.status >= 300) {
       throw new Error(`Codex model discovery failed (HTTP ${response.status}): ${response.body}`);
     }

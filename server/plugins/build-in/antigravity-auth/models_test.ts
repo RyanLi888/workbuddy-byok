@@ -2,6 +2,25 @@ import { antigravityModels, parseAntigravityModels, resolveAntigravityModel } fr
 import type { NetworkResponse, PluginContext } from "workbuddy-byok:plugin";
 import type { ResourceSnapshot } from "workbuddy-byok:resource";
 
+Deno.test("Google discovery excludes internal and unlabeled entries but keeps named account models", () => {
+  const models = parseAntigravityModels({
+    models: {
+      "gemini-3.8-flash-tiered": { isInternal: true, displayName: "Internal Gemini" },
+      tab_flash_lite_preview: {},
+      tab_jump_flash_lite_preview: { displayName: "  " },
+      unlabeled: { supportsThinking: true },
+      "gpt-oss-120b-medium": { displayName: "GPT-OSS 120B (Medium)", supportsThinking: true },
+      "future-model": { displayName: "Future account model" },
+    },
+  });
+  if (
+    JSON.stringify(models.map((model) => model.id)) !==
+      JSON.stringify(["future-model", "gpt-oss-120b-medium"])
+  ) {
+    throw new Error("internal entries leaked or legitimate account models were removed");
+  }
+});
+
 Deno.test("Google discovery exposes only returned models and their capabilities", () => {
   const models = parseAntigravityModels({
     models: {
@@ -172,9 +191,9 @@ Deno.test("Google discovery sends the account project and uses the available end
       }
       if (init?.headers?.authorization !== "Bearer test-token") throw new Error("missing token");
       return Promise.resolve(
-        calls === 1
-          ? response(503, {})
-          : response(200, { models: { real: { supportsThinking: true } } }),
+        calls === 1 ? response(503, {}) : response(200, {
+          models: { real: { displayName: "Real model", supportsThinking: true } },
+        }),
       );
     }),
   );
