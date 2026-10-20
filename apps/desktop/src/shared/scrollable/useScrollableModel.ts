@@ -52,9 +52,9 @@ function readScrollHeight(
   element: HTMLDivElement | null,
   contentHeight?: number
 ): number {
-  if (typeof contentHeight === "number") return Math.max(0, contentHeight)
-  if (!element) return contentHeight ?? 0
-  return element.scrollHeight
+  // The rendered spacer and padding own the browser's actual scroll range.
+  // Virtual estimates can lag behind header, wrapping, and row-size changes.
+  return element?.scrollHeight ?? Math.max(0, contentHeight ?? 0)
 }
 
 function measureScrollArea(
@@ -337,7 +337,7 @@ export function useScrollableModel(options: UseScrollableModelOptions) {
     })
 
     resizeObserver.observe(element)
-    resizeObserver.observe(content)
+    resizeObserver.observe(content, { box: "border-box" })
     resizeObserver.observe(track)
     snapshot(false)
 

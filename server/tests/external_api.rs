@@ -18,7 +18,7 @@ use workbuddy_server::{
     api::byok,
     control,
     model::{
-        ModelConfigInput, ModelType, ProjectedContent, Usage, OPENAI_CHAT_ENDPOINT,
+        ContentPart, ModelConfigInput, ModelType, ProjectedContent, Usage, OPENAI_CHAT_ENDPOINT,
         OPENAI_RESPONSES_ENDPOINT,
     },
     network::NetworkClients,
@@ -322,6 +322,73 @@ async fn all_three_protocols_use_the_public_model_id() {
         .requests()
         .iter()
         .all(|request| request.model.model_id != public_model_id()));
+}
+
+#[tokio::test]
+async fn model_request_bodies_larger_than_two_mib_reach_the_provider_intact() {
+    let (router, provider, store, _directory) = setup().await;
+    store
+        .set_external_api_settings(ExternalApiSettings {
+            enabled: true,
+            api_key: "secret".into(),
+        })
+        .await
+        .unwrap();
+    let text = "x".repeat(3 * 1024 * 1024);
+    for (index, (path, body)) in [
+        (
+            "/v1/chat/completions",
+            json!({"model":public_model_id(),"messages":[{"role":"user","content":text}]}),
+        ),
+        (
+            "/v1/responses",
+            json!({"model":public_model_id(),"input":text}),
+        ),
+        (
+            "/v1/messages",
+            json!({"model":public_model_id(),"max_tokens":100,"messages":[{"role":"user","content":text}]}),
+        ),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        provider.push(vec![
+            ModelEvent::TextDelta("received".into()),
+            ModelEvent::Done(FinishReason::Stop),
+        ]);
+        let (status, response) = send(router.clone(), "POST", path, Some("secret"), body).await;
+        assert_eq!(status, StatusCode::OK, "{path}: {response}");
+        assert!(response.contains("received"), "{path}: {response}");
+        let requests = provider.requests();
+        assert_eq!(requests.len(), index + 1);
+        assert_eq!(
+            requests[index].history[0].content,
+            ProjectedContent::Parts(vec![ContentPart::Text { text: text.clone() }]),
+            "{path}"
+        );
+    }
+}
+
+#[tokio::test]
+async fn model_request_bodies_larger_than_sixty_four_mib_are_rejected() {
+    let (router, provider, _store, _directory) = setup().await;
+    let body = bytes::Bytes::from(vec![b' '; 64 * 1024 * 1024 + 1]);
+    for path in ["/v1/chat/completions", "/v1/responses", "/v1/messages"] {
+        let response = router
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(path)
+                    .header(header::CONTENT_TYPE, "application/json")
+                    .body(Body::from(body.clone()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::PAYLOAD_TOO_LARGE, "{path}");
+    }
+    assert!(provider.requests().is_empty());
 }
 
 #[tokio::test]

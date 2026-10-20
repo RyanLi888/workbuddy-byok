@@ -6,7 +6,7 @@ mod protocol;
 use std::sync::Arc;
 
 use axum::{
-    extract::State,
+    extract::{DefaultBodyLimit, State},
     http::{header, HeaderMap, StatusCode},
     response::{IntoResponse, Response},
     routing::{get, post},
@@ -43,6 +43,8 @@ pub fn router(
         .route("/v1/chat/completions", post(chat))
         .route("/v1/responses", post(responses))
         .route("/v1/messages", post(messages))
+        // Conversation history and inline images can exceed Axum's default 2 MiB.
+        .layer(DefaultBodyLimit::max(64 * 1024 * 1024))
         .layer(tower_http::cors::CorsLayer::permissive())
         .with_state(ApiState {
             store,

@@ -213,6 +213,63 @@ Deno.test("isQuotaError identifies rate limits and quota exhaustion", () => {
   assert(!isQuotaError("Invalid authorization header"));
 });
 
+for (const finishReason of ["MALFORMED_FUNCTION_CALL", "SAFETY", "OTHER"]) {
+  Deno.test(`provider reports ${finishReason} instead of a successful empty completion`, async () => {
+    const events: ModelEvent[] = [];
+    const finishMessage = "Function call is empty - no input to parse.";
+    const result = await antigravityProvider.invoke(
+      {
+        model: { id: "gemini-flash", displayName: "Gemini Flash", privateData: {} },
+        resource: snapshot({ accessToken: "mock-token", projectId: "test-project" }),
+        request: request(),
+      },
+      { emit: (event) => events.push(event) },
+      context({
+        stream: () => ({
+          status: 200,
+          headers: {},
+          lines: sse([`data: ${
+            JSON.stringify({
+              response: {
+                candidates: [{ content: { parts: [{ text: "" }] }, finishReason, finishMessage }],
+                usageMetadata: { promptTokenCount: 40754, totalTokenCount: 40754 },
+              },
+            })
+          }`]),
+        }),
+      }),
+    );
+    assertEquals(result, {
+      status: "request-error",
+      message: `Antigravity generation failed (${finishReason}): ${finishMessage}`,
+    });
+    assert(!events.some((event) => event.type === "done"), "failure was reported as success");
+  });
+}
+
+Deno.test("provider preserves the token limit finish reason", async () => {
+  const events: ModelEvent[] = [];
+  const result = await antigravityProvider.invoke(
+    {
+      model: { id: "gemini-flash", displayName: "Gemini Flash", privateData: {} },
+      resource: snapshot({ accessToken: "mock-token", projectId: "test-project" }),
+      request: request(),
+    },
+    { emit: (event) => events.push(event) },
+    context({
+      stream: () => ({
+        status: 200,
+        headers: {},
+        lines: sse([
+          'data: {"response":{"candidates":[{"content":{"parts":[{"text":"Partial answer"}]},"finishReason":"MAX_TOKENS"}]}}',
+        ]),
+      }),
+    }),
+  );
+  assertEquals(result, { status: "completed" });
+  assertEquals(events.at(-1), { type: "done", reason: "length" });
+});
+
 for (const modelId of ["gemini-pro-agent", "claude-opus-4-6-thinking"]) {
   Deno.test(`${modelId} preserves standard JSON Schema including unions and property names`, async () => {
     const llmRequest = request();

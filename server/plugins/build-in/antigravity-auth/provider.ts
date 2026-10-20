@@ -395,6 +395,12 @@ async function streamCloudCode(
           ? candidate.finishReason
           : null;
         if (finishReason) {
+          if (finishReason !== "STOP" && finishReason !== "MAX_TOKENS") {
+            const message = typeof candidate?.finishMessage === "string"
+              ? `: ${candidate.finishMessage}`
+              : "";
+            throw new Error(`Antigravity generation failed (${finishReason})${message}`);
+          }
           if (thinkingStarted) {
             thinkingStarted = false;
             output.emit({ type: "thinking-end" });
@@ -429,7 +435,7 @@ async function streamCloudCode(
             (hasTools || parts?.some((p) => p.functionCall));
           output.emit({
             type: "done",
-            reason: isTool ? "tool-use" : "stop",
+            reason: finishReason === "MAX_TOKENS" ? "length" : isTool ? "tool-use" : "stop",
           });
           doneEmitted = true;
           break;
