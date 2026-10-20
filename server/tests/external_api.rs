@@ -39,6 +39,7 @@ fn model_input() -> ModelConfigInput {
         model_type: ModelType::OpenAi,
         base_url: "https://example.com/v1".into(),
         use_full_url: false,
+        direct_connection: false,
         api_key: "upstream".into(),
         tooltip_data: "test".into(),
         model_id: "qwen/model".into(),
@@ -81,6 +82,143 @@ async fn setup() -> (
     let router = byok::router(store.clone(), plugins, shared_provider, None)
         .merge(control::api_router(control));
     (router, provider, store, directory)
+}
+
+#[tokio::test]
+async fn model_connection_setting_controls_discovery_tests_and_both_forwarding_paths() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    let (_directory, store) = fixtures::temp_store().await;
+    let hits = Arc::new(AtomicUsize::new(0));
+    let proxy_hits = hits.clone();
+    let proxy = Router::new().fallback(axum::routing::any(move |request: Request<Body>| {
+        let hits = proxy_hits.clone();
+        async move {
+            hits.fetch_add(1, Ordering::SeqCst);
+            if request.method() == "GET" {
+                return Json(json!({"data":[{"id":"proxy-model"}]})).into_response();
+            }
+            let body = to_bytes(request.into_body(), 1024 * 1024).await.unwrap();
+            let body: Value = serde_json::from_slice(&body).unwrap();
+            if body["stream"] == true {
+                (
+                    [(header::CONTENT_TYPE, "text/event-stream")],
+                    "data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":\"proxy\"},\"finish_reason\":null}]}\n\ndata: {\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\ndata: [DONE]\n\n",
+                ).into_response()
+            } else {
+                Json(json!({"choices":[{"message":{"role":"assistant","content":"proxy"},"finish_reason":"stop"}]})).into_response()
+            }
+        }
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    store
+        .set_proxy_settings(workbuddy_server::store::ProxySettingsInput {
+            mode: workbuddy_server::store::ProxyMode::Custom,
+            address: format!("http://{}", listener.local_addr().unwrap()),
+            auth_enabled: false,
+            username: String::new(),
+            password: None,
+        })
+        .await
+        .unwrap();
+    let server = tokio::spawn(async move { axum::serve(listener, proxy).await.unwrap() });
+    store
+        .set_external_api_settings(ExternalApiSettings {
+            enabled: true,
+            api_key: String::new(),
+        })
+        .await
+        .unwrap();
+    let runtime = PluginRuntime::managed().unwrap();
+    let plugins = PluginRegistry::managed(store.clone(), runtime.clone(), "0.1.0".into()).unwrap();
+    let clients = NetworkClients::new(store.clone());
+    let provider = Arc::new(ProviderRouter::new(
+        store.clone(),
+        plugins.clone(),
+        clients.clone(),
+        Duration::from_secs(5),
+        Duration::from_secs(5),
+    ));
+    let service = control::ControlService::new(
+        store.clone(),
+        provider.clone(),
+        runtime,
+        plugins.clone(),
+        clients.clone(),
+    )
+    .unwrap();
+    let router = byok::router(
+        store.clone(),
+        plugins,
+        provider,
+        Some(byok::NativeForwarder::new(
+            store.clone(),
+            clients,
+            Duration::from_secs(5),
+            Duration::from_secs(5),
+        )),
+    )
+    .merge(control::api_router(service));
+    let mut input = model_input();
+    // A proxy can serve this reserved hostname; direct requests cannot resolve it.
+    input.base_url = "http://model.invalid/v1".into();
+    let model = store.create_model(&input).await.unwrap();
+    for direct_connection in [false, true, false] {
+        input.direct_connection = direct_connection;
+        let (status, body) = send(
+            router.clone(),
+            "PUT",
+            &format!("/__byok-api__/api/models/{}", model.model_hash),
+            None,
+            serde_json::to_value(&input).unwrap(),
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK, "{body}");
+        assert_eq!(
+            serde_json::from_str::<Value>(&body).unwrap()["direct_connection"],
+            direct_connection
+        );
+        for (path, body) in [
+            (
+                "/__byok-api__/api/models/discover".into(),
+                json!({"type":"openai","base_url":input.base_url,"api_key":"upstream","direct_connection":direct_connection}),
+            ),
+            (
+                format!(
+                    "/__byok-api__/api/models/{}/test/connection",
+                    model.model_hash
+                ),
+                json!({}),
+            ),
+            (
+                "/v1/chat/completions".into(),
+                json!({"model":input.display_name,"messages":[{"role":"user","content":"hi"}]}),
+            ),
+            (
+                "/v1/responses".into(),
+                json!({"model":input.display_name,"input":"hi"}),
+            ),
+        ] {
+            let hits_before = hits.load(Ordering::SeqCst);
+            let (status, body) = tokio::time::timeout(
+                Duration::from_secs(10),
+                send(router.clone(), "POST", &path, None, body),
+            )
+            .await
+            .unwrap();
+            assert_eq!(
+                status.is_success(),
+                !direct_connection,
+                "{path} direct={direct_connection}: {body}"
+            );
+            assert_eq!(
+                hits.load(Ordering::SeqCst) - hits_before,
+                usize::from(!direct_connection),
+                "{path}"
+            );
+        }
+    }
+    server.abort();
 }
 
 #[tokio::test]

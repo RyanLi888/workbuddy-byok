@@ -95,6 +95,7 @@ pub struct ModelConfigInput {
     pub base_url: String,
     #[serde(default)]
     pub use_full_url: bool,
+    pub direct_connection: bool,
     pub api_key: String,
     #[serde(default)]
     pub tooltip_data: String,
@@ -133,6 +134,7 @@ pub struct ModelConfig {
     pub model_type: ModelType,
     pub base_url: String,
     pub use_full_url: bool,
+    pub direct_connection: bool,
     pub api_key: String,
     pub tooltip_data: String,
     pub model_id: String,
@@ -245,6 +247,7 @@ pub fn normalize_model_input(input: &ModelConfigInput) -> Result<ModelConfigInpu
         model_type: input.model_type,
         base_url,
         use_full_url: input.use_full_url,
+        direct_connection: input.direct_connection,
         api_key,
         tooltip_data,
         model_id,

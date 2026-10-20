@@ -1,4 +1,4 @@
-//! Owns reusable outbound HTTP clients configured from persisted proxy settings.
+//! Owns reusable outbound HTTP clients for configured proxies and direct model connections.
 
 use std::{sync::Arc, time::Duration};
 
@@ -15,6 +15,7 @@ const LOCAL_NO_PROXY: &str = "localhost,127.0.0.0/8,::1";
 pub struct NetworkClients {
     store: Store,
     cache: Arc<RwLock<ClientCache>>,
+    direct_cache: Arc<RwLock<ClientCache>>,
 }
 
 #[derive(Default)]
@@ -28,25 +29,45 @@ impl NetworkClients {
         Self {
             store,
             cache: Arc::new(RwLock::new(ClientCache::default())),
+            direct_cache: Arc::new(RwLock::new(ClientCache::default())),
         }
     }
 
     pub async fn default_client(&self) -> Result<reqwest::Client> {
-        if let Some(client) = self.cache.read().await.default.clone() {
+        self.model_client(false).await
+    }
+
+    pub async fn model_client(&self, direct_connection: bool) -> Result<reqwest::Client> {
+        let cache = if direct_connection {
+            &self.direct_cache
+        } else {
+            &self.cache
+        };
+        if let Some(client) = cache.read().await.default.clone() {
             return Ok(client);
         }
-        let mut cache = self.cache.write().await;
+        let mut cache = cache.write().await;
         if let Some(client) = cache.default.clone() {
             return Ok(client);
         }
-        let client = client_builder(&self.store).await?.build()?;
+        let client = model_client_builder(&self.store, direct_connection)
+            .await?
+            .build()?;
         cache.default = Some(client.clone());
         Ok(client)
     }
 
-    pub async fn provider_client(&self, timeout: Duration) -> Result<reqwest::Client> {
-        if let Some((_, client)) = self
-            .cache
+    pub async fn provider_client(
+        &self,
+        timeout: Duration,
+        direct_connection: bool,
+    ) -> Result<reqwest::Client> {
+        let cache = if direct_connection {
+            &self.direct_cache
+        } else {
+            &self.cache
+        };
+        if let Some((_, client)) = cache
             .read()
             .await
             .provider
@@ -55,7 +76,7 @@ impl NetworkClients {
         {
             return Ok(client.clone());
         }
-        let mut cache = self.cache.write().await;
+        let mut cache = cache.write().await;
         if let Some((_, client)) = cache
             .provider
             .as_ref()
@@ -63,7 +84,7 @@ impl NetworkClients {
         {
             return Ok(client.clone());
         }
-        let client = client_builder(&self.store)
+        let client = model_client_builder(&self.store, direct_connection)
             .await?
             .timeout(timeout)
             .build()?;
@@ -74,6 +95,16 @@ impl NetworkClients {
     pub async fn invalidate(&self) {
         *self.cache.write().await = ClientCache::default();
     }
+}
+
+async fn model_client_builder(
+    store: &Store,
+    direct_connection: bool,
+) -> Result<reqwest::ClientBuilder> {
+    if direct_connection {
+        return Ok(reqwest::Client::builder().use_native_tls().no_proxy());
+    }
+    client_builder(store).await
 }
 
 pub async fn client_builder(store: &Store) -> Result<reqwest::ClientBuilder> {
@@ -204,5 +235,75 @@ mod tests {
                 .is_err(),
             "loopback destination unexpectedly reached the configured proxy"
         );
+    }
+
+    #[tokio::test]
+    async fn direct_model_connection_bypasses_the_configured_proxy() {
+        let directory = tempfile::tempdir().unwrap();
+        let store = Store::connect(&format!(
+            "sqlite://{}",
+            directory.path().join("test.db").display()
+        ))
+        .await
+        .unwrap();
+        let target_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let target_address = target_listener.local_addr().unwrap();
+        let proxy_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        store
+            .set_proxy_settings(crate::store::ProxySettingsInput {
+                mode: ProxyMode::Custom,
+                address: format!("http://{}", proxy_listener.local_addr().unwrap()),
+                auth_enabled: false,
+                username: String::new(),
+                password: None,
+            })
+            .await
+            .unwrap();
+        let target = tokio::spawn(async move {
+            let (mut socket, _) = target_listener.accept().await.unwrap();
+            let mut request = [0_u8; 1024];
+            let size = socket.read(&mut request).await.unwrap();
+            assert!(size > 0);
+            socket
+                .write_all(
+                    b"HTTP/1.1 200 OK\r\nContent-Length: 6\r\nConnection: close\r\n\r\ndirect",
+                )
+                .await
+                .unwrap();
+        });
+        let proxy = tokio::spawn(async move {
+            let (mut socket, _) = proxy_listener.accept().await.unwrap();
+            let mut request = [0_u8; 1024];
+            let size = socket.read(&mut request).await.unwrap();
+            assert!(
+                String::from_utf8_lossy(&request[..size]).starts_with("GET http://model.invalid:")
+            );
+            socket
+                .write_all(
+                    b"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nConnection: close\r\n\r\nproxy",
+                )
+                .await
+                .unwrap();
+        });
+        for (direct_connection, expected) in [(false, "proxy"), (true, "direct")] {
+            let client = model_client_builder(&store, direct_connection)
+                .await
+                .unwrap()
+                .resolve("model.invalid", target_address)
+                .timeout(Duration::from_secs(5))
+                .build()
+                .unwrap();
+            let response = client
+                .get(format!(
+                    "http://model.invalid:{}/v1/models",
+                    target_address.port()
+                ))
+                .send()
+                .await
+                .unwrap();
+            assert_eq!(response.text().await.unwrap(), expected);
+        }
+        target.await.unwrap();
+        proxy.await.unwrap();
     }
 }

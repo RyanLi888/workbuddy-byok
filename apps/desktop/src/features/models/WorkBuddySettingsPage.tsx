@@ -82,6 +82,7 @@ export function WorkBuddySettingsPage() {
       const result = await api.discoverModels({
         type: draft.model.type,
         base_url: draft.model.base_url.trim(),
+        direct_connection: draft.model.direct_connection,
         api_key: draft.model.api_key.trim(),
         custom_headers_enabled: draft.model.custom_headers_enabled,
         custom_headers,

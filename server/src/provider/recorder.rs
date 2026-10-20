@@ -396,6 +396,7 @@ mod tests {
                 group_name: None,
                 model_type: ModelType::OpenAi,
                 base_url: "https://example.com/v1/chat/completions".into(),
+                direct_connection: false,
                 use_full_url: true,
                 api_key: "test-key".into(),
                 tooltip_data: "Test Model".into(),

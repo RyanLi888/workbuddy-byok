@@ -49,6 +49,7 @@ pub struct ModelDiscoveryInput {
     #[serde(rename = "type")]
     pub model_type: ModelType,
     pub base_url: String,
+    pub direct_connection: bool,
     pub api_key: String,
     #[serde(default)]
     pub custom_headers_enabled: bool,
@@ -465,7 +466,7 @@ impl ControlService {
     }
 
     pub async fn discover_models(&self, input: &ModelDiscoveryInput) -> Result<DiscoveredModels> {
-        let client = self.clients.default_client().await?;
+        let client = self.clients.model_client(input.direct_connection).await?;
         let base_url = crate::model::normalize_request_url(&input.base_url)?;
         discover_models_from_endpoint(
             &client,

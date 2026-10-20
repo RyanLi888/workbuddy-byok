@@ -11,7 +11,7 @@ use crate::{
 use super::{now_ms, Store};
 
 const MODEL_COLUMNS: &str = r#"
-    model_hash, sort_order, display_name, group_name, model_type, base_url, use_full_url, api_key, tooltip_data,
+    model_hash, sort_order, display_name, group_name, model_type, base_url, use_full_url, direct_connection, api_key, tooltip_data,
     model_id, reasoning_effort, openai_endpoint, openai_extra_params_enabled,
     openai_extra_params_json, custom_headers_enabled, custom_headers_json,
     anthropic_extra_params_enabled, anthropic_extra_params_json, context_window_tokens,
@@ -98,7 +98,7 @@ impl Store {
         let result = sqlx::query(
             r#"UPDATE model_configs SET
                 model_hash = ?, sort_order = ?, display_name = ?, group_name = ?, model_type = ?, base_url = ?,
-                use_full_url = ?, api_key = ?, tooltip_data = ?, model_id = ?, reasoning_effort = ?,
+                use_full_url = ?, direct_connection = ?, api_key = ?, tooltip_data = ?, model_id = ?, reasoning_effort = ?,
                 openai_endpoint = ?, openai_extra_params_enabled = ?, openai_extra_params_json = ?,
                 custom_headers_enabled = ?, custom_headers_json = ?,
                 anthropic_extra_params_enabled = ?, anthropic_extra_params_json = ?,
@@ -113,6 +113,7 @@ impl Store {
         .bind(input.model_type.as_str())
         .bind(&input.base_url)
         .bind(input.use_full_url)
+        .bind(input.direct_connection)
         .bind(&input.api_key)
         .bind(&input.tooltip_data)
         .bind(&input.model_id)
@@ -217,13 +218,13 @@ async fn insert_model_with_conflict(
 ) -> Result<bool> {
     let mut statement = String::from(
         r#"INSERT INTO model_configs(
-            model_hash, sort_order, display_name, group_name, model_type, base_url, use_full_url, api_key, tooltip_data,
+            model_hash, sort_order, display_name, group_name, model_type, base_url, use_full_url, direct_connection, api_key, tooltip_data,
             model_id, reasoning_effort, openai_endpoint, openai_extra_params_enabled,
             openai_extra_params_json, custom_headers_enabled, custom_headers_json,
             anthropic_extra_params_enabled, anthropic_extra_params_json, context_window_tokens,
             max_completion_tokens, anthropic_max_tokens, anthropic_thinking_effort,
             thinking_budget_tokens, created_at_ms, updated_at_ms
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     );
     if ignore_existing {
         statement.push_str(" ON CONFLICT(model_hash) DO NOTHING");
@@ -236,6 +237,7 @@ async fn insert_model_with_conflict(
         .bind(input.model_type.as_str())
         .bind(&input.base_url)
         .bind(input.use_full_url)
+        .bind(input.direct_connection)
         .bind(&input.api_key)
         .bind(&input.tooltip_data)
         .bind(&input.model_id)
@@ -268,6 +270,7 @@ fn model_from_row(row: sqlx::sqlite::SqliteRow) -> Result<ModelConfig> {
         model_type: ModelType::from_str(row.try_get("model_type")?)?,
         base_url: row.try_get("base_url")?,
         use_full_url: row.try_get("use_full_url")?,
+        direct_connection: row.try_get("direct_connection")?,
         api_key: row.try_get("api_key")?,
         tooltip_data: row.try_get("tooltip_data")?,
         model_id: row.try_get("model_id")?,
@@ -321,6 +324,7 @@ mod tests {
             model_type: ModelType::OpenAi,
             base_url: "https://example.com/v1/chat/completions".into(),
             use_full_url: true,
+            direct_connection: false,
             api_key: "test-key".into(),
             tooltip_data: "Test Model".into(),
             model_id: "test-model".into(),
@@ -338,6 +342,35 @@ mod tests {
             anthropic_thinking_effort: None,
             thinking_budget_tokens: None,
         }
+    }
+
+    #[tokio::test]
+    async fn direct_connection_persists_without_changing_model_identity() {
+        let directory = tempfile::tempdir().unwrap();
+        let database_url = format!("sqlite://{}", directory.path().join("test.db").display());
+        let store = Store::connect(&database_url).await.unwrap();
+        let mut input = model_input(None);
+        input.direct_connection = true;
+        let created = store.create_model(&input).await.unwrap();
+        assert!(created.direct_connection);
+
+        let reopened = Store::connect(&database_url).await.unwrap();
+        assert!(
+            reopened
+                .model(&created.model_hash)
+                .await
+                .unwrap()
+                .unwrap()
+                .direct_connection
+        );
+        input.direct_connection = false;
+        let updated = reopened
+            .update_model(&created.model_hash, &input)
+            .await
+            .unwrap();
+        assert!(!updated.direct_connection);
+        assert_eq!(updated.model_hash, created.model_hash);
+        assert!(!store.models().await.unwrap()[0].direct_connection);
     }
 
     #[tokio::test]

@@ -456,7 +456,7 @@ mod tests {
             .unwrap();
 
             assert_eq!(checksum_after, checksum_before);
-            assert_eq!(versions, vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
+            assert_eq!(versions, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
             assert_eq!(checkpoint_table_exists, 1);
             assert_eq!(argument_error_column_exists, 1);
         }
@@ -469,6 +469,50 @@ mod tests {
             sidecar_path(database, "-wal"),
             PathBuf::from(r"C:\Users\Test User\workbuddy-byok.db-wal")
         );
+    }
+
+    #[tokio::test]
+    async fn model_connection_column_preserves_existing_models_and_rejects_invalid_values() {
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
+        let historical = migrator_with_line_endings(MigrationLineEndings::Lf);
+        let previous = Migrator {
+            migrations: Cow::Owned(
+                historical
+                    .iter()
+                    .filter(|migration| migration.version < 10)
+                    .cloned()
+                    .collect(),
+            ),
+            ..Migrator::DEFAULT
+        };
+        previous.run(&pool).await.unwrap();
+        sqlx::query("INSERT INTO model_configs(model_hash, display_name, model_type, base_url, api_key, tooltip_data, model_id, created_at_ms, updated_at_ms) VALUES ('model', 'Model', 'openai', 'https://example.com', 'key', '', 'upstream', 100, 200)")
+            .execute(&pool).await.unwrap();
+        run(&pool, Path::new("model-connection.db")).await.unwrap();
+        let row = sqlx::query(
+            "SELECT model_hash, direct_connection, created_at_ms, updated_at_ms FROM model_configs",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(row.get::<String, _>("model_hash"), "model");
+        assert!(!row.get::<bool, _>("direct_connection"));
+        assert_eq!(row.get::<i64, _>("created_at_ms"), 100);
+        assert_eq!(row.get::<i64, _>("updated_at_ms"), 200);
+        assert!(
+            sqlx::query("UPDATE model_configs SET direct_connection = 2")
+                .execute(&pool)
+                .await
+                .is_err()
+        );
+        sqlx::query("UPDATE model_configs SET direct_connection = 1")
+            .execute(&pool)
+            .await
+            .unwrap();
     }
 
     #[tokio::test]

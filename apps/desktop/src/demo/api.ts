@@ -173,6 +173,7 @@ function createModel({ hash, order, name, type, url, modelId, endpoint = "/v1/re
     type,
     base_url: url,
     use_full_url: false,
+    direct_connection: false,
     api_key: "demo-key",
     tooltip_data: `${name} Mock 通道`,
     model_id: modelId,

@@ -40,6 +40,7 @@ async fn automatic_sync_tracks_changes_recovers_and_uses_the_active_listener() {
     let store = app.store();
     let input: ModelConfigInput = serde_json::from_value(json!({
         "display_name": "First", "type": "openai", "base_url": "https://example.com/v1",
+        "direct_connection": false,
         "api_key": "upstream", "tooltip_data": "test", "model_id": "first",
         "openai_endpoint": "/v1/chat/completions"
     }))

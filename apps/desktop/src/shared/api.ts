@@ -9,6 +9,7 @@ export interface Model {
   type: ModelType;
   base_url: string;
   use_full_url: boolean;
+  direct_connection: boolean;
   api_key: string;
   tooltip_data: string;
   model_id: string;
@@ -36,6 +37,7 @@ export interface ModelInput {
   type: ModelType;
   base_url: string;
   use_full_url: boolean;
+  direct_connection: boolean;
   api_key: string;
   tooltip_data: string;
   model_id: string;
@@ -57,6 +59,7 @@ export interface ModelInput {
 export interface ModelDiscoveryInput {
   type: ModelType;
   base_url: string;
+  direct_connection: boolean;
   api_key: string;
   custom_headers_enabled: boolean;
   custom_headers: Record<string, string>;

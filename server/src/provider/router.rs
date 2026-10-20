@@ -103,7 +103,7 @@ impl Provider for ProviderRouter {
                         request_timeout,
                         allowed_body_fields: None,
                     };
-                    let client = clients.provider_client(request_timeout).await?;
+                    let client = clients.provider_client(request_timeout, model.direct_connection).await?;
                     let provider = build_observed(&config, recorder.clone(), client)?;
                     (recorder, guard, provider.stream(routed, cancellation.clone()))
                 };

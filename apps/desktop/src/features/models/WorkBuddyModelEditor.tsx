@@ -29,6 +29,7 @@ export const emptyWorkBuddyModelDraft = (): WorkBuddyModelDraft => ({
     type: "openai",
     base_url: "",
     use_full_url: false,
+    direct_connection: false,
     api_key: "",
     tooltip_data: "",
     model_id: "",
@@ -153,6 +154,7 @@ export function WorkBuddyModelEditor({ draft, modelOptions, discovering, onChang
       <div className={styles.urlField}>
         <FormField label={draft.model.use_full_url ? t("完整请求 URL") : t("服务器地址")} hint={draft.model.use_full_url ? t("系统会原样使用此地址，不追加或修改请求路径。") : t("系统会根据请求协议自动追加标准端点路径。")}> <TextInput placeholder={requestUrlPlaceholder} value={draft.model.base_url} onChange={(event) => setModel({ base_url: event.target.value })} /></FormField>
         <Checkbox checked={draft.model.use_full_url} label={t("使用完整请求地址")} onChange={(use_full_url) => setModel({ use_full_url })} />
+        <Checkbox checked={draft.model.direct_connection} label={t("直连（不使用代理）")} onChange={(direct_connection) => setModel({ direct_connection })} />
       </div>
       <FormField label="API Key" hint={t("访问模型服务所需的密钥。")}> <SecretTextInput placeholder="sk-xxxxxx" autoComplete="off" value={draft.model.api_key} onChange={(event) => setModel({ api_key: event.target.value })} /></FormField>
 

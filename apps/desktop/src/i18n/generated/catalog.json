@@ -21,7 +21,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 157,
+          "line": 159,
           "column": 40
         }
       ]
@@ -129,7 +129,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 139,
+          "line": 140,
           "column": 27
         }
       ]
@@ -181,12 +181,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 187,
+          "line": 189,
           "column": 16
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 373,
+          "line": 374,
           "column": 73
         }
       ]
@@ -237,7 +237,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 384,
+          "line": 385,
           "column": 89
         }
       ]
@@ -466,12 +466,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 174,
+          "line": 176,
           "column": 16
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 383,
+          "line": 384,
           "column": 36
         }
       ]
@@ -483,7 +483,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 318,
+          "line": 319,
           "column": 212
         }
       ]
@@ -507,7 +507,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 159,
+          "line": 161,
           "column": 322
         }
       ]
@@ -519,12 +519,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 148,
+          "line": 149,
           "column": 59
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 148,
+          "line": 149,
           "column": 124
         }
       ]
@@ -541,17 +541,17 @@
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 327,
+          "line": 328,
           "column": 30
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 327,
+          "line": 328,
           "column": 93
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 329,
+          "line": 330,
           "column": 74
         }
       ]
@@ -674,7 +674,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 347,
+          "line": 348,
           "column": 52
         }
       ]
@@ -724,7 +724,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 313,
+          "line": 314,
           "column": 101
         }
       ]
@@ -760,7 +760,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 161,
+          "line": 163,
           "column": 69
         }
       ]
@@ -787,17 +787,17 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 163,
+          "line": 165,
           "column": 49
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 165,
+          "line": 167,
           "column": 50
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 168,
+          "line": 170,
           "column": 50
         }
       ]
@@ -811,7 +811,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 377,
+          "line": 378,
           "column": 89
         }
       ]
@@ -847,7 +847,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 322,
+          "line": 323,
           "column": 32
         }
       ]
@@ -871,7 +871,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 316,
+          "line": 317,
           "column": 136
         }
       ]
@@ -923,7 +923,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 159,
+          "line": 161,
           "column": 42
         }
       ]
@@ -961,12 +961,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 170,
+          "line": 172,
           "column": 27
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 376,
+          "line": 377,
           "column": 186
         }
       ]
@@ -995,7 +995,7 @@
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 347,
+          "line": 348,
           "column": 76
         },
         {
@@ -1078,7 +1078,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 160,
+          "line": 162,
           "column": 42
         }
       ]
@@ -1092,7 +1092,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 390,
+          "line": 391,
           "column": 70
         }
       ]
@@ -1150,7 +1150,7 @@
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 347,
+          "line": 348,
           "column": 99
         },
         {
@@ -1208,12 +1208,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 340,
+          "line": 341,
           "column": 35
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 343,
+          "line": 344,
           "column": 41
         }
       ]
@@ -1447,7 +1447,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 318,
+          "line": 319,
           "column": 198
         }
       ]
@@ -1572,7 +1572,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 148,
+          "line": 149,
           "column": 27
         }
       ]
@@ -1715,12 +1715,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 163,
+          "line": 165,
           "column": 25
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 376,
+          "line": 377,
           "column": 34
         }
       ]
@@ -1747,7 +1747,7 @@
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 329,
+          "line": 330,
           "column": 704
         }
       ]
@@ -1785,7 +1785,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 284,
+          "line": 285,
           "column": 15
         }
       ]
@@ -1797,7 +1797,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 154,
+          "line": 155,
           "column": 145
         }
       ]
@@ -1850,7 +1850,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 322,
+          "line": 323,
           "column": 20
         }
       ]
@@ -1862,7 +1862,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 212,
+          "line": 214,
           "column": 41
         }
       ]
@@ -1910,7 +1910,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 185,
+          "line": 186,
           "column": 13
         }
       ]
@@ -1963,7 +1963,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 243,
+          "line": 244,
           "column": 47
         }
       ]
@@ -1975,7 +1975,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 375,
+          "line": 376,
           "column": 100
         }
       ]
@@ -1999,17 +1999,17 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 165,
+          "line": 167,
           "column": 27
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 168,
+          "line": 170,
           "column": 27
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 376,
+          "line": 377,
           "column": 83
         }
       ]
@@ -2021,7 +2021,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 295,
+          "line": 296,
           "column": 6
         }
       ]
@@ -2059,7 +2059,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 317,
+          "line": 318,
           "column": 124
         }
       ]
@@ -2071,7 +2071,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 321,
+          "line": 322,
           "column": 30
         }
       ]
@@ -2250,7 +2250,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 313,
+          "line": 314,
           "column": 88
         }
       ]
@@ -2579,7 +2579,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 315,
+          "line": 316,
           "column": 105
         }
       ]
@@ -2692,12 +2692,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 181,
+          "line": 183,
           "column": 16
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 371,
+          "line": 372,
           "column": 67
         }
       ]
@@ -2774,7 +2774,7 @@
       "refs": [
         {
           "file": "shared/api.ts",
-          "line": 384,
+          "line": 387,
           "column": 21
         }
       ]
@@ -2801,7 +2801,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 183,
+          "line": 184,
           "column": 11
         }
       ]
@@ -2828,7 +2828,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 159,
+          "line": 161,
           "column": 334
         }
       ]
@@ -2893,6 +2893,18 @@
         }
       ]
     },
+    "86d7d13f26f1ea4c": {
+      "source": "直连（不使用代理）",
+      "kind": "text",
+      "placeholders": [],
+      "refs": [
+        {
+          "file": "features/models/WorkBuddyModelEditor.tsx",
+          "line": 157,
+          "column": 66
+        }
+      ]
+    },
     "86de7c4ee8fa7689": {
       "source": "同步模型",
       "kind": "text",
@@ -2936,7 +2948,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 154,
+          "line": 155,
           "column": 115
         }
       ]
@@ -3028,7 +3040,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 148,
+          "line": 149,
           "column": 76
         }
       ]
@@ -3054,7 +3066,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 391,
+          "line": 392,
           "column": 87
         }
       ]
@@ -3140,7 +3152,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 347,
+          "line": 348,
           "column": 250
         }
       ]
@@ -3248,12 +3260,12 @@
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 169,
+          "line": 171,
           "column": 27
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 169,
+          "line": 171,
           "column": 58
         }
       ]
@@ -3413,7 +3425,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 194,
+          "line": 195,
           "column": 22
         }
       ]
@@ -3466,12 +3478,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 329,
+          "line": 330,
           "column": 434
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 334,
+          "line": 335,
           "column": 192
         },
         {
@@ -3534,7 +3546,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 122,
+          "line": 123,
           "column": 15
         }
       ]
@@ -3601,7 +3613,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 329,
+          "line": 330,
           "column": 716
         }
       ]
@@ -3635,7 +3647,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 155,
+          "line": 156,
           "column": 61
         }
       ]
@@ -3688,7 +3700,7 @@
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 160,
+          "line": 162,
           "column": 25
         }
       ]
@@ -3827,7 +3839,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 326,
+          "line": 327,
           "column": 201
         }
       ]
@@ -3873,7 +3885,7 @@
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 334,
+          "line": 335,
           "column": 49
         }
       ]
@@ -3962,7 +3974,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 312,
+          "line": 313,
           "column": 24
         }
       ]
@@ -4082,7 +4094,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 160,
+          "line": 162,
           "column": 99
         }
       ]
@@ -4109,7 +4121,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 186,
+          "line": 187,
           "column": 13
         }
       ]
@@ -4145,12 +4157,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 339,
+          "line": 340,
           "column": 45
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 342,
+          "line": 343,
           "column": 42
         }
       ]
@@ -4243,7 +4255,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 336,
+          "line": 337,
           "column": 44
         }
       ]
@@ -4255,12 +4267,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 326,
+          "line": 327,
           "column": 30
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 326,
+          "line": 327,
           "column": 124
         }
       ]
@@ -4296,7 +4308,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 329,
+          "line": 330,
           "column": 62
         }
       ]
@@ -4320,12 +4332,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 166,
+          "line": 168,
           "column": 27
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 166,
+          "line": 168,
           "column": 58
         }
       ]
@@ -4419,7 +4431,7 @@
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 159,
+          "line": 161,
           "column": 25
         },
         {
@@ -4508,7 +4520,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 170,
+          "line": 172,
           "column": 50
         }
       ]
@@ -4549,12 +4561,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 154,
+          "line": 155,
           "column": 70
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 339,
+          "line": 340,
           "column": 27
         }
       ]
@@ -4566,7 +4578,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 329,
+          "line": 330,
           "column": 676
         },
         {
@@ -4631,17 +4643,17 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 163,
+          "line": 165,
           "column": 121
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 165,
+          "line": 167,
           "column": 122
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 168,
+          "line": 170,
           "column": 122
         }
       ]
@@ -4653,7 +4665,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 170,
+          "line": 172,
           "column": 137
         }
       ]
@@ -4679,7 +4691,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 336,
+          "line": 337,
           "column": 27
         }
       ]
@@ -4729,12 +4741,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 116,
+          "line": 117,
           "column": 88
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 161,
+          "line": 163,
           "column": 54
         }
       ]
@@ -4924,7 +4936,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 206,
+          "line": 207,
           "column": 26
         }
       ]
@@ -5010,7 +5022,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 154,
+          "line": 155,
           "column": 54
         }
       ]
@@ -5092,12 +5104,12 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 147,
+          "line": 148,
           "column": 25
         },
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 147,
+          "line": 148,
           "column": 55
         }
       ]
@@ -5157,7 +5169,7 @@
       "refs": [
         {
           "file": "features/models/WorkBuddyModelEditor.tsx",
-          "line": 161,
+          "line": 163,
           "column": 124
         }
       ]
@@ -5188,7 +5200,7 @@
         },
         {
           "file": "features/models/WorkBuddySettingsPage.tsx",
-          "line": 314,
+          "line": 315,
           "column": 98
         }
       ]
